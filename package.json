@@ -1,0 +1,19 @@
+{
+	"name": "themostatserverv2",
+	"version": "1.0.0",
+	"private": true,
+	"scripts": {
+		"start": "node mainServer.js"
+	},
+	"dependencies": {
+		"express": "4.17.1",
+		"mongodb": "*",
+		"moment": "*",
+		"serve-favicon": "*",
+		"morgan": "*",
+		"body-parser": "*",
+		"errorhandler": "*",
+		"mqtt": "*",
+		"ws": "4.*"
+	}
+}
