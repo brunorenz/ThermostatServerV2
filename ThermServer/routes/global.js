@@ -1,23 +1,31 @@
 // MongoDB configuration
-var urlDB = "192.168.0.120:27017";
+var urlDB_ = "192.168.0.120:27017";
+var urlDB = "srvwas1.bpbari.it:27017";
 var DBName = "ThermDB";
 var mongoCon;
 
 exports.DBName = DBName;
 exports.urlDB = urlDB;
 exports.mongoCon = mongoCon;
+
+exports.CONF = "configuration";
+exports.LOG = "log";
+exports.PROG = "prog";
+exports.STAT = "stat";
+
 // MQTT
-var urlMQTT = "mqtt://192.168.0.120";
+var urlMQTT_ = "mqtt://192.168.0.120";
+var urlMQTT = "mqtt://172.28.154.233";
 exports.urlMQTT = urlMQTT;
+
+exports.MQTopicWifi = "ThermApp/wifiRegister";
+exports.MQTopicMonitor = "ThermApp/monitor";
+exports.MQTopicLastWill = "ThermApp/lastWill";
 
 // HTTP
 var serverPort = 8100;
 var dbName = "/DB/termStat.db";
 var termStatdb;
-const CONF = "configuration";
-const LOG = "log";
-const PROG = "prog";
-const STAT = "stat";
 
 // const PREFIX = '/term';
 
@@ -66,11 +74,6 @@ exports.TIME_END1 = endTime1;
 exports.TIME_END2 = endTime2;
 exports.INTERVAL = interval;
 
-exports.CONF = CONF;
-exports.LOG = LOG;
-exports.PROG = PROG;
-exports.STAT = STAT;
-
 exports.TEMP_LOCAL = tempLocal;
 exports.TEMP_MEDIUM = tempMedium;
 exports.TEMP_PRIORITY = tempPriority;
@@ -83,5 +86,3 @@ exports.STATUS_ON = statusOn;
 exports.STATUS_MAN = statusManual;
 exports.STATUS_AUTO = statusAutomatic;
 exports.WSS = wss;
-
-
