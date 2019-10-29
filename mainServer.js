@@ -110,6 +110,7 @@ function setupMQTT() {
     mqManager.defineWifiRegisterTopic(client);
     mqManager.defineMonitorTopic(client);
     mqManager.defineLastWillTopic(client);
+    mqManager.defineProgrammingTopic(client);
     mqManager.startMQListening(client);
   });
 }

@@ -16,13 +16,16 @@ exports.STAT = "stat";
 // MQTT
 var urlMQTT_ = "mqtt://192.168.0.120";
 var urlMQTT = "mqtt://172.28.154.233";
+var mqttCli;
 exports.urlMQTT = urlMQTT;
+exports.mqttCli = mqttCli;
 
 exports.MQTopicWifi = "ThermApp/wifiRegister";
 exports.MQTopicMonitor = "ThermApp/monitor";
 exports.MQTopicLastWill = "ThermApp/lastWill";
-exports.MQTopicMonitor = "ThermApp/updateConfiguration";
-exports.MQTopicMonitor = "ThermApp/updateThemperature";
+exports.MQTopicUpdateProgramming = "ThermApp/updateProgramming";
+exports.MQTopicUpdateThemperature = "ThermApp/updateThemperature";
+exports.MQTopicProgramming = "ThermApp/getProgramming";
 
 // HTTP
 var serverPort = 8100;

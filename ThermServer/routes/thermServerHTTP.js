@@ -24,7 +24,8 @@ exports.getProgramming = function(httpRequest, httpResponse) {
       httpRequest: httpRequest,
       httpResponse: httpResponse,
       programmingType: type,
-      action: thermManager.TypeAction.READ
+      action: thermManager.TypeAction.READ,
+      createIfNull: true
     };
     options.callback = genericHTTPPostService;
     thermManager.programmingInternal(options);

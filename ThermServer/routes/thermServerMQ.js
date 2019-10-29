@@ -1,6 +1,24 @@
 var mqtt = require("mqtt");
 var globaljs = require("./global");
+var httpUtils = require("./utils/httpUtils");
 var thermManager = require("./thermManager");
+
+/**
+ * Request Programming Topic
+ */
+exports.defineProgrammingTopic = function(mqClient) {
+  console.log("Define ProgrammingTopic ..");
+  mqClient.subscribe(globaljs.MQTopicProgramming, function(err) {
+    if (err)
+      console.error(
+        "Subscribe to topic " + globaljs.MQTopicProgramming + " failed : " + err
+      );
+    else
+      console.log(
+        "Subscribe to topic " + globaljs.MQTopicProgramming + " successfull"
+      );
+  });
+};
 
 /**
  * LastWill Topic
@@ -58,30 +76,39 @@ exports.defineWifiRegisterTopic = function(mqClient) {
  */
 exports.startMQListening = function(mqClient) {
   mqClient.on("message", function(topic, message) {
-    console.log("Message received from topic " + topic);
+    console.log(
+      "Message received from topic " + topic + " : message : " + message
+    );
     if (topic === globaljs.MQTopicWifi) {
-      console.log("Manage WiFi Register message : " + message);
       let input = JSON.parse(message);
       var options = {
-        inputMessage: input,
+        request: input,
         macAddress: input.macAddress,
         register: true
       };
       options.callback = wifiMQService;
       thermManager.wifiRegisterInternal(options);
-    } else if (topic === globaljs.MQTopicMonitor) {
-      console.log("Manage Monitor message : " + message);
+    } else if (topic === globaljs.MQTopicProgramming) {
+      let input = JSON.parse(message);
       var options = {
-        inputMessage: JSON.parse(message),
+        programmingType: input.type,
+        macAddress: input.macAddress,
+        action: thermManager.TypeAction.READ,
+        createIfNull: true
+      };
+      options.callback = programmingMQService;
+      thermManager.programmingInternal(options);
+    } else if (topic === globaljs.MQTopicMonitor) {
+      var options = {
+        request: JSON.parse(message),
         type: "MQ",
         register: false
       };
       options.callback = monitorMQService;
       thermManager.monitorInternal(options);
     } else if (topic === globaljs.MQTopicLastWill) {
-      console.log("Manage LastWill message : " + message);
       var options = {
-        inputMessage: JSON.parse(message),
+        request: JSON.parse(message),
         type: "MQ",
         register: false
       };
@@ -91,6 +118,30 @@ exports.startMQListening = function(mqClient) {
   });
 };
 
+var programmingMQService = function(options) {
+  if (options.macAddress) {
+    let msg = createGenericResponse(options);
+    let topic = globaljs.MQTopicUpdateProgramming + "/" + options.macAddress;
+    globaljs.mqttCli.publish(topic, JSON.stringify(msg));
+  } else {
+    console.error("Not able to send response .. macAddress si missing");
+  }
+};
+
+/**
+ * creaye JSON response
+ */
+var createGenericResponse = function(options) {
+  var msg = {};
+  if (options.error) {
+    msg = httpUtils.createResponseKo(500, options.error);
+  } else {
+    if (options.response) msg = httpUtils.createResponse(options.response);
+    else msg = httpUtils.createResponse(null, 100, "Record not Found");
+  }
+  return msg;
+};
+
 /**
  * Activity to be done after
  * @param {*} options
@@ -98,6 +149,7 @@ exports.startMQListening = function(mqClient) {
 var wifiMQService = function(options) {
   console.log("Manage wifiMQService");
   //globaljs.mqClient.p;
+  //re;
   // send update configuration
 };
 

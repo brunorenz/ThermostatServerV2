@@ -1,18 +1,26 @@
 var globaljs = require("./global");
 var config = require("./config");
-
+/**
+ * last function
+ * @param {*} options
+ */
+var callback = function(options, error) {
+  if (error) options.error = error;
+  if (options.internallCallback) options.internallCallback(options);
+  else if (options.callback) options.callback(options);
+};
 var updateConfiguration = function(confColl, options) {
-  if (options.configuration) {
+  if (options.response) {
     let updateField = {};
     if (options.register) {
       updateField.lastAccess = Date.now();
-      if (options.inputMessage.ipAddress)
-        updateField.ipAddress = options.inputMessage.ipAddress;
+      if (options.request.ipAddress)
+        updateField.ipAddress = options.request.ipAddress;
     } else updateField.lastCheck = Date.now();
     if (confColl) {
       confColl.updateOne(
         {
-          _id: options.inputMessage.macAddress
+          _id: options.request.macAddress
         },
         {
           $set: updateField
@@ -20,8 +28,7 @@ var updateConfiguration = function(confColl, options) {
       );
     }
   }
-  if (options.internallCallback) options.internallCallback(options);
-  else if (options.callback) options.callback(options);
+  callback(options);
 };
 
 exports.readConfiguration = function(options) {
@@ -31,19 +38,23 @@ exports.readConfiguration = function(options) {
       _id: options.macAddress
     },
     function(err, doc) {
-      if (err) console.error("ERRORE lettura configurazione " + err);
-      else {
+      if (err) {
+        console.error("ERRORE lettura configurazione " + err);
+        callback(options, err);
+      } else {
         if (doc) {
-          options.configuration = doc;
+          options.response = doc;
           updateConfiguration(confColl, options);
         } else if (options.createIfNull) {
           // create new configuration
           var conf = config.getConfigurationRecord(options.macAddress);
           conf.firstAccess = Date.now();
           confColl.insertOne(conf, function(err, doc) {
-            if (err) console.log("ERRORE inserimento configurazione " + err);
-            else {
-              options.configuration = conf;
+            if (err) {
+              console.log("ERRORE inserimento configurazione " + err);
+              callback(options, err);
+            } else {
+              options.response = conf;
               updateConfiguration(confColl, options);
             }
           });
@@ -63,25 +74,30 @@ exports.readProgramming = function(options) {
     function(err, doc) {
       if (err) {
         console.error("ERRORE lettura programmazione " + err);
-        options.error = err;
+        callback(options, err);
       } else {
         if (doc) {
           options.response = doc;
+          callback(options);
         } else if (options.createIfNull) {
           // create new configuration
+          console.log(
+            "Programming info not found for type : " +
+              options.programmingType +
+              " .. add default"
+          );
           var prog = config.getProgrammingRecord(options.programmingType);
-          progColl.insertOne(conf, function(err, doc) {
+          prog._id = options.programmingType;
+          progColl.insertOne(prog, function(err, doc) {
             if (err) {
               console.log("ERRORE inserimento programmazione " + err);
-              options.error = err;
             } else {
               options.response = prog;
             }
+            callback(options, err);
           });
         }
       }
-      if (options.internallCallback) options.internallCallback(options);
-      else if (options.callback) options.callback(options);
     }
   );
 };
