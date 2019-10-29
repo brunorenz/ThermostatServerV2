@@ -1,14 +1,11 @@
 var express = require("express");
 var globaljs = require("./ThermServer/routes/global");
-//var myutils = require('./ThermServer/routes/utils/myutils');
-//var tm = require('./ThermServer/routes/termManagment');
 var assert = require("assert");
 var http = require("http");
 var app = express();
-/*
-var ep_app = require("./ThermServer/ThermServer");
-app.use('/therm', ep_app);
-*/
+
+var ep_app = require("./ThermServer/thermServer");
+app.use("/therm", ep_app);
 
 var port = process.env.PORT || globaljs.SERVER_PORT;
 app.set("port", port);
@@ -95,7 +92,7 @@ MongoClient.connect(url, connectOptions, connectFunc);
  */
 function setupMQTT() {
   var mqtt = require("mqtt");
-  var mqManager = require("./ThermServer/thermServerMQ");
+  var mqManager = require("./ThermServer/routes/thermServerMQ");
   var client = mqtt.connect(globaljs.urlMQTT, {
     will: {
       topic: globaljs.MQTopicLastWill,

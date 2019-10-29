@@ -1,6 +1,16 @@
-var globaljs = require("./routes/global");
+var globaljs = require("./global");
 var mongoDBMgr = require("./mongoDBManager");
+var TypeAction = { READ: 1, RESET: 2, UPDATE: 3, DELETE: 4 };
+exports.TypeAction = TypeAction;
 
+/**
+ * Thermostat programming management
+ */
+exports.programmingInternal = function(options) {
+  if (options.action === TypeAction.READ) {
+    mongoDBMgr.readProgramming(options);
+  }
+};
 /**
  * check and update thermostat configuration
  */
@@ -61,4 +71,10 @@ exports.wifiRegisterInternal = function(options) {
   // if (callBack) callBack(response)
   return response;
   */
+};
+
+var readProgramming = function(options) {
+  options.createIfNull = true;
+  //options.internalCallback
+  mongoDBMgr.readProgramming(options);
 };

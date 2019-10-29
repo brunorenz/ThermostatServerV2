@@ -1,5 +1,5 @@
 var mqtt = require("mqtt");
-var globaljs = require("./routes/global");
+var globaljs = require("./global");
 var thermManager = require("./thermManager");
 
 /**
@@ -61,9 +61,10 @@ exports.startMQListening = function(mqClient) {
     console.log("Message received from topic " + topic);
     if (topic === globaljs.MQTopicWifi) {
       console.log("Manage WiFi Register message : " + message);
+      let input = JSON.parse(message);
       var options = {
-        inputMessage: JSON.parse(message),
-        type: "MQ",
+        inputMessage: input,
+        macAddress: input.macAddress,
         register: true
       };
       options.callback = wifiMQService;
@@ -90,6 +91,10 @@ exports.startMQListening = function(mqClient) {
   });
 };
 
+/**
+ * Activity to be done after
+ * @param {*} options
+ */
 var wifiMQService = function(options) {
   console.log("Manage wifiMQService");
   //globaljs.mqClient.p;

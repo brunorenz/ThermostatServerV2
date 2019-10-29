@@ -21,6 +21,8 @@ exports.urlMQTT = urlMQTT;
 exports.MQTopicWifi = "ThermApp/wifiRegister";
 exports.MQTopicMonitor = "ThermApp/monitor";
 exports.MQTopicLastWill = "ThermApp/lastWill";
+exports.MQTopicMonitor = "ThermApp/updateConfiguration";
+exports.MQTopicMonitor = "ThermApp/updateThemperature";
 
 // HTTP
 var serverPort = 8100;
