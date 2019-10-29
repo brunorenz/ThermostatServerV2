@@ -1,0 +1,6 @@
+workflow
+AR -> connecte and send will (MAC address)
+AR -> send WiFiregister
+SRV -> send UpdateCFG (using MAC as key)
+AR -> send monitor
+SRV -> send themperature update if more then one AR adn meausure is set with meduim themp
