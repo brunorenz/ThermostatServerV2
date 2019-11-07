@@ -9,6 +9,13 @@ var callback = function(options, error) {
   if (options.internallCallback) options.internallCallback(options);
   else if (options.callback) options.callback(options);
 };
+
+/**
+ * Update configuration
+ *
+ * @param {*} confColl
+ * @param {*} options
+ */
 var updateConfiguration = function(confColl, options) {
   if (options.response) {
     let updateField = {};
@@ -17,6 +24,15 @@ var updateConfiguration = function(confColl, options) {
       if (options.request.ipAddress)
         updateField.ipAddress = options.request.ipAddress;
     } else updateField.lastCheck = Date.now();
+    let req = options.request;
+    if (typeof req.flagReleTemp !== "undefined") {
+      updateField.flagReleTemp = req.flagReleTemp;
+      options.response.flagReleTemp = req.flagReleTemp;
+    }
+    if (typeof req.flagReleLight !== "undefined") {
+      updateField.flagReleLight = req.flagReleLight;
+      options.response.flagReleLight = req.flagReleLight;
+    }
     if (confColl) {
       confColl.updateOne(
         {
@@ -31,6 +47,9 @@ var updateConfiguration = function(confColl, options) {
   callback(options);
 };
 
+/**
+ * Read and update Configuration
+ */
 exports.readConfiguration = function(options) {
   var confColl = globaljs.mongoCon.collection(globaljs.CONF);
   confColl.findOne(
@@ -44,7 +63,8 @@ exports.readConfiguration = function(options) {
       } else {
         if (doc) {
           options.response = doc;
-          updateConfiguration(confColl, options);
+          if (options.update) updateConfiguration(confColl, options);
+          else callback(options, err);
         } else if (options.createIfNull) {
           // create new configuration
           var conf = config.getConfigurationRecord(options.macAddress);
@@ -55,7 +75,8 @@ exports.readConfiguration = function(options) {
               callback(options, err);
             } else {
               options.response = conf;
-              updateConfiguration(confColl, options);
+              if (options.update) updateConfiguration(confColl, options);
+              else callback(options, err);
             }
           });
         }
@@ -65,6 +86,7 @@ exports.readConfiguration = function(options) {
 };
 
 var createProgramming = function(options) {};
+
 exports.readProgramming = function(options) {
   var progColl = globaljs.mongoCon.collection(globaljs.PROG);
   progColl.findOne(

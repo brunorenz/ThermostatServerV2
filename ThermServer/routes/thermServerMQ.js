@@ -84,7 +84,8 @@ exports.startMQListening = function(mqClient) {
       var options = {
         request: input,
         macAddress: input.macAddress,
-        register: true
+        register: true,
+        update: true
       };
       options.callback = wifiMQService;
       thermManager.wifiRegisterInternal(options);
@@ -148,6 +149,13 @@ var createGenericResponse = function(options) {
  */
 var wifiMQService = function(options) {
   console.log("Manage wifiMQService");
+  let res = options.response;
+  if (res.flagReleTemp) {
+    console.log("Send Themperature configuration to " + res.macAddress);
+  }
+  if (res.flagReleLight) {
+    console.log("Send Ligth configuration to " + res.macAddress);
+  }
   //globaljs.mqClient.p;
   //re;
   // send update configuration
