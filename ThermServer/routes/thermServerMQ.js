@@ -108,13 +108,17 @@ exports.startMQListening = function(mqClient) {
       options.callback = monitorMQService;
       thermManager.monitorInternal(options);
     } else if (topic === globaljs.MQTopicLastWill) {
-      var options = {
-        request: JSON.parse(message),
-        type: "MQ",
-        register: false
-      };
-      options.callback = lastWillMQService;
-      lastWillInternal(options);
+      try {
+        var options = {
+          request: JSON.parse(message),
+          type: "MQ",
+          register: false
+        };
+        options.callback = lastWillMQService;
+        lastWillInternal(options);         
+      } catch (error) {
+        console.log("Error while processing message on topic "+globaljs.MQTopicLastWill+ " : "+err);
+      }
     }
   });
 };
@@ -128,7 +132,7 @@ var programmingMQService = function(options) {
     console.error("Not able to send response .. macAddress si missing");
   }
 };
-
+5
 /**
  * creaye JSON response
  */
