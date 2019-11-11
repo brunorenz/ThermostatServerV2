@@ -96,7 +96,7 @@ function setupMQTT() {
   var client = mqtt.connect(globaljs.urlMQTT, {
     will: {
       topic: globaljs.MQTopicLastWill,
-      payload: '{ macAddress : "server"}'
+      payload: '{ "macAddress" : "server"}'
     }
   });
   client.on("connect", function() {

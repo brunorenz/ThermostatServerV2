@@ -1,5 +1,5 @@
 var globaljs = require("./global");
-var config = require("./config");
+//var config = require("./config");
 
 // programming type
 var progTemp = 1;
@@ -123,11 +123,11 @@ function getDefaultProgrammingTempRecord(idType) {
  */
 exports.getProgrammingRecord = function(idType) {
   var conf;
-  if (idType === config.TypeProgramming.THEMP) {
+  if (idType === programming.THEMP) {
     conf = getDefaultProgrammingTempRecord(idType);
-  } else if (idType === config.TypeProgramming.LIGTH) {
+  } else if (idType === programming.LIGTH) {
     var confRecord = {
-      idProgType: config.TypeProgramming.LIGTH,
+      idProgType: programming.LIGTH,
       lastUpdate: Date.now(),
       programming: []
     };

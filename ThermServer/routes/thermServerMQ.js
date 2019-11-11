@@ -1,5 +1,6 @@
 var mqtt = require("mqtt");
 var globaljs = require("./global");
+var config = require("./config");
 var httpUtils = require("./utils/httpUtils");
 var thermManager = require("./thermManager");
 
@@ -80,15 +81,20 @@ exports.startMQListening = function(mqClient) {
       "Message received from topic " + topic + " : message : " + message
     );
     if (topic === globaljs.MQTopicWifi) {
-      let input = JSON.parse(message);
-      var options = {
-        request: input,
-        macAddress: input.macAddress,
-        register: true,
-        update: true
-      };
-      options.callback = wifiMQService;
-      thermManager.wifiRegisterInternal(options);
+      try {
+        let input = JSON.parse(message);
+        var options = {
+          request: input,
+          macAddress: input.macAddress,
+          register: true,
+          update: true
+        };
+        options.callback = wifiMQService;
+        thermManager.wifiRegisterInternal(options);
+      } catch (error) {
+        console.log("Error while processing message on topic "+globaljs.MQTopicWifi+ " : "+err);
+      }
+
     } else if (topic === globaljs.MQTopicProgramming) {
       let input = JSON.parse(message);
       var options = {
@@ -124,15 +130,33 @@ exports.startMQListening = function(mqClient) {
 };
 
 var programmingMQService = function(options) {
-  if (options.macAddress) {
+  if (options.macAddress && options.response) {
+    let prog = getCurrentProgrammingTemp(options.response);
+    options.response = prog;
     let msg = createGenericResponse(options);
-    let topic = globaljs.MQTopicUpdateProgramming + "/" + options.macAddress;
+    let topic = globaljs.MQTopicUpdateProgramming;// + "/" + options.macAddress;
     globaljs.mqttCli.publish(topic, JSON.stringify(msg));
   } else {
     console.error("Not able to send response .. macAddress si missing");
   }
 };
-5
+
+/**
+ * Return just current programming if any (type temperature)
+ */
+function getCurrentProgrammingTemp(conf) {
+	var cconf = {};
+	if (conf.activeProg >= 0) {
+		cconf.currentTempProgram = conf.programming[conf.activeProg];
+	}
+	cconf.minTemp = conf.minTemp;
+	cconf.minTempManual = conf.minTempManual;
+	cconf.manualMode = conf.manualMode;
+	cconf.active = conf.active;
+	cconf.activeProg = conf.activeProg;
+	return cconf;
+}
+
 /**
  * creaye JSON response
  */
@@ -156,9 +180,25 @@ var wifiMQService = function(options) {
   let res = options.response;
   if (res.flagReleTemp) {
     console.log("Send Themperature configuration to " + res.macAddress);
+    var options = {
+      programmingType: config.TypeProgramming.THEMP,
+      macAddress: options.response.macAddress,
+      action: thermManager.TypeAction.READ,
+      createIfNull: true
+    };
+    options.callback = programmingMQService;
+    thermManager.programmingInternal(options);
   }
   if (res.flagReleLight) {
     console.log("Send Ligth configuration to " + res.macAddress);
+    var options = {
+      programmingType: config.TypeProgramming.LIGTH,
+      macAddress: input.macAddress,
+      action: thermManager.TypeAction.READ,
+      createIfNull: true
+    };
+    options.callback = programmingMQService;
+    thermManager.programmingInternal(options);
   }
   //globaljs.mqClient.p;
   //re;
