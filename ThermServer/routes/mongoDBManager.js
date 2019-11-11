@@ -47,6 +47,21 @@ var updateConfiguration = function(confColl, options) {
   callback(options);
 };
 
+exports.monitorData = function(options) {
+  var monitorColl = globaljs.mongoCon.collection(globaljs.STAT);
+  let logRecord = options.request;
+  var record = {
+    temperature: logRecord.temperature,
+    humidity: logRecord.humidity,
+    pressure: logRecord.pressure,
+    status: logRecord.status,
+    numSurveys: logRecord.numSurveys,
+    light: logRecord.light
+  };
+
+  monitorColl.insertOne();
+};
+
 /**
  * Read and update Configuration
  */

@@ -92,27 +92,49 @@ exports.startMQListening = function(mqClient) {
         options.callback = wifiMQService;
         thermManager.wifiRegisterInternal(options);
       } catch (error) {
-        console.log("Error while processing message on topic "+globaljs.MQTopicWifi+ " : "+err);
+        console.log(
+          "Error while processing message on topic " +
+            globaljs.MQTopicWifi +
+            " : " +
+            err
+        );
       }
-
     } else if (topic === globaljs.MQTopicProgramming) {
-      let input = JSON.parse(message);
-      var options = {
-        programmingType: input.type,
-        macAddress: input.macAddress,
-        action: thermManager.TypeAction.READ,
-        createIfNull: true
-      };
-      options.callback = programmingMQService;
-      thermManager.programmingInternal(options);
+      try {
+        let input = JSON.parse(message);
+        var options = {
+          programmingType: input.type,
+          macAddress: input.macAddress,
+          action: thermManager.TypeAction.READ,
+          createIfNull: true
+        };
+        options.callback = programmingMQService;
+        thermManager.programmingInternal(options);
+      } catch (error) {
+        console.log(
+          "Error while processing message on topic " +
+            globaljs.MQTopicProgramming +
+            " : " +
+            err
+        );
+      }
     } else if (topic === globaljs.MQTopicMonitor) {
-      var options = {
-        request: JSON.parse(message),
-        type: "MQ",
-        register: false
-      };
-      options.callback = monitorMQService;
-      thermManager.monitorInternal(options);
+      try {
+        var options = {
+          request: JSON.parse(message),
+          type: "MQ",
+          register: false
+        };
+        options.callback = monitorMQService;
+        thermManager.monitorInternal(options);
+      } catch (error) {
+        console.log(
+          "Error while processing message on topic " +
+            globaljs.MQTopicMonitor +
+            " : " +
+            err
+        );
+      }
     } else if (topic === globaljs.MQTopicLastWill) {
       try {
         var options = {
@@ -121,9 +143,14 @@ exports.startMQListening = function(mqClient) {
           register: false
         };
         options.callback = lastWillMQService;
-        lastWillInternal(options);         
+        lastWillInternal(options);
       } catch (error) {
-        console.log("Error while processing message on topic "+globaljs.MQTopicLastWill+ " : "+err);
+        console.log(
+          "Error while processing message on topic " +
+            globaljs.MQTopicLastWill +
+            " : " +
+            err
+        );
       }
     }
   });
@@ -134,7 +161,7 @@ var programmingMQService = function(options) {
     let prog = getCurrentProgrammingTemp(options.response);
     options.response = prog;
     let msg = createGenericResponse(options);
-    let topic = globaljs.MQTopicUpdateProgramming;// + "/" + options.macAddress;
+    let topic = globaljs.MQTopicUpdateProgramming; // + "/" + options.macAddress;
     globaljs.mqttCli.publish(topic, JSON.stringify(msg));
   } else {
     console.error("Not able to send response .. macAddress si missing");
@@ -145,16 +172,16 @@ var programmingMQService = function(options) {
  * Return just current programming if any (type temperature)
  */
 function getCurrentProgrammingTemp(conf) {
-	var cconf = {};
-	if (conf.activeProg >= 0) {
-		cconf.currentTempProgram = conf.programming[conf.activeProg];
-	}
-	cconf.minTemp = conf.minTemp;
-	cconf.minTempManual = conf.minTempManual;
-	cconf.manualMode = conf.manualMode;
-	cconf.active = conf.active;
-	cconf.activeProg = conf.activeProg;
-	return cconf;
+  var cconf = {};
+  if (conf.activeProg >= 0) {
+    cconf.currentTempProgram = conf.programming[conf.activeProg];
+  }
+  cconf.minTemp = conf.minTemp;
+  cconf.minTempManual = conf.minTempManual;
+  cconf.manualMode = conf.manualMode;
+  cconf.active = conf.active;
+  cconf.activeProg = conf.activeProg;
+  return cconf;
 }
 
 /**

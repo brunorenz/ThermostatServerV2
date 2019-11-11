@@ -19,7 +19,9 @@ exports.checkConfigurationInternal = function(options) {};
 /**
  * check and update thermostat configuration
  */
-exports.monitorInternal = function(options) {};
+exports.monitorInternal = function(options) {
+  mongoDBMgr.monitorData(options);
+};
 
 /**
  * Thermostat register function

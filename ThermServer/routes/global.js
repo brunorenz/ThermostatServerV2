@@ -21,7 +21,7 @@ exports.urlMQTT = urlMQTT;
 exports.mqttCli = mqttCli;
 
 exports.MQTopicWifi = "ThermApp/wifiRegister";
-exports.MQTopicMonitor = "ThermApp/monitor";
+exports.MQTopicMonitor = "ThermApp/monitoData";
 exports.MQTopicLastWill = "ThermApp/lastWill";
 exports.MQTopicUpdateProgramming = "ThermApp/updateProgramming";
 exports.MQTopicUpdateThemperature = "ThermApp/updateThemperature";
