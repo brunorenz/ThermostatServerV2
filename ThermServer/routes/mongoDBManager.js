@@ -56,10 +56,16 @@ exports.monitorData = function(options) {
     pressure: logRecord.pressure,
     status: logRecord.status,
     numSurveys: logRecord.numSurveys,
-    light: logRecord.light
+    light: logRecord.light,
+    macAddress : logRecord.macAddress,
+    time : Date.now()
   };
-
-  monitorColl.insertOne();
+  monitorColl.insertOne(record, function(err, doc) {
+    if (err) {
+      console.log("ERRORE inserimento monitor data " + err);
+    } 
+    callback(options, err);
+  });
 };
 
 /**
