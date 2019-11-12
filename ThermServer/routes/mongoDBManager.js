@@ -1,7 +1,7 @@
 var globaljs = require("./global");
 var config = require("./config");
 /**
- * last function
+ * Manage last function callback
  * @param {*} options
  */
 var callback = function(options, error) {
@@ -47,6 +47,9 @@ var updateConfiguration = function(confColl, options) {
   callback(options);
 };
 
+/**
+ * Manage registration of monitor data
+ */
 exports.monitorData = function(options) {
   var monitorColl = globaljs.mongoCon.collection(globaljs.STAT);
   let logRecord = options.request;
@@ -57,13 +60,13 @@ exports.monitorData = function(options) {
     status: logRecord.status,
     numSurveys: logRecord.numSurveys,
     light: logRecord.light,
-    macAddress : logRecord.macAddress,
-    time : Date.now()
+    macAddress: logRecord.macAddress,
+    time: Date.now()
   };
   monitorColl.insertOne(record, function(err, doc) {
     if (err) {
       console.log("ERRORE inserimento monitor data " + err);
-    } 
+    }
     callback(options, err);
   });
 };
@@ -107,7 +110,9 @@ exports.readConfiguration = function(options) {
 };
 
 var createProgramming = function(options) {};
-
+/**
+ * manage read programming info request
+ */
 exports.readProgramming = function(options) {
   var progColl = globaljs.mongoCon.collection(globaljs.PROG);
   progColl.findOne(

@@ -157,14 +157,15 @@ exports.startMQListening = function(mqClient) {
 };
 
 var programmingMQService = function(options) {
-  if (options.macAddress && options.response) {
+  if (options.response) {
     let prog = getCurrentProgrammingTemp(options.response);
+    prog.configuration = options.configuration;
     options.response = prog;
     let msg = createGenericResponse(options);
     let topic = globaljs.MQTopicUpdateProgramming; // + "/" + options.macAddress;
     globaljs.mqttCli.publish(topic, JSON.stringify(msg));
   } else {
-    console.error("Not able to send response .. macAddress si missing");
+    console.error("Not able to send response .. ");
   }
 };
 
@@ -199,17 +200,24 @@ var createGenericResponse = function(options) {
 };
 
 /**
- * Activity to be done after
+ * Activity to be done after wifi register
  * @param {*} options
  */
 var wifiMQService = function(options) {
   console.log("Manage wifiMQService");
   let res = options.response;
+  let configuration = {
+    macAddress: res.macAddress,
+    statusThermostat: res.status,
+    statusLight: res.statusLight,
+    thempMeasure: res.thempMeasure,
+    timeZoneOffset: new Date().getTimezoneOffset()
+  };
   if (res.flagReleTemp) {
     console.log("Send Themperature configuration to " + res.macAddress);
     var options = {
       programmingType: config.TypeProgramming.THEMP,
-      macAddress: options.response.macAddress,
+      configuration: configuration,
       action: thermManager.TypeAction.READ,
       createIfNull: true
     };
@@ -220,16 +228,13 @@ var wifiMQService = function(options) {
     console.log("Send Ligth configuration to " + res.macAddress);
     var options = {
       programmingType: config.TypeProgramming.LIGTH,
-      macAddress: input.macAddress,
+      configuration: configuration,
       action: thermManager.TypeAction.READ,
       createIfNull: true
     };
     options.callback = programmingMQService;
     thermManager.programmingInternal(options);
   }
-  //globaljs.mqClient.p;
-  //re;
-  // send update configuration
 };
 
 var monitorMQService = function(options) {
