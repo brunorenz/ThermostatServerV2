@@ -5,7 +5,7 @@ var thermManager = require("./thermManager");
 
 exports.getConfiguration = function(httpRequest, httpResponse) {
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
-
+  httpResponse.header("Access-Control-Allow-Origin", "*");
   try {
     var type = config.TypeProgramming.THEMP;
     if (httpRequest.query.type) {

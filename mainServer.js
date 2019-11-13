@@ -2,20 +2,18 @@ var express = require("express");
 var globaljs = require("./ThermServer/routes/global");
 var assert = require("assert");
 var http = require("http");
+var cors = require("cors");
 var app = express();
 
 var ep_app = require("./ThermServer/thermServer");
 app.use("/therm", ep_app);
 
+var guiServer = "http://localhost:8080";
+
 var port = process.env.PORT || globaljs.SERVER_PORT;
+
 app.set("port", port);
 
-/*
-var webSocket = require('ws');
-
-var wssThermRest = new webSocket.Server({ server  , path :'/thermRest' ,clientTracking : true });
-wssThermRest.on('connection', tm.websocketRestWrapper);
-*/
 
 /**
  * Main
@@ -59,6 +57,9 @@ function mainTask(httpDBMo) {
   // timepout funcion
   //setTimeout(refreshHTTPData, 5000, httpDBMo);
   // start http Listener
+  app.use(
+    cors()
+  );
   var server = http.createServer(app).listen(app.get("port"));
   server.on("error", onError);
   server.on("listening", onListening);
