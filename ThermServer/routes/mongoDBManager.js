@@ -76,11 +76,8 @@ exports.monitorData = function(options) {
  */
 exports.readConfiguration = function(options) {
   var confColl = globaljs.mongoCon.collection(globaljs.CONF);
-  confColl.findOne(
-    {
-      _id: options.macAddress
-    },
-    function(err, doc) {
+  if (typeof options.macAddress !== "undefined") {
+    confColl.findOne({ _id: options.macAddress }, function(err, doc) {
       if (err) {
         console.error("ERRORE lettura configurazione " + err);
         callback(options, err);
@@ -105,8 +102,22 @@ exports.readConfiguration = function(options) {
           });
         }
       }
-    }
-  );
+    });
+  } else {
+    confColl.find({}).toArray(function(err, elements) {
+      if (err) {
+        console.error("ERRORE lettura configurazione " + err);
+        callback(options, err);
+      } else {
+        options.response = elements;
+        callback(options, err);
+        // for (let ix = 0; ix < elements.length; ix++) {
+        //   let entry = elements[ix];
+        //   let a = 1;
+        // }
+      }
+    });
+  }
 };
 
 var createProgramming = function(options) {};

@@ -26,6 +26,13 @@ exports.monitorInternal = function(options) {
 /**
  * Thermostat register function
  */
+exports.readConfigurationInternal = function(options) {
+  //
+  options.createIfNull = false;
+  options.update = false;
+  mongoDBMgr.readConfiguration(options);
+};
+
 exports.wifiRegisterInternal = function(options) {
   //
   options.createIfNull = true;

@@ -3,6 +3,30 @@ var config = require("./config");
 var httpUtils = require("./utils/httpUtils");
 var thermManager = require("./thermManager");
 
+exports.getConfiguration = function(httpRequest, httpResponse) {
+  if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
+
+  try {
+    var type = config.TypeProgramming.THEMP;
+    if (httpRequest.query.type) {
+      if (httpRequest.query.type === "temp")
+        type = config.TypeProgramming.THEMP;
+      else if (httpRequest.query.type === "light")
+        type = config.TypeProgramming.LIGTH;
+    }
+    var options = {
+      httpRequest: httpRequest,
+      httpResponse: httpResponse,
+      action: thermManager.TypeAction.READ,
+      createIfNull: false,
+      update: false
+    };
+    options.callback = genericHTTPPostService;
+    thermManager.readConfigurationInternal(options);
+  } catch (error) {
+    httpResponse.json(httpUtils.createResponseKo(500, error));
+  }
+};
 /**
  * Get programming info type = temp/light prog = all / reset
  * @param {*} httpRequest

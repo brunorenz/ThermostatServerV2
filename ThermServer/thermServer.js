@@ -79,6 +79,7 @@ globaljs.termStatdb = termStatdb;
 // Gestione Termostato
 // GET METHOD
 app.get("/rest/getProgramming", termManagment.getProgramming);
+app.get("/rest/getConfiguration", termManagment.getConfiguration);
 /**
 app.get("/rest/addProgramming", termManagment.addProgramming);
 app.get("/rest/removeProgramming", termManagment.removeProgramming);
