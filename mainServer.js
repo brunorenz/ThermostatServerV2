@@ -2,7 +2,7 @@ var express = require("express");
 var globaljs = require("./ThermServer/routes/global");
 var assert = require("assert");
 var http = require("http");
-var cors = require("cors");
+//var cors = require("cors");
 var app = express();
 
 var ep_app = require("./ThermServer/thermServer");
@@ -13,7 +13,6 @@ var guiServer = "http://localhost:8080";
 var port = process.env.PORT || globaljs.SERVER_PORT;
 
 app.set("port", port);
-
 
 /**
  * Main
@@ -57,9 +56,9 @@ function mainTask(httpDBMo) {
   // timepout funcion
   //setTimeout(refreshHTTPData, 5000, httpDBMo);
   // start http Listener
-  app.use(
-    cors()
-  );
+  // app.use(
+  //   cors()
+  // );
   var server = http.createServer(app).listen(app.get("port"));
   server.on("error", onError);
   server.on("listening", onListening);
