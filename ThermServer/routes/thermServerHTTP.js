@@ -3,6 +3,25 @@ var config = require("./config");
 var httpUtils = require("./utils/httpUtils");
 var thermManager = require("./thermManager");
 
+exports.updateConfiguration = function(httpRequest, httpResponse) {
+  if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
+  httpResponse.header("Access-Control-Allow-Origin", "*");
+  try {
+    var options = {
+      httpRequest: httpRequest,
+      httpResponse: httpResponse,
+      request: httpRequest.body,
+      createIfNull: false,
+      update: false
+    };
+    options.callback = genericHTTPPostService;
+    thermManager.updateConfigurationInternal(options);
+  } catch (error) {
+    httpResponse.json(httpUtils.createResponseKo(500, error));
+  }
+  let conf = req.body;
+};
+
 exports.getConfiguration = function(httpRequest, httpResponse) {
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
   httpResponse.header("Access-Control-Allow-Origin", "*");
