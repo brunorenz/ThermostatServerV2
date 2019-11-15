@@ -14,7 +14,7 @@ var statusOn = 1;
 var statusManual = 2;
 var statusAutomatic = 3;
 
-var status = { OFF: 0, ON: ((1).MANUAL = 2), AUTO: 3 };
+var status = { OFF: 0, ON: 1, MANUAL: 2, AUTO: 3 };
 var measure = { LOCAL: 1, MEDIUM: 2, PRIORITY: 2 };
 var programming = { THEMP: 1, LIGTH: 2 };
 
