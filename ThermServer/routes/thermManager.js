@@ -33,6 +33,9 @@ exports.readConfigurationInternal = function(options) {
   mongoDBMgr.readConfiguration(options);
 };
 
+exports.updateConfigurationInternl = function(options) {
+  mongoDBMgr.updateConfiguration(options);
+};
 exports.wifiRegisterInternal = function(options) {
   //
   options.createIfNull = true;

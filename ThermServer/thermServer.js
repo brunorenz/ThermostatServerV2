@@ -80,6 +80,13 @@ globaljs.termStatdb = termStatdb;
 // GET METHOD
 app.get("/rest/getProgramming", termManagment.getProgramming);
 app.get("/rest/getConfiguration", termManagment.getConfiguration);
+
+// POST METHOD
+app.post(
+  "/rest/updateConfiguration",
+  jsonParser,
+  termManagment.updateConfiguration
+);
 /**
 app.get("/rest/addProgramming", termManagment.addProgramming);
 app.get("/rest/removeProgramming", termManagment.removeProgramming);
@@ -96,11 +103,6 @@ app.get("/rest/wifiRegisterGet/:key", termManagment.wifiRegisterGet);
 // POST METHOD
 app.post("/rest/wifiRegister", jsonParser, termManagment.wifiRegister);
 app.post("/rest/monitor/:key", jsonParser, termManagment.monitor);
-app.post(
-  "/rest/updateConfiguration",
-  urlencodedParser,
-  termManagment.updateConfiguration
-);
 app.post(
   "/rest/updateTempProgramming",
   urlencodedParser,
