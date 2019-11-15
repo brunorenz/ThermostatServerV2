@@ -4,7 +4,7 @@ var config = require("./config");
  * Manage last function callback
  * @param {*} options
  */
-var callback = function(options, error) {
+var callback = function (options, error) {
   if (error) options.error = error;
   if (options.internallCallback) options.internallCallback(options);
   else if (options.callback) options.callback(options);
@@ -16,7 +16,7 @@ var callback = function(options, error) {
  * @param {*} confColl
  * @param {*} options
  */
-var updateConfiguration = function(confColl, options) {
+var updateConfiguration = function (confColl, options) {
   if (options.response) {
     let updateField = {};
     if (options.register) {
@@ -25,14 +25,16 @@ var updateConfiguration = function(confColl, options) {
         updateField.ipAddress = options.request.ipAddress;
     } else updateField.lastCheck = Date.now();
     let req = options.request;
-    if (typeof req.flagReleTemp !== "undefined") {
-      updateField.flagReleTemp = req.flagReleTemp;
-      options.response.flagReleTemp = req.flagReleTemp;
-    }
-    if (typeof req.flagReleLight !== "undefined") {
-      updateField.flagReleLight = req.flagReleLight;
-      options.response.flagReleLight = req.flagReleLight;
-    }
+    updateField.flagReleTemp = req.flagReleTemp;
+    updateField.flagReleLight = req.flagReleLight;
+    options.response.flagReleTemp = req.flagReleTemp;
+    options.response.flagReleLight = req.flagReleLight;
+    //
+    updateField.flagLightSensor = req.flagLightSensor;
+    updateField.flagMotionSensor = req.flagMotionSensor;
+    updateField.flagTemperatureSensor = req.flagTemperatureSensor;
+    updateField.flagPressureSensor = req.flagPressureSensor;
+    updateField.flagHumiditySensor = req.flagHumiditySensor;
     if (confColl) {
       confColl.updateOne(
         {
@@ -50,8 +52,9 @@ var updateConfiguration = function(confColl, options) {
 /**
  * Manage registration of monitor data
  */
-exports.monitorData = function(options) {
+exports.monitorData = function (options) {
   var monitorColl = globaljs.mongoCon.collection(globaljs.STAT);
+  var confcoll = globaljs.mongoCon.collection(globaljs.CONF);
   let logRecord = options.request;
   var record = {
     temperature: logRecord.temperature,
@@ -61,11 +64,25 @@ exports.monitorData = function(options) {
     numSurveys: logRecord.numSurveys,
     light: logRecord.light,
     macAddress: logRecord.macAddress,
-    time: Date.now()
+    time: Date.now(),
   };
-  monitorColl.insertOne(record, function(err, doc) {
+  monitorColl.insertOne(record, function (err, doc) {
     if (err) {
       console.log("ERRORE inserimento monitor data " + err);
+    } else{
+      let updateField = {
+        currentThemperature : record.temperature,
+        currentLigth : record.light,
+        lastUpdate : new Date().getTime()
+      };
+      confcoll.updateOne(
+        {
+          _id: record.macAddress
+        },
+        {
+          $set: updateField
+        }
+      );
     }
     callback(options, err);
   });
@@ -74,10 +91,10 @@ exports.monitorData = function(options) {
 /**
  * Read and update Configuration
  */
-exports.readConfiguration = function(options) {
+exports.readConfiguration = function (options) {
   var confColl = globaljs.mongoCon.collection(globaljs.CONF);
   if (typeof options.macAddress !== "undefined") {
-    confColl.findOne({ _id: options.macAddress }, function(err, doc) {
+    confColl.findOne({ _id: options.macAddress }, function (err, doc) {
       if (err) {
         console.error("ERRORE lettura configurazione " + err);
         callback(options, err);
@@ -90,7 +107,7 @@ exports.readConfiguration = function(options) {
           // create new configuration
           var conf = config.getConfigurationRecord(options.macAddress);
           conf.firstAccess = Date.now();
-          confColl.insertOne(conf, function(err, doc) {
+          confColl.insertOne(conf, function (err, doc) {
             if (err) {
               console.log("ERRORE inserimento configurazione " + err);
               callback(options, err);
@@ -104,7 +121,7 @@ exports.readConfiguration = function(options) {
       }
     });
   } else {
-    confColl.find({}).toArray(function(err, elements) {
+    confColl.find({}).toArray(function (err, elements) {
       if (err) {
         console.error("ERRORE lettura configurazione " + err);
         callback(options, err);
@@ -120,17 +137,17 @@ exports.readConfiguration = function(options) {
   }
 };
 
-var createProgramming = function(options) {};
+var createProgramming = function (options) { };
 /**
  * manage read programming info request
  */
-exports.readProgramming = function(options) {
+exports.readProgramming = function (options) {
   var progColl = globaljs.mongoCon.collection(globaljs.PROG);
   progColl.findOne(
     {
       _id: options.programmingType
     },
-    function(err, doc) {
+    function (err, doc) {
       if (err) {
         console.error("ERRORE lettura programmazione " + err);
         callback(options, err);
@@ -142,12 +159,12 @@ exports.readProgramming = function(options) {
           // create new configuration
           console.log(
             "Programming info not found for type : " +
-              options.programmingType +
-              " .. add default"
+            options.programmingType +
+            " .. add default"
           );
           var prog = config.getProgrammingRecord(options.programmingType);
           prog._id = options.programmingType;
-          progColl.insertOne(prog, function(err, doc) {
+          progColl.insertOne(prog, function (err, doc) {
             if (err) {
               console.log("ERRORE inserimento programmazione " + err);
             } else {
