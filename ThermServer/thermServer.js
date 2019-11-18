@@ -1,6 +1,5 @@
 var express = require("express");
 var path = require("path");
-//var loki = require("lokijs");
 var fs = require("fs");
 var favicon = require("serve-favicon");
 var bodyParser = require("body-parser");
@@ -84,7 +83,7 @@ app.get("/rest/getConfiguration", termManagment.getConfiguration);
 // POST METHOD
 app.post(
   "/rest/updateConfiguration",
-  jsonParser,
+  urlencodedParser,
   termManagment.updateConfiguration
 );
 /**

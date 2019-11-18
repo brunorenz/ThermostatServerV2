@@ -1,142 +1,24 @@
 {
-    "error": {
-        "code": 0,
-        "message": "OK"
-    },
-    "data": {
-        "_id": 1,
-        "idProgType": 1,
-        "lastUpdate": 1573289244625,
-        "activeProg": 0,
-        "programming": [
-            {
-                "idProg": 0,
-                "name": "Default Program",
-                "minTemp": 17,
-                "minTempManual": 21,
-                "minLight": 30,
-                "dayProgramming": [
-                    {
-                        "idDay": 0,
-                        "prog": [
-                            {
-                                "timeStart": 360,
-                                "timeEnd": 450,
-                                "minTemp": 21,
-                                "priorityDisp": 0
-                            },
-                            {
-                                "timeStart": 1110,
-                                "timeEnd": 1380,
-                                "minTemp": 21,
-                                "priorityDisp": 0
-                            }
-                        ]
-                    },
-                    {
-                        "idDay": 1,
-                        "prog": [
-                            {
-                                "timeStart": 360,
-                                "timeEnd": 450,
-                                "minTemp": 21,
-                                "priorityDisp": 0
-                            },
-                            {
-                                "timeStart": 1110,
-                                "timeEnd": 1380,
-                                "minTemp": 21,
-                                "priorityDisp": 0
-                            }
-                        ]
-                    },
-                    {
-                        "idDay": 2,
-                        "prog": [
-                            {
-                                "timeStart": 360,
-                                "timeEnd": 450,
-                                "minTemp": 21,
-                                "priorityDisp": 0
-                            },
-                            {
-                                "timeStart": 1110,
-                                "timeEnd": 1380,
-                                "minTemp": 21,
-                                "priorityDisp": 0
-                            }
-                        ]
-                    },
-                    {
-                        "idDay": 3,
-                        "prog": [
-                            {
-                                "timeStart": 360,
-                                "timeEnd": 450,
-                                "minTemp": 21,
-                                "priorityDisp": 0
-                            },
-                            {
-                                "timeStart": 1110,
-                                "timeEnd": 1380,
-                                "minTemp": 21,
-                                "priorityDisp": 0
-                            }
-                        ]
-                    },
-                    {
-                        "idDay": 4,
-                        "prog": [
-                            {
-                                "timeStart": 360,
-                                "timeEnd": 450,
-                                "minTemp": 21,
-                                "priorityDisp": 0
-                            },
-                            {
-                                "timeStart": 1110,
-                                "timeEnd": 1380,
-                                "minTemp": 21,
-                                "priorityDisp": 0
-                            }
-                        ]
-                    },
-                    {
-                        "idDay": 5,
-                        "prog": [
-                            {
-                                "timeStart": 360,
-                                "timeEnd": 450,
-                                "minTemp": 21,
-                                "priorityDisp": 0
-                            },
-                            {
-                                "timeStart": 1110,
-                                "timeEnd": 1380,
-                                "minTemp": 21,
-                                "priorityDisp": 0
-                            }
-                        ]
-                    },
-                    {
-                        "idDay": 6,
-                        "prog": [
-                            {
-                                "timeStart": 360,
-                                "timeEnd": 450,
-                                "minTemp": 21,
-                                "priorityDisp": 0
-                            },
-                            {
-                                "timeStart": 1110,
-                                "timeEnd": 1380,
-                                "minTemp": 21,
-                                "priorityDisp": 0
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
+    "_id": "F8:F0:05:F7:DC:92",
+    "ipAddress": "",
+    "location": "Salone",
+    "thempMeasure": 1,
+    "status": 0,
+    "statusLight": 0,
+    "firstAccess": 1572338664677,
+    "lastAccess": 1573557021205,
+    "lastUpdate": 0,
+    "lastCheck": 0,
+    "flagLcd": 0,
+    "flagLightSensor": 0,
+    "flagMotionSensor": 0,
+    "flagReleTemp": 1,
+    "flagReleLight": 1,
+    "currentThemperature": 0,
+    "currentLigth": 0,
+    "macAddress": "F8:F0:05:F7:DC:92",
+    "lastAccessD": "12/11/2019 12:10",
+    "lastUpdateD": "01/01/1970 01:00",
+    "statusThermostat": "0",
+    "temperatureMeasure": "1"
 }

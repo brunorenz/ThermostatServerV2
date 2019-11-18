@@ -208,9 +208,9 @@ var wifiMQService = function(options) {
   let res = options.response;
   let configuration = {
     macAddress: res.macAddress,
-    statusThermostat: res.status,
+    statusThermostat: res.statusThermostat,
     statusLight: res.statusLight,
-    thempMeasure: res.thempMeasure,
+    temperatureMeasure: res.temperatureMeasure,
     timeZoneOffset: new Date().getTimezoneOffset()
   };
   if (res.flagReleTemp) {

@@ -25,8 +25,8 @@ exports.TypeProgramming = programming;
 var configurationRecord = {
   ipAddress: "",
   location: "change location name",
-  thempMeasure: measure.LOCAL,
-  status: status.OFF,
+  temperatureMeasure: measure.LOCAL,
+  statusThermostat: status.OFF,
   statusLight: status.OFF,
   firstAccess: 0,
   lastAccess: 0,
@@ -35,8 +35,13 @@ var configurationRecord = {
   flagLcd: 0,
   flagLightSensor: 0,
   flagMotionSensor: 0,
+  flagTemperatureSensor: 0,
+  flagPressureSensor: 0,
+  flagHumiditySensor: 0,
+
   flagReleTemp: 0,
   flagReleLight: 0,
+
   currentThemperature: 0.0,
   currentLigth: 0.0
 };

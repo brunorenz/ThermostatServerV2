@@ -33,7 +33,7 @@ exports.readConfigurationInternal = function(options) {
   mongoDBMgr.readConfiguration(options);
 };
 
-exports.updateConfigurationInternl = function(options) {
+exports.updateConfigurationInternal = function(options) {
   mongoDBMgr.updateConfiguration(options);
 };
 exports.wifiRegisterInternal = function(options) {

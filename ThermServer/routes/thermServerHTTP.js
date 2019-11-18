@@ -10,21 +10,19 @@ exports.updateConfiguration = function(httpRequest, httpResponse) {
     var options = {
       httpRequest: httpRequest,
       httpResponse: httpResponse,
-      request: httpRequest.body,
-      createIfNull: false,
-      update: false
+      request: httpRequest.body.data
     };
     options.callback = genericHTTPPostService;
     thermManager.updateConfigurationInternal(options);
   } catch (error) {
     httpResponse.json(httpUtils.createResponseKo(500, error));
   }
-  let conf = req.body;
 };
 
 exports.getConfiguration = function(httpRequest, httpResponse) {
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
   httpResponse.header("Access-Control-Allow-Origin", "*");
+  httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
   try {
     var type = config.TypeProgramming.THEMP;
     if (httpRequest.query.type) {
