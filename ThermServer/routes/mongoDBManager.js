@@ -126,7 +126,7 @@ exports.readConfiguration = function(options) {
       } else {
         if (doc) {
           options.response = doc;
-          if (options.update) updateConfiguration(confColl, options);
+          if (options.update) updateConfigurationFull(confColl, options);
           else callback(options, err);
         } else if (options.createIfNull) {
           // create new configuration
@@ -138,7 +138,7 @@ exports.readConfiguration = function(options) {
               callback(options, err);
             } else {
               options.response = conf;
-              if (options.update) updateConfiguration(confColl, options);
+              if (options.update) updateConfigurationFull(confColl, options);
               else callback(options, err);
             }
           });
