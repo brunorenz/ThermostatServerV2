@@ -1,4 +1,4 @@
-var mqtt = require("mqtt");
+//var mqtt = require("mqtt");
 var globaljs = require("./global");
 var config = require("./config");
 var httpUtils = require("./utils/httpUtils");
@@ -86,10 +86,11 @@ exports.startMQListening = function(mqClient) {
         var options = {
           request: input,
           macAddress: input.macAddress,
+          callback: [],
           register: true,
           update: true
         };
-        options.callback = wifiMQService;
+        options.callback.push(wifiMQService);
         thermManager.wifiRegisterInternal(options);
       } catch (error) {
         console.log(
@@ -106,10 +107,11 @@ exports.startMQListening = function(mqClient) {
           programmingType: input.type,
           macAddress: input.macAddress,
           action: thermManager.TypeAction.READ,
+          callback: [],
           createIfNull: true
         };
-        options.callback = programmingMQService;
-        thermManager.programmingInternal(options);
+        options.callback.push(programmingMQService);
+        thermManager.manageProgramming(options);
       } catch (error) {
         console.log(
           "Error while processing message on topic " +
@@ -123,9 +125,10 @@ exports.startMQListening = function(mqClient) {
         var options = {
           request: JSON.parse(message),
           type: "MQ",
+          callback: [],
           register: false
         };
-        options.callback = monitorMQService;
+        options.callback.push(monitorMQService);
         thermManager.monitorInternal(options);
       } catch (error) {
         console.log(
@@ -140,9 +143,10 @@ exports.startMQListening = function(mqClient) {
         var options = {
           request: JSON.parse(message),
           type: "MQ",
+          callback: [],
           register: false
         };
-        options.callback = lastWillMQService;
+        options.callback.push(lastWillMQService);
         lastWillInternal(options);
       } catch (error) {
         console.log(
@@ -199,42 +203,49 @@ var createGenericResponse = function(options) {
   return msg;
 };
 
+var sendProgrammingData = function(options) {
+  let record = options.response;
+  let configuration = {
+    macAddress: record.macAddress,
+    statusThermostat: record.statusThermostat,
+    statusLight: record.statusLight,
+    temperatureMeasure: record.temperatureMeasure,
+    timeZoneOffset: new Date().getTimezoneOffset()
+  };
+  if (record.flagReleTemp) {
+    console.log("Send Themperature configuration to " + record.macAddress);
+    var optionsN = {
+      programmingType: config.TypeProgramming.THEMP,
+      configuration: configuration,
+      action: thermManager.TypeAction.READ,
+      callback: [],
+      createIfNull: true
+    };
+    optionsN.callback.push(programmingMQService);
+    thermManager.manageProgramming(optionsN);
+  }
+  if (record.flagReleLight) {
+    console.log("Send Ligth configuration to " + record.macAddress);
+    var optionsN = {
+      programmingType: config.TypeProgramming.LIGTH,
+      configuration: configuration,
+      action: thermManager.TypeAction.READ,
+      callback: [],
+      createIfNull: true
+    };
+    optionsN.callback.push(programmingMQService);
+    thermManager.manageProgramming(optionsN);
+  }
+  thermManager.callback(options);
+};
 /**
  * Activity to be done after wifi register
  * @param {*} options
  */
 var wifiMQService = function(options) {
   console.log("Manage wifiMQService");
-  let res = options.response;
-  let configuration = {
-    macAddress: res.macAddress,
-    statusThermostat: res.statusThermostat,
-    statusLight: res.statusLight,
-    temperatureMeasure: res.temperatureMeasure,
-    timeZoneOffset: new Date().getTimezoneOffset()
-  };
-  if (res.flagReleTemp) {
-    console.log("Send Themperature configuration to " + res.macAddress);
-    var options = {
-      programmingType: config.TypeProgramming.THEMP,
-      configuration: configuration,
-      action: thermManager.TypeAction.READ,
-      createIfNull: true
-    };
-    options.callback = programmingMQService;
-    thermManager.programmingInternal(options);
-  }
-  if (res.flagReleLight) {
-    console.log("Send Ligth configuration to " + res.macAddress);
-    var options = {
-      programmingType: config.TypeProgramming.LIGTH,
-      configuration: configuration,
-      action: thermManager.TypeAction.READ,
-      createIfNull: true
-    };
-    options.callback = programmingMQService;
-    thermManager.programmingInternal(options);
-  }
+  //let res = options.response;
+  sendProgrammingData(options);
 };
 
 var monitorMQService = function(options) {
@@ -247,3 +258,5 @@ var lastWillMQService = function(options) {
 };
 
 var lastWillInternal = function(options) {};
+
+exports.sendProgrammingData = sendProgrammingData;

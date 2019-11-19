@@ -3,10 +3,21 @@ var mongoDBMgr = require("./mongoDBManager");
 var TypeAction = { READ: 1, RESET: 2, UPDATE: 3, DELETE: 4 };
 exports.TypeAction = TypeAction;
 
+exports.callback = function(options, error) {
+  if (error) options.error = error;
+  if (options.callback && options.callback.length > 0) {
+    if (typeof options.callbackIndex === "undefined") options.callbackIndex = 0;
+    if (options.callbackIndex < options.callback.length) {
+      options.callback[options.callbackIndex++](options);
+    }
+  }
+  //if (options.internallCallback) options.internallCallback(options);
+  //else if (options.callback) options.callback(options);
+};
 /**
  * Thermostat programming management
  */
-exports.programmingInternal = function(options) {
+exports.manageProgramming = function(options) {
   if (options.action === TypeAction.READ) {
     mongoDBMgr.readProgramming(options);
   }

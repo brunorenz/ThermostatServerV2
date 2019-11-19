@@ -2,6 +2,7 @@ var globaljs = require("./global");
 var config = require("./config");
 var httpUtils = require("./utils/httpUtils");
 var thermManager = require("./thermManager");
+var mq = require("./thermServerMQ");
 
 exports.updateConfiguration = function(httpRequest, httpResponse) {
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
@@ -10,9 +11,13 @@ exports.updateConfiguration = function(httpRequest, httpResponse) {
     var options = {
       httpRequest: httpRequest,
       httpResponse: httpResponse,
+      callback: [],
       request: httpRequest.body.data
     };
-    options.callback = genericHTTPPostService;
+    // propagate configuration change
+
+    options.callback.push(mq.sendProgrammingData);
+    options.callback.push(genericHTTPPostService);
     thermManager.updateConfigurationInternal(options);
   } catch (error) {
     httpResponse.json(httpUtils.createResponseKo(500, error));
@@ -35,10 +40,11 @@ exports.getConfiguration = function(httpRequest, httpResponse) {
       httpRequest: httpRequest,
       httpResponse: httpResponse,
       action: thermManager.TypeAction.READ,
+      callback: [],
       createIfNull: false,
       update: false
     };
-    options.callback = genericHTTPPostService;
+    options.callback.push(genericHTTPPostService);
     thermManager.readConfigurationInternal(options);
   } catch (error) {
     httpResponse.json(httpUtils.createResponseKo(500, error));
@@ -66,10 +72,11 @@ exports.getProgramming = function(httpRequest, httpResponse) {
       httpResponse: httpResponse,
       programmingType: type,
       action: thermManager.TypeAction.READ,
+      callback: [],
       createIfNull: true
     };
-    options.callback = genericHTTPPostService;
-    thermManager.programmingInternal(options);
+    options.callback.push(genericHTTPPostService);
+    thermManager.manageProgramming(options);
   } catch (error) {
     httpResponse.json(httpUtils.createResponseKo(500, error));
   }

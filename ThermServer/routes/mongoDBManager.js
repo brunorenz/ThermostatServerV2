@@ -1,15 +1,34 @@
 var globaljs = require("./global");
 var config = require("./config");
+var thermManager = require("./thermManager");
+var mq = require("./thermServerMQ");
 /**
  * Manage last function callback
  * @param {*} options
  */
 var callback = function(options, error) {
+  thermManager.callback(options, error);
+  // if (error) options.error = error;
+  // if (options.callback && options.callback.length > 0) {
+  //   if (typeof options.callbackIndex === "undefined") options.callbackIndex = 0;
+  //   if (options.callbackIndex < options.callback.length) {
+  //     options.callback[options.callbackIndex++](options);
+  //   }
+  // }
+  //if (options.internallCallback) options.internallCallback(options);
+  //else if (options.callback) options.callback(options);
+};
+
+var callbackOLD = function(options, error) {
   if (error) options.error = error;
   if (options.internallCallback) options.internallCallback(options);
   else if (options.callback) options.callback(options);
 };
 
+/**
+ * Update management attribute of configuration
+ *
+ */
 exports.updateConfiguration = function(options) {
   var confcoll = globaljs.mongoCon.collection(globaljs.CONF);
   let json = options.request;
@@ -35,8 +54,9 @@ exports.updateConfiguration = function(options) {
     }
   );
 };
+
 /**
- * Update configuration
+ * Update configuration after WifiRegister
  *
  * @param {*} confColl
  * @param {*} options
@@ -114,7 +134,9 @@ exports.monitorData = function(options) {
 };
 
 /**
- * Read and update Configuration
+ * Read configuration
+ * update if options.update = true
+ * create a new one if not found and options.createIfNull = true
  */
 exports.readConfiguration = function(options) {
   var confColl = globaljs.mongoCon.collection(globaljs.CONF);
@@ -162,9 +184,9 @@ exports.readConfiguration = function(options) {
   }
 };
 
-var createProgramming = function(options) {};
 /**
  * manage read programming info request
+ * create a new one if options.createIfNull = true
  */
 exports.readProgramming = function(options) {
   var progColl = globaljs.mongoCon.collection(globaljs.PROG);
