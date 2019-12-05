@@ -4,6 +4,9 @@ var httpUtils = require("./utils/httpUtils");
 var thermManager = require("./thermManager");
 var mq = require("./thermServerMQ");
 
+/**
+ * Update Configuration
+ */
 exports.updateConfiguration = function(httpRequest, httpResponse) {
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
   httpResponse.header("Access-Control-Allow-Origin", "*");
@@ -12,7 +15,8 @@ exports.updateConfiguration = function(httpRequest, httpResponse) {
       httpRequest: httpRequest,
       httpResponse: httpResponse,
       callback: [],
-      request: httpRequest.body.data
+      request: httpRequest.body.data,
+      lastCallback: genericHTTPPostService
     };
     // propagate configuration change
 
@@ -24,6 +28,9 @@ exports.updateConfiguration = function(httpRequest, httpResponse) {
   }
 };
 
+/**
+ * Read Configuration
+ */
 exports.getConfiguration = function(httpRequest, httpResponse) {
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
   httpResponse.header("Access-Control-Allow-Origin", "*");
@@ -42,7 +49,8 @@ exports.getConfiguration = function(httpRequest, httpResponse) {
       action: thermManager.TypeAction.READ,
       callback: [],
       createIfNull: false,
-      update: false
+      update: false,
+      lastCallback: genericHTTPPostService
     };
     options.callback.push(genericHTTPPostService);
     thermManager.readConfigurationInternal(options);
@@ -50,6 +58,7 @@ exports.getConfiguration = function(httpRequest, httpResponse) {
     httpResponse.json(httpUtils.createResponseKo(500, error));
   }
 };
+
 /**
  * Get programming info type = temp/light prog = all / reset
  * @param {*} httpRequest
@@ -73,7 +82,8 @@ exports.getProgramming = function(httpRequest, httpResponse) {
       programmingType: type,
       action: thermManager.TypeAction.READ,
       callback: [],
-      createIfNull: true
+      createIfNull: true,
+      lastCallback: genericHTTPPostService
     };
     options.callback.push(genericHTTPPostService);
     thermManager.manageProgramming(options);

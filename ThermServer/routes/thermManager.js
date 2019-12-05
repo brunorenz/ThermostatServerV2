@@ -3,7 +3,15 @@ var mongoDBMgr = require("./mongoDBManager");
 var TypeAction = { READ: 1, RESET: 2, UPDATE: 3, DELETE: 4 };
 exports.TypeAction = TypeAction;
 
+//lastCallback;
+
 exports.callback = function(options, error) {
+  if (error) options.error = error;
+  if (options.callback) options.callback(options);
+  else if (options.lastCallback) options.lastCallback(options);
+};
+
+exports.callbackOLD = function(options, error) {
   if (error) options.error = error;
   if (options.callback && options.callback.length > 0) {
     if (typeof options.callbackIndex === "undefined") options.callbackIndex = 0;
@@ -11,9 +19,8 @@ exports.callback = function(options, error) {
       options.callback[options.callbackIndex++](options);
     }
   }
-  //if (options.internallCallback) options.internallCallback(options);
-  //else if (options.callback) options.callback(options);
 };
+
 /**
  * Thermostat programming management
  */
@@ -44,9 +51,16 @@ exports.readConfigurationInternal = function(options) {
   mongoDBMgr.readConfiguration(options);
 };
 
+/**
+ * Update configuration
+ */
 exports.updateConfigurationInternal = function(options) {
   mongoDBMgr.updateConfiguration(options);
 };
+
+/**
+ * rigister a device
+ */
 exports.wifiRegisterInternal = function(options) {
   //
   options.createIfNull = true;
