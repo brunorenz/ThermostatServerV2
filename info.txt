@@ -1,6 +1,42 @@
+ThermostatGUIClient
+
+
+ThermostatServerV2 (SRV)
+
+
+
+ArduinoThermostatClient (AR) FULL
+
 workflow
-AR -> connecte and send will (MAC address)
+AR -> connect and send will (MAC address)
 AR -> send WiFiregister
-SRV -> send UpdateCFG (using MAC as key)
 AR -> send monitor
-SRV -> send themperature update if more then one AR adn meausure is set with meduim themp
+
+AR <- receive update configuration
+AR <- receive medium themperature
+
+SRV -> send UpdateCFG (using MAC as key)
+SRV -> send themperature update if more then one AR are present and meausure type is set with medium themperature
+SRV -> send on/off to shelly
+
+ArduinoThermostatClient (AR) Ligth
+
+AR -> connect and send will (MAC address)
+AR -> send WiFiregister
+AR -> send monitor
+
+
+SHELLY
+
+SH <- on/off
+
+
+
+
+
+
+
+
+
+
+
