@@ -4,6 +4,24 @@ var httpUtils = require("./utils/httpUtils");
 var thermManager = require("./thermManager");
 var mq = require("./thermServerMQ");
 
+exports.monitor = function(httpRequest, httpResponse) {
+  if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
+  httpResponse.header("Access-Control-Allow-Origin", "*");
+  try {
+    var options = {
+      httpRequest: httpRequest,
+      httpResponse: httpResponse,
+      callback: [],
+      request: httpRequest.body,
+      lastCallback: genericHTTPPostService
+    };
+    options.callback.push(genericHTTPPostService);
+    thermManager.monitorInternal(options);
+  } catch (error) {
+    httpResponse.json(httpUtils.createResponseKo(500, error));
+  }
+};
+
 /**
  * Update Configuration
  */
