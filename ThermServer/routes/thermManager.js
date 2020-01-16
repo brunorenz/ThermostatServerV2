@@ -5,13 +5,13 @@ exports.TypeAction = TypeAction;
 
 //lastCallback;
 
-exports.callback = function(options, error) {
+exports.callbackNEW = function(options, error) {
   if (error) options.error = error;
   if (options.callback) options.callback(options);
   else if (options.lastCallback) options.lastCallback(options);
 };
 
-exports.callbackOLD = function(options, error) {
+exports.callback = function(options, error) {
   if (error) options.error = error;
   if (options.callback && options.callback.length > 0) {
     if (typeof options.callbackIndex === "undefined") options.callbackIndex = 0;
