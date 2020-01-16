@@ -101,6 +101,7 @@ exports.monitorData = function(options) {
   var monitorColl = globaljs.mongoCon.collection(globaljs.STAT);
   var confcoll = globaljs.mongoCon.collection(globaljs.CONF);
   let logRecord = options.request;
+  var now = new Date();
   var record = {
     temperature: logRecord.temperature,
     humidity: logRecord.humidity,
@@ -109,7 +110,8 @@ exports.monitorData = function(options) {
     numSurveys: logRecord.numSurveys,
     light: logRecord.light,
     macAddress: logRecord.macAddress,
-    time: Date.now()
+    time: now.getTime(),
+    date: now
   };
   monitorColl.insertOne(record, function(err, doc) {
     if (err) {

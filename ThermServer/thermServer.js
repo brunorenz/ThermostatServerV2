@@ -62,19 +62,6 @@ if ("development" === app.get("env")) {
 // DB
 console.log("Working directory is " + __dirname);
 
-/*
-var fsadapter = new loki.LokiFsAdapter();
-var adapter = new loki.LokiPartitioningAdapter(fsadapter);
-var termStatdb = new loki(__dirname + globaljs.DB_NAME, {
-  adapter: adapter,
-  autoload: true,
-  autoloadCallback: databaseInitialize,
-  autosave: true,
-  autosaveInterval: 2000
-});
-
-globaljs.termStatdb = termStatdb;
-*/
 // Gestione Termostato
 // GET METHOD
 app.get("/rest/getProgramming", termManagment.getProgramming);
@@ -86,6 +73,8 @@ app.post(
   urlencodedParser,
   termManagment.updateConfiguration
 );
+
+app.post("/rest/monitor", jsonParser, termManagment.monitor);
 /**
 app.get("/rest/addProgramming", termManagment.addProgramming);
 app.get("/rest/removeProgramming", termManagment.removeProgramming);
