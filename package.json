@@ -15,6 +15,8 @@
 		"errorhandler": "*",
 		"mqtt": "*",
 		"cors": "*",
-		"ws": "4.*"
+		"ws": "4.*",
+		"johnny-five": "*",
+		"etherport-client": "*"
 	}
 }

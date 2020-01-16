@@ -63,6 +63,8 @@ function mainTask(httpDBMo) {
 
   // Setup MQTT
   setupMQTT();
+
+  setupJ5();
 }
 
 var connectFunc = function(err, db) {
@@ -85,6 +87,51 @@ var MongoClient = require("mongodb").MongoClient;
 var url = "mongodb://" + globaljs.urlDB;
 MongoClient.connect(url, connectOptions, connectFunc);
 
+function setupJ5()
+{
+  const {
+    EtherPortClient
+  } = require('etherport-client');
+  const five = require('johnny-five');
+  const board = new five.Board({
+    port: new EtherPortClient({
+      host: '192.168.0.106',
+      port: 3030
+    }),
+    repl: false
+  });
+  board.on('ready', () => {
+    var multi = new five.Multi({
+      controller: "BME280"
+    });
+    var lcd = new five.LCD({
+      controller: "PCF8574",
+      rows: 4,
+      cols: 20,
+      backlight: 13
+    });
+    multi.on("data", function() {
+      console.log("Thermometer");
+      console.log("  celsius      : ", this.thermometer.celsius);
+      console.log("  fahrenheit   : ", this.thermometer.fahrenheit);
+      console.log("  kelvin       : ", this.thermometer.kelvin);
+      console.log("--------------------------------------");
+  
+      console.log("Barometer");
+      console.log("  pressure     : ", this.barometer.pressure);
+      console.log("--------------------------------------");
+  
+      console.log("Hygrometer");
+      console.log("  humidity     : ", this.hygrometer.relativeHumidity);
+      console.log("--------------------------------------");
+  
+      console.log("Altimeter");
+      console.log("  feet         : ", this.altimeter.feet);
+      console.log("  meters       : ", this.altimeter.meters);
+      console.log("--------------------------------------");
+    });
+  });
+}
 /**
  * Start MQTT client
  */
