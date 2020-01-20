@@ -114,7 +114,7 @@ exports.startMQListening = function(mqClient) {
           "Error while processing message on topic " +
             globaljs.MQTopicWifi +
             " : " +
-            err
+            error
         );
       }
     } else if (topic === globaljs.MQTopicProgramming) {
@@ -134,7 +134,7 @@ exports.startMQListening = function(mqClient) {
           "Error while processing message on topic " +
             globaljs.MQTopicProgramming +
             " : " +
-            err
+            error
         );
       }
     } else if (topic === globaljs.MQTopicMonitor) {
@@ -152,7 +152,7 @@ exports.startMQListening = function(mqClient) {
           "Error while processing message on topic " +
             globaljs.MQTopicMonitor +
             " : " +
-            err
+            error
         );
       }
     } else if (topic === globaljs.MQTopicLastWill) {
@@ -170,7 +170,7 @@ exports.startMQListening = function(mqClient) {
           "Error while processing message on topic " +
             globaljs.MQTopicLastWill +
             " : " +
-            err
+            error
         );
       }
     } else {
