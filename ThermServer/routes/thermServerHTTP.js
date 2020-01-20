@@ -77,6 +77,20 @@ exports.getConfiguration = function(httpRequest, httpResponse) {
   }
 };
 
+exports.shellyRegister = function(httpRequest, httpResponse) {
+  if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
+  var options = {
+    httpRequest: httpRequest,
+    httpResponse: httpResponse,
+    action: thermManager.TypeAction.READ,
+    callback: [],
+    createIfNull: true,
+    lastCallback: genericHTTPPostService
+  };
+  options.callback.push(genericHTTPPostService);
+  thermManager.shellyRegisterInternal(options);
+};
+
 /**
  * Get programming info type = temp/light prog = all / reset
  * @param {*} httpRequest

@@ -66,6 +66,7 @@ console.log("Working directory is " + __dirname);
 // GET METHOD
 app.get("/rest/getProgramming", termManagment.getProgramming);
 app.get("/rest/getConfiguration", termManagment.getConfiguration);
+app.get("/rest/shellyRegister", termManagment.shellyRegister);
 
 // POST METHOD
 app.post(
@@ -121,7 +122,7 @@ app.get("/programmazioneLight", function(req, res) {
 });
 app.get("/programmazioneTemp", function(req, res) {
   res.sendFile(__dirname + "/views/programmazioneTemp.html");
-});
+});shellies
 ****/
 /*
  * http.createServer(app).listen(app.get('port'), function(){

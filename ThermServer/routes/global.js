@@ -1,5 +1,5 @@
 // MongoDB configuration
-var home = true;
+var home = false;
 var urlDB_ = "192.168.0.120:27017";
 var urlDB = home ? "192.168.0.120:27017" : "srvwas1.bpbari.it:27017";
 var DBName = "ThermDB";
@@ -27,6 +27,7 @@ exports.MQTopicLastWill = "ThermApp/lastWill";
 exports.MQTopicUpdateProgramming = "ThermApp/updateProgramming";
 exports.MQTopicUpdateThemperature = "ThermApp/updateThemperature";
 exports.MQTopicProgramming = "ThermApp/getProgramming";
+exports.MQTopicShellies = "shellies/#";
 
 // HTTP
 var serverPort = 8101;

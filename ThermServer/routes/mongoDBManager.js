@@ -75,6 +75,7 @@ var updateConfigurationFull = function(confColl, options) {
     options.response.flagReleTemp = req.flagReleTemp;
     options.response.flagReleLight = req.flagReleLight;
     //
+    updateField.flagLcd = req.flagLcd;
     updateField.flagLightSensor = req.flagLightSensor;
     updateField.flagMotionSensor = req.flagMotionSensor;
     updateField.flagTemperatureSensor = req.flagTemperatureSensor;

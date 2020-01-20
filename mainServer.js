@@ -65,6 +65,7 @@ function mainTask(httpDBMo) {
   setupMQTT();
 
   //setupJ5();
+  //findShelly();
 }
 
 var connectFunc = function(err, db) {
@@ -153,6 +154,7 @@ function setupMQTT() {
     mqManager.defineMonitorTopic(client);
     mqManager.defineLastWillTopic(client);
     mqManager.defineProgrammingTopic(client);
+    mqManager.defineShelliesGenericTopic(client);
     mqManager.startMQListening(client);
   });
 }

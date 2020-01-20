@@ -5,6 +5,23 @@ var httpUtils = require("./utils/httpUtils");
 var thermManager = require("./thermManager");
 
 /**
+ *
+ */
+exports.defineShelliesGenericTopic = function(mqClient) {
+  console.log("Define MQTopicShellies ..");
+  mqClient.subscribe(globaljs.MQTopicShellies, function(err) {
+    if (err)
+      console.error(
+        "Subscribe to topic " + globaljs.MQTopicShellies + " failed : " + err
+      );
+    else
+      console.log(
+        "Subscribe to topic " + globaljs.MQTopicShellies + " successfull"
+      );
+  });
+};
+
+/**
  * Request Programming Topic
  */
 exports.defineProgrammingTopic = function(mqClient) {
@@ -156,6 +173,8 @@ exports.startMQListening = function(mqClient) {
             err
         );
       }
+    } else {
+      console.log("Messaggio ricevuto su topic " + topic);
     }
   });
 };

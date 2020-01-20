@@ -17,6 +17,7 @@
 		"cors": "*",
 		"ws": "4.*",
 		"johnny-five": "*",
-		"etherport-client": "*"
+		"etherport-client": "*",
+		"network-list": "*"
 	}
 }

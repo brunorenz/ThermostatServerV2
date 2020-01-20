@@ -17,6 +17,7 @@ var statusAutomatic = 3;
 var status = { OFF: 0, ON: 1, MANUAL: 2, AUTO: 3 };
 var measure = { LOCAL: 1, MEDIUM: 2, PRIORITY: 2 };
 var programming = { THEMP: 1, LIGTH: 2 };
+var deviceType = { ANY: 0, ARDUINO: 1, SHELLY: 2 };
 
 exports.TypeStatus = status;
 exports.TypeMeasure = measure;
@@ -28,6 +29,7 @@ var configurationRecord = {
   temperatureMeasure: measure.LOCAL,
   statusThermostat: status.OFF,
   statusLight: status.OFF,
+  deviceType: deviceType.ANY,
   firstAccess: 0,
   lastAccess: 0,
   lastUpdate: 0,
@@ -38,12 +40,11 @@ var configurationRecord = {
   flagTemperatureSensor: 0,
   flagPressureSensor: 0,
   flagHumiditySensor: 0,
-
   flagReleTemp: 0,
   flagReleLight: 0,
-
-  currentThemperature: 0.0,
-  currentLigth: 0.0
+  shellyMqttRelay: ""
+  //currentThemperature: 0.0,
+  //currentLigth: 0.0
 };
 
 /**

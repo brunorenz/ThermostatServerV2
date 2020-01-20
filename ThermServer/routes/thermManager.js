@@ -11,7 +11,7 @@ exports.callbackNEW = function(options, error) {
   else if (options.lastCallback) options.lastCallback(options);
 };
 
-exports.callback = function(options, error) {
+var callback = function(options, error) {
   if (error) options.error = error;
   if (options.callback && options.callback.length > 0) {
     if (typeof options.callbackIndex === "undefined") options.callbackIndex = 0;
@@ -21,6 +21,7 @@ exports.callback = function(options, error) {
   }
 };
 
+exports.callback = this.callback;
 /**
  * Thermostat programming management
  */
@@ -71,4 +72,68 @@ var readProgramming = function(options) {
   options.createIfNull = true;
   //options.internalCallback
   mongoDBMgr.readProgramming(options);
+};
+
+exports.shellyRegisterInternal = function(options) {
+  const netList = require("network-list");
+
+  // get list of mac address already registerd
+  console.log("Find shelly device ..");
+  netList.scan({ vendor: false, timeout: 2 }, (err, arr) => {
+    if (err) {
+      callback(options, err);
+    } else {
+      //console.log(arr);
+      // array with all devices
+      nAlive = 0;
+      nShelly = 0;
+      for (let i = 0; i < arr.length; i++) {
+        let entry = arr[i];
+        if (entry.alive) {
+          nAlive++;
+          var mac = entry.mac != null ? entry.mac.toUpperCase() : "N/A";
+          console.log(
+            "Chech for IP address " + entry.ip + " with mac address " + mac
+          );
+          callShellyStatus(entry.ip);
+          // faccio chiamata a ip:/shelly
+        }
+      }
+      var out = {
+        networkDevices: arr.length,
+        networkDevicesAlive: nAlive,
+        networkDevicesShelly: nShelly
+      };
+      options.response = out;
+      /*
+       */
+      callback(options);
+    }
+  });
+};
+
+var callShellyStatus = function(ip, callback) {
+  const https = require("http");
+  const options = {
+    hostname: ip,
+    port: 80,
+    path: "/shelly",
+    method: "GET"
+  };
+
+  const req = https.request(options, res => {
+    console.log("IP : " + ip + " - HTTP status code " + res.statusCode);
+  });
+
+  // TIMEOUT PART
+  req.setTimeout(1000, function() {
+    console.log("Server connection timeout (after 1 second)");
+    req.abort();
+  });
+
+  req.on("error", error => {
+    console.error("IP : " + ip + " - Error " + error);
+  });
+
+  req.end();
 };
