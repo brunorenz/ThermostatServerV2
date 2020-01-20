@@ -126,13 +126,17 @@ var callShellyStatus = function(ip, callback) {
   });
 
   // TIMEOUT PART
-  req.setTimeout(1000, function() {
-    console.log("Server connection timeout (after 1 second)");
-    req.abort();
+  // req.setTimeout(1000, function() {
+  //   console.log("Server connection timeout (after 1 second)");
+  //   req.abort();
+  // });
+
+  req.on("data", error => {
+    console.error("IP : " + ip + " - " + error);
   });
 
   req.on("error", error => {
-    console.error("IP : " + ip + " - Error " + error);
+    console.error("IP : " + ip + " - " + error);
   });
 
   req.end();
