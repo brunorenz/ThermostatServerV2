@@ -64,12 +64,13 @@ exports.updateConfiguration = function(options) {
 var updateConfigurationFull = function(confColl, options) {
   if (options.response) {
     let updateField = {};
+    let req = options.request;
     if (options.register) {
       updateField.lastAccess = Date.now();
-      if (options.request.ipAddress)
-        updateField.ipAddress = options.request.ipAddress;
+      if (req.ipAddress) updateField.ipAddress = req.ipAddress;
     } else updateField.lastCheck = Date.now();
-    let req = options.request;
+    updateField.deviceType = req.deviceType;
+    updateField.flagReleTemp = req.flagReleTemp;
     updateField.flagReleTemp = req.flagReleTemp;
     updateField.flagReleLight = req.flagReleLight;
     options.response.flagReleTemp = req.flagReleTemp;

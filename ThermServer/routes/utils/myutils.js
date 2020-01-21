@@ -1,8 +1,6 @@
-var http = require("http");
-var webSocket = require("ws");
-var globaljs = require("./global");
-
-
+//var http = require("http");
+//var webSocket = require("ws");
+//var globaljs = require("./global");
 
 var mapGet = function(map, key) {
   var ret;

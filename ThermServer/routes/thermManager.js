@@ -1,4 +1,6 @@
 var globaljs = require("./global");
+var config = require("./config");
+var myutils = require("./utils/myutils");
 var mongoDBMgr = require("./mongoDBManager");
 var TypeAction = { READ: 1, RESET: 2, UPDATE: 3, DELETE: 4 };
 exports.TypeAction = TypeAction;
@@ -21,7 +23,7 @@ var callback = function(options, error) {
   }
 };
 
-exports.callback = this.callback;
+exports.callback = callback;
 /**
  * Thermostat programming management
  */
@@ -87,6 +89,7 @@ exports.shellyRegisterInternal = function(options) {
       // array with all devices
       nAlive = 0;
       nShelly = 0;
+      newFound = 0;
       for (let i = 0; i < arr.length; i++) {
         let entry = arr[i];
         if (entry.alive) {
@@ -95,14 +98,23 @@ exports.shellyRegisterInternal = function(options) {
           console.log(
             "Chech for IP address " + entry.ip + " with mac address " + mac
           );
-          callShellyStatus(entry.ip);
-          // faccio chiamata a ip:/shelly
+          var sc = myutils.mapGet(globaljs.shellyCache, mac);
+          let update = true;
+          if (sc && sc.ip === ip) {
+            update = false;
+          }
+          if (update) {
+            // faccio chiamata a ip:/shelly
+            callShellyStatus(entry.ip, mac);
+            newFound++;
+          }
         }
       }
       var out = {
         networkDevices: arr.length,
         networkDevicesAlive: nAlive,
-        networkDevicesShelly: nShelly
+        networkDevicesShelly: nShelly,
+        networkDevicesNew: newFound
       };
       options.response = out;
       /*
@@ -112,7 +124,7 @@ exports.shellyRegisterInternal = function(options) {
   });
 };
 
-var callShellyStatus = function(ip, callback) {
+var callShellyStatus = function(ip, mac, callback) {
   const https = require("http");
   const options = {
     hostname: ip,
@@ -120,24 +132,38 @@ var callShellyStatus = function(ip, callback) {
     path: "/shelly",
     method: "GET"
   };
-
+  var update = function(ip, mac, rc) {
+    console.log("IP : " + ip + " - HTTP status code " + rc);
+    if (rc === 200 || rc === 301) {
+      // update mongodb
+      var input = config.getConfigurationRecord(mac);
+      input.deviceType = config.TypeDeviceType.SHELLY;
+      input.ipAddress = ip;
+      var options = {
+        request: input,
+        macAddress: mac,
+        callback: [],
+        register: true,
+        update: true
+      };
+      options.createIfNull = true;
+      mongoDBMgr.readConfiguration(options);
+      var d = {
+        ip: ip
+      };
+      console.log("ADD IP/MAC : " + ip + " - " + mac);
+      myutils.mapPut(globaljs.shellyCache, mac, d);
+    }
+  };
   const req = https.request(options, res => {
-    console.log("IP : " + ip + " - HTTP status code " + res.statusCode);
+    update(ip, mac, res.statusCode);
   });
-
-  // TIMEOUT PART
-  // req.setTimeout(1000, function() {
-  //   console.log("Server connection timeout (after 1 second)");
-  //   req.abort();
-  // });
-
-  req.on("data", error => {
-    console.error("IP : " + ip + " - " + error);
+  req.setTimeout(2000, function() {
+    console.log(">> TIMEOUT occurred for IP/MAC " + ip + " - " + mac);
+    req.abort();
   });
-
   req.on("error", error => {
-    console.error("IP : " + ip + " - " + error);
+    update(ip, mac, 999);
   });
-
   req.end();
 };

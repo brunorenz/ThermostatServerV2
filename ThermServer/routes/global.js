@@ -34,11 +34,15 @@ var serverPort = 8101;
 var dbName = "/DB/termStat.db";
 var termStatdb;
 
+// cahce
+var shellyCache = [];
+
 // const PREFIX = '/term';
 
 var monitorTimeout = 30000;
 var basicAuth = "Basic YnJ1bm86cHdk";
 var basicAuthRequired = false;
+var basicAuthShelly = "Basic YnJ1bm86cHdk";
 
 var minTemp = 17.0;
 var minTempOn = 21.0;
@@ -64,6 +68,9 @@ var statusManual = 2;
 var statusAutomatic = 3;
 //
 var wss;
+
+exports.shellyCache = shellyCache;
+exports.basicAuthShelly = basicAuthShelly;
 
 exports.SERVER_PORT = serverPort;
 exports.DB_NAME = dbName;

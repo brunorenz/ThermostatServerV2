@@ -22,6 +22,7 @@ var deviceType = { ANY: 0, ARDUINO: 1, SHELLY: 2 };
 exports.TypeStatus = status;
 exports.TypeMeasure = measure;
 exports.TypeProgramming = programming;
+exports.TypeDeviceType = deviceType;
 
 var configurationRecord = {
   ipAddress: "",
