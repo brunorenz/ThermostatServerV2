@@ -98,6 +98,9 @@ exports.shellyRegisterInternal = function(options) {
           console.log(
             "Chech for IP address " + entry.ip + " with mac address " + mac
           );
+          callShellyStatus(entry.ip, mac);
+          newFound++;
+          /*
           var sc = myutils.mapGet(globaljs.shellyCache, mac);
           let update = true;
           if (sc && sc.ip === ip) {
@@ -107,7 +110,7 @@ exports.shellyRegisterInternal = function(options) {
             // faccio chiamata a ip:/shelly
             callShellyStatus(entry.ip, mac);
             newFound++;
-          }
+          }*/
         }
       }
       var out = {
@@ -124,6 +127,37 @@ exports.shellyRegisterInternal = function(options) {
   });
 };
 
+var callShellySetting = function(ip)
+{
+  const https = require("http");
+  const options = {
+    hostname: ip,
+    port: 80,
+    path: "/settings",
+    method: "GET",
+    headers:{"Authorization": globaljs.basicAuthShelly 
+    }
+  };
+  var output = "";
+  const req = https.request(options, res => {
+    console.log("HTTP response code "+res.statusCode);
+    res.on('end', end =>  {
+      let obj = JSON.parse(output);
+      console.log("Result : "+output)
+      //onResult(res.statusCode, obj);
+    });
+    res.on('data', function(data) {
+      output += data;
+    });
+  });
+ 
+  req.on("error", error => {
+    update(ip, mac, 999);
+  });
+
+  req.end();
+}
+
 var callShellyStatus = function(ip, mac, callback) {
   const https = require("http");
   const options = {
@@ -134,7 +168,7 @@ var callShellyStatus = function(ip, mac, callback) {
   };
   var update = function(ip, mac, rc) {
     console.log("IP : " + ip + " - HTTP status code " + rc);
-    if (rc === 200 || rc === 301) {
+    if (rc === 200) {
       // update mongodb
       var input = config.getConfigurationRecord(mac);
       input.deviceType = config.TypeDeviceType.SHELLY;
@@ -146,13 +180,14 @@ var callShellyStatus = function(ip, mac, callback) {
         register: true,
         update: true
       };
+      callShellySetting(ip);
       options.createIfNull = true;
       mongoDBMgr.readConfiguration(options);
-      var d = {
-        ip: ip
-      };
+      // var d = {
+      //   ip: ip
+      // };
       console.log("ADD IP/MAC : " + ip + " - " + mac);
-      myutils.mapPut(globaljs.shellyCache, mac, d);
+      // myutils.mapPut(globaljs.shellyCache, mac, d);
     }
   };
   const req = https.request(options, res => {
