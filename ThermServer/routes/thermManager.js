@@ -1,8 +1,10 @@
-var globaljs = require("./global");
-var config = require("./config");
-var myutils = require("./utils/myutils");
-var mongoDBMgr = require("./mongoDBManager");
-var TypeAction = { READ: 1, RESET: 2, UPDATE: 3, DELETE: 4 };
+const globaljs = require("./global");
+const config = require("./config");
+const myutils = require("./utils/myutils");
+const mongoDBMgr = require("./mongoDBManager");
+const shellyMgr = require("./shellyManager");
+const netList = require("network-list");
+const TypeAction = { READ: 1, RESET: 2, UPDATE: 3, DELETE: 4 };
 exports.TypeAction = TypeAction;
 
 //lastCallback;
@@ -77,11 +79,9 @@ var readProgramming = function(options) {
 };
 
 exports.shellyRegisterInternal = function(options) {
-  const netList = require("network-list");
-
   // get list of mac address already registerd
-  console.log("Find shelly device ..");
-  netList.scan({ vendor: false, timeout: 2 }, (err, arr) => {
+  console.log("Find shelly devices ..");
+  netList.scan({ vendor: false, timeout: 10 }, (err, arr) => {
     if (err) {
       callback(options, err);
     } else {
@@ -98,7 +98,11 @@ exports.shellyRegisterInternal = function(options) {
           console.log(
             "Chech for IP address " + entry.ip + " with mac address " + mac
           );
-          callShellyStatus(entry.ip, mac);
+          var outOptions = {
+            ip: entry.ip,
+            mac: mac
+          };
+          shellyMgr.updateShellyConfiguration(outOptions);
           newFound++;
           /*
           var sc = myutils.mapGet(globaljs.shellyCache, mac);
@@ -120,43 +124,39 @@ exports.shellyRegisterInternal = function(options) {
         networkDevicesNew: newFound
       };
       options.response = out;
-      /*
-       */
       callback(options);
     }
   });
 };
-
-var callShellySetting = function(ip)
-{
+/*
+var callShellySetting = function(ip) {
   const https = require("http");
   const options = {
     hostname: ip,
     port: 80,
     path: "/settings",
     method: "GET",
-    headers:{"Authorization": globaljs.basicAuthShelly 
-    }
+    headers: { Authorization: globaljs.basicAuthShelly }
   };
   var output = "";
   const req = https.request(options, res => {
-    console.log("HTTP response code "+res.statusCode);
-    res.on('end', end =>  {
+    console.log("HTTP response code " + res.statusCode);
+    res.on("end", end => {
       let obj = JSON.parse(output);
-      console.log("Result : "+output)
+      console.log("Result : " + output);
       //onResult(res.statusCode, obj);
     });
-    res.on('data', function(data) {
+    res.on("data", function(data) {
       output += data;
     });
   });
- 
+
   req.on("error", error => {
     update(ip, mac, 999);
   });
 
   req.end();
-}
+};
 
 var callShellyStatus = function(ip, mac, callback) {
   const https = require("http");
@@ -202,3 +202,4 @@ var callShellyStatus = function(ip, mac, callback) {
   });
   req.end();
 };
+*/
