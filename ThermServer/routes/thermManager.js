@@ -74,18 +74,18 @@ exports.wifiRegisterInternal = function(options) {
 
 var readProgramming = function(options) {
   options.createIfNull = true;
-  //options.internalCallback
   mongoDBMgr.readProgramming(options);
 };
 
+/**
+ * Check if any shelly device is present. If so register it
+ */
 exports.shellyRegisterInternal = function(options) {
-  // get list of mac address already registerd
   console.log("Find shelly devices ..");
   netList.scan({ vendor: false, timeout: 10 }, (err, arr) => {
     if (err) {
       callback(options, err);
     } else {
-      //console.log(arr);
       // array with all devices
       nAlive = 0;
       nShelly = 0;
@@ -104,17 +104,6 @@ exports.shellyRegisterInternal = function(options) {
           };
           shellyMgr.updateShellyConfiguration(outOptions);
           newFound++;
-          /*
-          var sc = myutils.mapGet(globaljs.shellyCache, mac);
-          let update = true;
-          if (sc && sc.ip === ip) {
-            update = false;
-          }
-          if (update) {
-            // faccio chiamata a ip:/shelly
-            callShellyStatus(entry.ip, mac);
-            newFound++;
-          }*/
         }
       }
       var out = {
@@ -128,78 +117,3 @@ exports.shellyRegisterInternal = function(options) {
     }
   });
 };
-/*
-var callShellySetting = function(ip) {
-  const https = require("http");
-  const options = {
-    hostname: ip,
-    port: 80,
-    path: "/settings",
-    method: "GET",
-    headers: { Authorization: globaljs.basicAuthShelly }
-  };
-  var output = "";
-  const req = https.request(options, res => {
-    console.log("HTTP response code " + res.statusCode);
-    res.on("end", end => {
-      let obj = JSON.parse(output);
-      console.log("Result : " + output);
-      //onResult(res.statusCode, obj);
-    });
-    res.on("data", function(data) {
-      output += data;
-    });
-  });
-
-  req.on("error", error => {
-    update(ip, mac, 999);
-  });
-
-  req.end();
-};
-
-var callShellyStatus = function(ip, mac, callback) {
-  const https = require("http");
-  const options = {
-    hostname: ip,
-    port: 80,
-    path: "/shelly",
-    method: "GET"
-  };
-  var update = function(ip, mac, rc) {
-    console.log("IP : " + ip + " - HTTP status code " + rc);
-    if (rc === 200) {
-      // update mongodb
-      var input = config.getConfigurationRecord(mac);
-      input.deviceType = config.TypeDeviceType.SHELLY;
-      input.ipAddress = ip;
-      var options = {
-        request: input,
-        macAddress: mac,
-        callback: [],
-        register: true,
-        update: true
-      };
-      callShellySetting(ip);
-      options.createIfNull = true;
-      mongoDBMgr.readConfiguration(options);
-      // var d = {
-      //   ip: ip
-      // };
-      console.log("ADD IP/MAC : " + ip + " - " + mac);
-      // myutils.mapPut(globaljs.shellyCache, mac, d);
-    }
-  };
-  const req = https.request(options, res => {
-    update(ip, mac, res.statusCode);
-  });
-  req.setTimeout(2000, function() {
-    console.log(">> TIMEOUT occurred for IP/MAC " + ip + " - " + mac);
-    req.abort();
-  });
-  req.on("error", error => {
-    update(ip, mac, 999);
-  });
-  req.end();
-};
-*/

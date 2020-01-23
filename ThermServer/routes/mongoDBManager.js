@@ -36,11 +36,18 @@ exports.updateConfiguration = function(options) {
   var req = JSON.parse(json);
   let updateField = {
     location: req.location,
-    statusThermostat: req.statusThermostat,
-    temperatureMeasure: req.temperatureMeasure,
-    statusLight: req.statusThermostat,
+    flagReleLight: req.flagReleLight,
+    flagReleTemp: req.flagReleTemp,
     lastUpdate: new Date().getTime()
   };
+  if (updateField.flagReleTemp === 1) {
+    updateField.statusThermostat = parseInt(req.statusThermostat);
+    updateField.temperatureMeasure = parseInt(req.temperatureMeasure);
+  }
+  if (updateField.flagReleLight === 1) {
+    //statusLight: req.statusThermostat
+  }
+
   confcoll.updateOne(
     {
       _id: req.macAddress

@@ -17,8 +17,9 @@ var callShellySetting = function(options) {
     console.log("HTTP response code " + res.statusCode);
     res.on("end", end => {
       let obj = JSON.parse(output);
-      //console.log("Result : " + output);
-      console.log("ID : "+obj.mqtt.id);
+      console.log(
+        "Shelly device found at " + options.ip + " MQTT ID : " + obj.mqtt.id
+      );
       var input = config.getConfigurationRecord(options.mac);
       input.deviceType = config.TypeDeviceType.SHELLY;
       input.ipAddress = options.ip;
@@ -29,7 +30,7 @@ var callShellySetting = function(options) {
         callback: [],
         register: true,
         update: true,
-        createIfNull : true
+        createIfNull: true
       };
 
       mongoDBMgr.readConfiguration(dbOptions);
@@ -63,21 +64,6 @@ var updateShellyConfiguration = function(options, rc) {
         options.mac
     );
     callShellySetting(options);
-    /*
-    var input = config.getConfigurationRecord(mac);
-    input.deviceType = config.TypeDeviceType.SHELLY;
-    input.ipAddress = options.ip;
-    var dbOptions = {
-      request: input,
-      macAddress: mac,
-      callback: [],
-      register: true,
-      update: true
-    };
-    options.createIfNull = true;
-    mongoDBMgr.readConfiguration(options);
-    console.log("ADD IP/MAC : " + ip + " - " + mac);
-    */
   } else {
     console.log(
       "IP/MAC : " + options.ip + " - " + options.mac + " is not a shelly device"
@@ -92,10 +78,6 @@ exports.updateShellyConfiguration = function(options) {
     path: "/shelly",
     method: "GET"
   };
-  //   var options = {
-  //     ip: ip,
-  //     mac: mac
-  //   };
   const req = http.request(httpOptions, res => {
     updateShellyConfiguration(options, res.statusCode);
   });

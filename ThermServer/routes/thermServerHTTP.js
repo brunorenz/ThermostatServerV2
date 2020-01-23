@@ -38,7 +38,7 @@ exports.updateConfiguration = function(httpRequest, httpResponse) {
     };
     // propagate configuration change
 
-    options.callback.push(mq.sendProgrammingData);
+    //options.callback.push(mq.sendProgrammingData);
     options.callback.push(genericHTTPPostService);
     thermManager.updateConfigurationInternal(options);
   } catch (error) {
