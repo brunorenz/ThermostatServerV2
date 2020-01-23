@@ -77,6 +77,29 @@ exports.getConfiguration = function(httpRequest, httpResponse) {
   }
 };
 
+/**
+ *
+ */
+
+exports.checkThermostatStatus = function(httpRequest, httpResponse) {
+  if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
+  var options = {
+    httpRequest: httpRequest,
+    httpResponse: httpResponse,
+    callback: [],
+    lastCallback: genericHTTPPostService
+  };
+  options.callback.push(genericHTTPPostService);
+  try {
+    thermManager.checkThermostatStatus(options);
+  } catch (error) {
+    options.error = error;
+    genericHTTPPostService(options, error);
+  }
+};
+/**
+ * Scan th local network finding for Schelly devices
+ */
 exports.shellyRegister = function(httpRequest, httpResponse) {
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
   var options = {
@@ -88,7 +111,12 @@ exports.shellyRegister = function(httpRequest, httpResponse) {
     lastCallback: genericHTTPPostService
   };
   options.callback.push(genericHTTPPostService);
-  thermManager.shellyRegisterInternal(options);
+  try {
+    thermManager.shellyRegisterInternal(options);
+  } catch (error) {
+    options.error = error;
+    genericHTTPPostService(options, error);
+  }
 };
 
 /**
@@ -99,28 +127,28 @@ exports.shellyRegister = function(httpRequest, httpResponse) {
 exports.getProgramming = function(httpRequest, httpResponse) {
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
 
+  var type = config.TypeProgramming.THEMP;
+  //    var p = myutils.httpGetParam(req);
+  if (httpRequest.query.type) {
+    if (httpRequest.query.type === "temp") type = config.TypeProgramming.THEMP;
+    else if (httpRequest.query.type === "light")
+      type = config.TypeProgramming.LIGTH;
+  }
+  var options = {
+    httpRequest: httpRequest,
+    httpResponse: httpResponse,
+    programmingType: type,
+    action: thermManager.TypeAction.READ,
+    callback: [],
+    createIfNull: true,
+    lastCallback: genericHTTPPostService
+  };
+  options.callback.push(genericHTTPPostService);
   try {
-    var type = config.TypeProgramming.THEMP;
-    //    var p = myutils.httpGetParam(req);
-    if (httpRequest.query.type) {
-      if (httpRequest.query.type === "temp")
-        type = config.TypeProgramming.THEMP;
-      else if (httpRequest.query.type === "light")
-        type = config.TypeProgramming.LIGTH;
-    }
-    var options = {
-      httpRequest: httpRequest,
-      httpResponse: httpResponse,
-      programmingType: type,
-      action: thermManager.TypeAction.READ,
-      callback: [],
-      createIfNull: true,
-      lastCallback: genericHTTPPostService
-    };
-    options.callback.push(genericHTTPPostService);
     thermManager.manageProgramming(options);
   } catch (error) {
-    httpResponse.json(httpUtils.createResponseKo(500, error));
+    options.error = error;
+    genericHTTPPostService(options, error);
   }
 };
 

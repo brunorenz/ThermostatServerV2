@@ -68,6 +68,8 @@ app.get("/rest/getProgramming", termManagment.getProgramming);
 app.get("/rest/getConfiguration", termManagment.getConfiguration);
 app.get("/rest/shellyRegister", termManagment.shellyRegister);
 
+app.get("/rest/check", termManagment.checkThermostatStatus);
+
 // POST METHOD
 app.post(
   "/rest/updateConfiguration",

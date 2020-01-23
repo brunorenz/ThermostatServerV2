@@ -117,3 +117,11 @@ exports.shellyRegisterInternal = function(options) {
     }
   });
 };
+
+exports.checkThermostatStatus = function(options) {
+  // recupera dispositivo rele termostato
+  // recupera confugurazione e modalità di misura
+  // recupera temperature
+  // calcola
+  mongoDBMgr.readThermostatProgramming(options);
+};

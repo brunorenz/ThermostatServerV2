@@ -200,7 +200,7 @@ exports.readConfiguration = function(options) {
  * manage read programming info request
  * create a new one if options.createIfNull = true
  */
-exports.readProgramming = function(options) {
+var readProgramming = function(options) {
   var progColl = globaljs.mongoCon.collection(globaljs.PROG);
   progColl.findOne(
     {
@@ -235,4 +235,64 @@ exports.readProgramming = function(options) {
       }
     }
   );
+};
+exports.readProgramming = readProgramming;
+
+/**
+ * evalute themperature
+ */
+exports.readThermostatProgramming = function(options) {
+  options.programmingType = config.TypeProgramming.THEMP;
+  var confColl = globaljs.mongoCon.collection(globaljs.CONF);
+  confColl.find({ flagReleTemp: 1 }).toArray(function(err, doc) {
+    if (err) {
+      console.error("ERRORE lettura configurazione " + err);
+      //callback(options, err);
+    } else {
+      if (doc && doc.length === 1) {
+        let conf = doc[0];
+        console.log(
+          "trovato dispositivo " +
+            conf.location +
+            " con misurazione di tipo " +
+            conf.temperatureMeasure
+        );
+        // ora cerco sensori temperatura
+        confColl.find({ flagTemperatureSensor: 1 }).toArray(function(err, doc) {
+          if (err) {
+            console.error("ERRORE lettura configurazione " + err);
+            //callback(options, err);
+          } else {
+            if (doc && doc.length > 0) {
+              console.log(
+                "trovati " + doc.length + " sensori che misurano temperatura"
+              );
+              for (let ix = 0; ix < doc.length; ix++) {
+                console.log(
+                  "Location " +
+                    doc[ix].location +
+                    " - Temperatura " +
+                    doc[ix].currentThemperature
+                );
+                console.log(
+                  "Location " +
+                    doc[ix].location +
+                    " - Luce " +
+                    doc[ix].currentLigth
+                );
+              }
+            } else {
+              options.error = "Non trovati sensori che misurano temperatura";
+              console.log(options.error);
+            }
+          }
+        });
+      } else {
+        options.error =
+          "Trovati un numero di dispositivi non valido : " + doc.length;
+        console.log(options.error);
+      }
+      callback(options, err);
+    }
+  });
 };
