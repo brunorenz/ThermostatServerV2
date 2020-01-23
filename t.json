@@ -1,24 +1,96 @@
 {
-    "_id": "F8:F0:05:F7:DC:92",
-    "ipAddress": "",
-    "location": "Salone",
-    "thempMeasure": 1,
-    "status": 0,
-    "statusLight": 0,
-    "firstAccess": 1572338664677,
-    "lastAccess": 1573557021205,
-    "lastUpdate": 0,
-    "lastCheck": 0,
-    "flagLcd": 0,
-    "flagLightSensor": 0,
-    "flagMotionSensor": 0,
-    "flagReleTemp": 1,
-    "flagReleLight": 1,
-    "currentThemperature": 0,
-    "currentLigth": 0,
-    "macAddress": "F8:F0:05:F7:DC:92",
-    "lastAccessD": "12/11/2019 12:10",
-    "lastUpdateD": "01/01/1970 01:00",
-    "statusThermostat": "0",
-    "temperatureMeasure": "1"
+    "device": {
+        "type": "SHSW-1",
+        "mac": "2CF432689B96",
+        "hostname": "shelly1-689B96",
+        "num_outputs": 1
+    },
+    "wifi_ap": {
+        "enabled": false,
+        "ssid": "shelly1-689B96",
+        "key": ""
+    },
+    "wifi_sta": {
+        "enabled": true,
+        "ssid": "BRHome",
+        "ipv4_method": "dhcp",
+        "ip": null,
+        "gw": null,
+        "mask": null,
+        "dns": null
+    },
+    "wifi_sta1": {
+        "enabled": false,
+        "ssid": null,
+        "ipv4_method": "dhcp",
+        "ip": null,
+        "gw": null,
+        "mask": null,
+        "dns": null
+    },
+    "mqtt": {
+        "enable": true,
+        "server": "192.168.0.120:1883",
+        "user": "",
+        "id": "shelly1-689B96",
+        "reconnect_timeout_max": 60.000000,
+        "reconnect_timeout_min": 2.000000,
+        "clean_session": true,
+        "keep_alive": 60,
+        "max_qos": 1,
+        "retain": false,
+        "update_period": 30
+    },
+    "sntp": {
+        "server": "time.google.com"
+    },
+    "login": {
+        "enabled": true,
+        "unprotected": false,
+        "username": "admin",
+        "password": "ah060vyA."
+    },
+    "pin_code": "",
+    "name": "",
+    "fw": "20191216-090109/v1.5.7@c30657ba",
+    "build_info": {
+        "build_id": "20191216-090109/v1.5.7@c30657ba",
+        "build_timestamp": "2019-12-16T09:01:09Z",
+        "build_version": "1.0"
+    },
+    "cloud": {
+        "enabled": false,
+        "connected": false
+    },
+    "timezone": "Europe/Rome",
+    "lat": 45.465500,
+    "lng": 9.186520,
+    "tzautodetect": true,
+    "time": "20:29",
+    "hwinfo": {
+        "hw_revision": "prod-2018-08",
+        "batch_id": 2
+    },
+    "mode": "relay",
+    "relays": [
+        {
+            "name": null,
+            "ison": false,
+            "has_timer": false,
+            "default_state": "off",
+            "btn_type": "toggle",
+            "btn_reverse": 1,
+            "auto_on": 0.00,
+            "auto_off": 0.00,
+            "power": 0.00,
+            "btn_on_url": null,
+            "btn_off_url": null,
+            "out_on_url": null,
+            "out_off_url": null,
+            "longpush_url": null,
+            "shortpush_url": null,
+            "schedule": false,
+            "schedule_rules": []
+        }
+    ]
 }

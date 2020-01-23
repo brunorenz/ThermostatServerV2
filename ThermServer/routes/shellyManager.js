@@ -17,20 +17,21 @@ var callShellySetting = function(options) {
     console.log("HTTP response code " + res.statusCode);
     res.on("end", end => {
       let obj = JSON.parse(output);
-      console.log("Result : " + output);
-
-      var input = config.getConfigurationRecord(mac);
+      //console.log("Result : " + output);
+      console.log("ID : "+obj.mqtt.id);
+      var input = config.getConfigurationRecord(options.mac);
       input.deviceType = config.TypeDeviceType.SHELLY;
       input.ipAddress = options.ip;
-      input.shellyMqttId = "";
+      input.shellyMqttId = obj.mqtt.id;
       var dbOptions = {
         request: input,
         macAddress: options.mac,
         callback: [],
         register: true,
-        update: true
+        update: true,
+        createIfNull : true
       };
-      options.createIfNull = true;
+
       mongoDBMgr.readConfiguration(dbOptions);
     });
     res.on("data", data => {
@@ -95,7 +96,7 @@ exports.updateShellyConfiguration = function(options) {
   //     ip: ip,
   //     mac: mac
   //   };
-  const req = https.request(httpOptions, res => {
+  const req = http.request(httpOptions, res => {
     updateShellyConfiguration(options, res.statusCode);
   });
   req.setTimeout(2000, function() {

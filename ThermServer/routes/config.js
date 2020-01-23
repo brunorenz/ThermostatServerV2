@@ -43,7 +43,7 @@ var configurationRecord = {
   flagHumiditySensor: 0,
   flagReleTemp: 0,
   flagReleLight: 0,
-  shellyMqttRelay: ""
+  shellyMqttId: ""
   //currentThemperature: 0.0,
   //currentLigth: 0.0
 };
