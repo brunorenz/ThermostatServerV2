@@ -48,7 +48,7 @@ var getStatusByProgram = function(options) {
                     " a " +
                     entry.timeEnd
                 );
-                minTemp = entry.minTemp;
+                minTemp = entry.minTemp;            
                 break;
               }
             }
