@@ -24,7 +24,7 @@ var getStatusByProgram = function(options) {
         }
         temperature = temperature / themp.length;
       }
-      console.log("Temperatura calcolata : " + temperature);
+      //console.log("Temperatura calcolata : " + temperature);
       let minTemp = currentProg.minTempManual;
       if (shellyCommand.status === config.TypeStatus.AUTO) {
         console.log("Calcolo fascia ora..");
@@ -48,11 +48,12 @@ var getStatusByProgram = function(options) {
                     " a " +
                     entry.timeEnd
                 );
-                mintemp = entry.minTemp;
+                minTemp = entry.minTemp;
                 break;
               }
             }
       }
+      console.log("Temperatura calcolata : " + temperature+" - Di riferimento "+minTemp);
       newStatus =
         temperature < minTemp ? config.TypeStatus.ON : config.TypeStatus.OFF;
     } else {
