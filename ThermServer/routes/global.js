@@ -25,7 +25,7 @@ exports.MQTopicWifi = "ThermApp/wifiRegister";
 exports.MQTopicMonitor = "ThermApp/monitoData";
 exports.MQTopicLastWill = "ThermApp/lastWill";
 exports.MQTopicUpdateProgramming = "ThermApp/updateProgramming";
-exports.MQTopicUpdateThemperature = "ThermApp/updateThemperature";
+exports.MQTopicUpdateTemperature = "ThermApp/updateTemperature";
 exports.MQTopicProgramming = "ThermApp/getProgramming";
 exports.MQTopicShellies = "shellies/#";
 

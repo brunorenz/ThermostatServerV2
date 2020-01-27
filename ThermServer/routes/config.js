@@ -18,11 +18,13 @@ var status = { OFF: 0, ON: 1, MANUAL: 2, AUTO: 3 };
 var measure = { LOCAL: 1, MEDIUM: 2, PRIORITY: 2 };
 var programming = { THEMP: 1, LIGTH: 2 };
 var deviceType = { ANY: 0, ARDUINO: 1, SHELLY: 2 };
+var shellyCommand = { RELAY: 0, COMMAND: 1 };
 
 exports.TypeStatus = status;
 exports.TypeMeasure = measure;
 exports.TypeProgramming = programming;
 exports.TypeDeviceType = deviceType;
+exports.TypeShellyCommand = shellyCommand;
 
 var configurationRecord = {
   ipAddress: "",
@@ -43,9 +45,9 @@ var configurationRecord = {
   flagHumiditySensor: 0,
   flagReleTemp: 0,
   flagReleLight: 0,
-  shellyMqttId: ""
-  //currentThemperature: 0.0,
-  //currentLigth: 0.0
+  shellyMqttId: "",
+  currentTemperature: 0.0,
+  currentLigth: 0.0
 };
 
 /**

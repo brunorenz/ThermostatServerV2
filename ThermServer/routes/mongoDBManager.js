@@ -2,6 +2,7 @@ var globaljs = require("./global");
 var config = require("./config");
 var thermManager = require("./thermManager");
 var mq = require("./thermServerMQ");
+var shelly = require("./shellyManager");
 /**
  * Manage last function callback
  * @param {*} options
@@ -32,7 +33,7 @@ var callbackOLD = function(options, error) {
 exports.updateConfiguration = function(options) {
   var confcoll = globaljs.mongoCon.collection(globaljs.CONF);
   let json = options.request;
-  console.log(json);
+  //console.log(json);
   var req = JSON.parse(json);
   let updateField = {
     location: req.location,
@@ -40,6 +41,9 @@ exports.updateConfiguration = function(options) {
     flagReleTemp: req.flagReleTemp,
     lastUpdate: new Date().getTime()
   };
+  console.log(
+    "Aggiorno MAC : " + req.macAddress + " => " + JSON.stringify(updateField)
+  );
   if (updateField.flagReleTemp === 1) {
     updateField.statusThermostat = parseInt(req.statusThermostat);
     updateField.temperatureMeasure = parseInt(req.temperatureMeasure);
@@ -47,7 +51,6 @@ exports.updateConfiguration = function(options) {
   if (updateField.flagReleLight === 1) {
     //statusLight: req.statusThermostat
   }
-
   confcoll.updateOne(
     {
       _id: req.macAddress
@@ -128,7 +131,7 @@ exports.monitorData = function(options) {
       console.log("ERRORE inserimento monitor data " + err);
     } else {
       let updateField = {
-        currentThemperature: record.temperature,
+        currentTemperature: record.temperature,
         currentLigth: record.light,
         lastCheck: new Date().getTime()
       };
@@ -257,36 +260,59 @@ exports.readThermostatProgramming = function(options) {
             " con misurazione di tipo " +
             conf.temperatureMeasure
         );
-        // ora cerco sensori temperatura
-        confColl.find({ flagTemperatureSensor: 1 }).toArray(function(err, doc) {
-          if (err) {
-            console.error("ERRORE lettura configurazione " + err);
-            //callback(options, err);
-          } else {
-            if (doc && doc.length > 0) {
-              console.log(
-                "trovati " + doc.length + " sensori che misurano temperatura"
-              );
-              for (let ix = 0; ix < doc.length; ix++) {
-                console.log(
-                  "Location " +
-                    doc[ix].location +
-                    " - Temperatura " +
-                    doc[ix].currentThemperature
-                );
-                console.log(
-                  "Location " +
-                    doc[ix].location +
-                    " - Luce " +
-                    doc[ix].currentLigth
-                );
+        // verifico tipo programmazione
+        options.shellyCommand = {
+          command: config.TypeShellyCommand.COMMAND,
+          status: conf.statusThermostat,
+          measure: conf.temperatureMeasure,
+          deviceid: conf.shellyMqttId
+        };
+        if (
+          conf.statusThermostat === config.TypeStatus.ON ||
+          conf.statusThermostat === config.TypeStatus.OFF
+        ) {
+          shelly.shellySendCommand(options);
+        } else {
+          // ora cerco sensori temperatura
+          confColl
+            .find({ flagTemperatureSensor: 1 })
+            .toArray(function(err, doc) {
+              if (err) {
+                console.error("ERRORE lettura configurazione " + err);
+                //callback(options, err);
+              } else {
+                if (doc && doc.length > 0) {
+                  console.log(
+                    "trovati " +
+                      doc.length +
+                      " sensori che misurano temperatura"
+                  );
+                  for (let ix = 0; ix < doc.length; ix++) {
+                    console.log(
+                      "Location " +
+                        doc[ix].location +
+                        " - Temperatura " +
+                        doc[ix].currentTemperature
+                    );
+                    console.log(
+                      "Location " +
+                        doc[ix].location +
+                        " - Luce " +
+                        doc[ix].currentLigth
+                    );
+                  }
+                  // leggi programmazione
+                  options.shellyCommand.temperature = doc;
+                  options.callback.push(shelly.shellySendCommand);
+                  readProgramming(options);
+                } else {
+                  options.error =
+                    "Non trovati sensori che misurano temperatura";
+                  console.log(options.error);
+                }
               }
-            } else {
-              options.error = "Non trovati sensori che misurano temperatura";
-              console.log(options.error);
-            }
-          }
-        });
+            });
+        }
       } else {
         options.error =
           "Trovati un numero di dispositivi non valido : " + doc.length;

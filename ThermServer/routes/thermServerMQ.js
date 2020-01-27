@@ -232,7 +232,7 @@ var sendProgrammingData = function(options) {
     timeZoneOffset: new Date().getTimezoneOffset()
   };
   if (record.flagReleTemp) {
-    console.log("Send Themperature configuration to " + record.macAddress);
+    console.log("Send Temperature configuration to " + record.macAddress);
     var optionsN = {
       programmingType: config.TypeProgramming.THEMP,
       configuration: configuration,

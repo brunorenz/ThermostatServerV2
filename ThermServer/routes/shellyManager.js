@@ -4,6 +4,62 @@ const myutils = require("./utils/myutils");
 const mongoDBMgr = require("./mongoDBManager");
 const http = require("http");
 
+var getStatusByProgram = function(options) {
+  let shellyCommand = options.shellyCommand;
+  let newStatus = shellyCommand.status;
+  if (
+    shellyCommand.status === config.TypeStatus.MANUAL ||
+    shellyCommand.status === config.TypeStatus.AUTO
+  ) {
+    let prog = options.response;
+    if (prog.idProgType === config.TypeProgramming.THEMP) {
+      let themp = shellyCommand.temperature;
+      let temperature = 0.0;
+      let currentProg = prog.programming[prog.activeProg];
+      if (themp.length === 1) temperature = themp[0].currentTemperature;
+      else {
+        for (let ix = 0; ix < themp.length; ix++) {
+          // faccio media di default
+          temperature += themp[ix].currentTemperature;
+        }
+        temperature = temperature / themp.length;
+      }
+      console.log("Temperatura calcolata : " + temperature);
+      let minTemp = currentProg.minTempManual;
+      if (shellyCommand.status === config.TypeStatus.AUTO) {
+        console.log("Calcolo fascia ora..");
+        let now = new Date();
+        let minsec = now.getHours() * 60 + now.getMinutes();
+        let day = now.getDay();
+        console.log("Giorno : " + day + " - Ora " + minsec);
+      }
+      newStatus =
+        temperature < minTemp ? config.TypeStatus.ON : config.TypeStatus.OFF;
+    } else {
+      // programamzione luce
+    }
+  }
+  return newStatus;
+};
+
+var shellySendCommand = function(options) {
+  //
+  //     globaljs.mqttCli.publish(topic, JSON.stringify(msg));
+  if (typeof options.shellyCommand !== "undefined") {
+    let shellyCommand = options.shellyCommand;
+    if (shellyCommand.command === config.TypeShellyCommand.COMMAND) {
+      let topic = "shellies/" + shellyCommand.deviceid + "/relay/0/command";
+      //
+      let newStatus = getStatusByProgram(options);
+
+      let message = newStatus === config.TypeStatus.ON ? "on" : "off";
+      console.log("Invio messaggio a " + topic + " => " + message);
+      globaljs.mqttCli.publish(topic, message);
+    }
+  } else console.error("Nessun comando da inviare a dispositivi Shelly!");
+};
+exports.shellySendCommand = shellySendCommand;
+
 var callShellySetting = function(options) {
   const httpOptions = {
     hostname: options.ip,
