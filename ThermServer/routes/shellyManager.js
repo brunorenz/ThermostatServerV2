@@ -31,7 +31,27 @@ var getStatusByProgram = function(options) {
         let now = new Date();
         let minsec = now.getHours() * 60 + now.getMinutes();
         let day = now.getDay();
+        minTemp = currentProg.minTemp;
         console.log("Giorno : " + day + " - Ora " + minsec);
+        for (let ix = 0; ix < 7; ix++)
+          if (currentProg.dayProgramming[ix].idDay === day)
+            for (
+              let iy = 0;
+              iy < currentProg.dayProgramming[ix].prog.length;
+              iy++
+            ) {
+              let entry = currentProg.dayProgramming[ix].prog[iy];
+              if (minsec >= entry.timeStart && minsec <= entry.timeEnd) {
+                console.log(
+                  "Trovata fascia oraria da " +
+                    entry.timeStart +
+                    " a " +
+                    entry.timeEnd
+                );
+                mintemp = entry.minTemp;
+                break;
+              }
+            }
       }
       newStatus =
         temperature < minTemp ? config.TypeStatus.ON : config.TypeStatus.OFF;
