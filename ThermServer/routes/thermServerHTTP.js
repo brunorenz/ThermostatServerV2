@@ -6,7 +6,10 @@ var mq = require("./thermServerMQ");
 
 exports.monitor = function(httpRequest, httpResponse) {
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
-  httpResponse.header("Access-Control-Allow-Origin", "*");
+  setHeader(httpResponse);
+  // httpResponse.header("Access-Control-Allow-Origin", "*");
+  // httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
+
   try {
     var options = {
       httpRequest: httpRequest,
@@ -27,7 +30,10 @@ exports.monitor = function(httpRequest, httpResponse) {
  */
 exports.updateConfiguration = function(httpRequest, httpResponse) {
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
-  httpResponse.header("Access-Control-Allow-Origin", "*");
+  setHeader(httpResponse);
+  // httpResponse.header("Access-Control-Allow-Origin", "*");
+  // httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
+
   try {
     var options = {
       httpRequest: httpRequest,
@@ -51,8 +57,9 @@ exports.updateConfiguration = function(httpRequest, httpResponse) {
  */
 exports.getConfiguration = function(httpRequest, httpResponse) {
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
-  httpResponse.header("Access-Control-Allow-Origin", "*");
-  httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
+  setHeader(httpResponse);
+  // httpResponse.header("Access-Control-Allow-Origin", "*");
+  // httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
   try {
     var type = config.TypeProgramming.THEMP;
     if (httpRequest.query.type) {
@@ -83,6 +90,10 @@ exports.getConfiguration = function(httpRequest, httpResponse) {
 
 exports.checkThermostatStatus = function(httpRequest, httpResponse) {
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
+  setHeader(httpResponse);
+  // httpResponse.header("Access-Control-Allow-Origin", "*");
+  // httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
+
   var options = {
     httpRequest: httpRequest,
     httpResponse: httpResponse,
@@ -102,6 +113,10 @@ exports.checkThermostatStatus = function(httpRequest, httpResponse) {
  */
 exports.shellyRegister = function(httpRequest, httpResponse) {
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
+  setHeader(httpResponse);
+  // httpResponse.header("Access-Control-Allow-Origin", "*");
+  // httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
+
   var options = {
     httpRequest: httpRequest,
     httpResponse: httpResponse,
@@ -126,6 +141,9 @@ exports.shellyRegister = function(httpRequest, httpResponse) {
  */
 exports.getProgramming = function(httpRequest, httpResponse) {
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
+  setHeader(httpResponse);
+  // httpResponse.header("Access-Control-Allow-Origin", "*");
+  // httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
 
   var type = config.TypeProgramming.THEMP;
   //    var p = myutils.httpGetParam(req);
@@ -166,4 +184,9 @@ var genericHTTPPostService = function(options) {
       else res.json(httpUtils.createResponse(null, 100, "Record not Found"));
     }
   }
+};
+
+var setHeader = function(httpResponse) {
+  httpResponse.header("Access-Control-Allow-Origin", "*");
+  httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
 };
