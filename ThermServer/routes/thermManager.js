@@ -4,17 +4,15 @@ const myutils = require("./utils/myutils");
 const mongoDBMgr = require("./mongoDBManager");
 const shellyMgr = require("./shellyManager");
 const netList = require("network-list");
-const TypeAction = { READ: 1, RESET: 2, UPDATE: 3, DELETE: 4 };
-exports.TypeAction = TypeAction;
 
 //lastCallback;
-
+/*
 exports.callbackNEW = function(options, error) {
   if (error) options.error = error;
   if (options.callback) options.callback(options);
   else if (options.lastCallback) options.lastCallback(options);
 };
-
+*/
 var callback = function(options, error) {
   if (error) options.error = error;
   if (options.callback && options.callback.length > 0) {
@@ -30,9 +28,14 @@ exports.callback = callback;
  * Thermostat programming management
  */
 exports.manageProgramming = function(options) {
-  if (options.action === TypeAction.READ) {
+  if (options.action === config.TypeAction.READ) 
+    mongoDBMgr.readProgramming(options);
+  else if (options.action === config.TypeAction.ADD) 
+  {
+    options.callback.unshift(mongoDBMgr.addProgramming);
     mongoDBMgr.readProgramming(options);
   }
+      
 };
 /**
  * check and update thermostat configuration

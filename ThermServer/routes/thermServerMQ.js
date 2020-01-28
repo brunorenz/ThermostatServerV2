@@ -123,7 +123,7 @@ exports.startMQListening = function(mqClient) {
         var options = {
           programmingType: input.type,
           macAddress: input.macAddress,
-          action: thermManager.TypeAction.READ,
+          action: config.TypeAction.READ,
           callback: [],
           createIfNull: true
         };
@@ -236,7 +236,7 @@ var sendProgrammingData = function(options) {
     var optionsN = {
       programmingType: config.TypeProgramming.THEMP,
       configuration: configuration,
-      action: thermManager.TypeAction.READ,
+      action: config.TypeAction.READ,
       callback: [],
       createIfNull: true
     };
@@ -248,7 +248,7 @@ var sendProgrammingData = function(options) {
     var optionsN = {
       programmingType: config.TypeProgramming.LIGTH,
       configuration: configuration,
-      action: thermManager.TypeAction.READ,
+      action: config.TypeAction.READ,
       callback: [],
       createIfNull: true
     };

@@ -199,6 +199,12 @@ exports.readConfiguration = function(options) {
   }
 };
 
+exports.addProgramming = function(options)
+{
+  let prog = options.response;
+  callback(options);
+}
+
 /**
  * manage read programming info request
  * create a new one if options.createIfNull = true

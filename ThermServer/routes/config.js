@@ -14,17 +14,20 @@ var statusOn = 1;
 var statusManual = 2;
 var statusAutomatic = 3;
 
-var status = { OFF: 0, ON: 1, MANUAL: 2, AUTO: 3 };
-var measure = { LOCAL: 1, MEDIUM: 2, PRIORITY: 2 };
-var programming = { THEMP: 1, LIGTH: 2 };
-var deviceType = { ANY: 0, ARDUINO: 1, SHELLY: 2 };
-var shellyCommand = { RELAY: 0, COMMAND: 1 };
+const status = { OFF: 0, ON: 1, MANUAL: 2, AUTO: 3 };
+const measure = { LOCAL: 1, MEDIUM: 2, PRIORITY: 2 };
+const programming = { THEMP: 1, LIGTH: 2 };
+const deviceType = { ANY: 0, ARDUINO: 1, SHELLY: 2 };
+const shellyCommand = { RELAY: 0, COMMAND: 1 };
+const action = { READ: 1, RESET: 2, UPDATE: 3, DELETE: 4 , ADD: 5};
+
 
 exports.TypeStatus = status;
 exports.TypeMeasure = measure;
 exports.TypeProgramming = programming;
 exports.TypeDeviceType = deviceType;
 exports.TypeShellyCommand = shellyCommand;
+exports.TypeAction = action;
 
 var configurationRecord = {
   ipAddress: "",
