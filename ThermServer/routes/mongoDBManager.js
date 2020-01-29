@@ -198,12 +198,55 @@ exports.readConfiguration = function(options) {
     });
   }
 };
+/**
+ * Aggiorna record di programmazione
+ * @param {*} options
+ */
+var updateProgrammingInternal = function(options) {
+  var progColl = globaljs.mongoCon.collection(globaljs.PROG);
+  console.log(
+    "Aggiorna record programmazione di tipo " + options.programmingType
+  );
+  progColl.updateOne(
+    {
+      _id: options.programmingType
+    },
+    {
+      $set: options.response
+    },
+    function(err, doc) {
+      if (err) {
+        console.error("Errore in aggiornamento record programmazione " + err);
+      } else {
+        options.response = prog;
+        console.log("Aggiornamento effettuato con successo!");
+      }
+      callback(options, err);
+    }
+  );
+};
 
-exports.addProgramming = function(options)
-{
+/**
+ * Aggionge record di programmazione
+ */
+exports.addProgramming = function(options) {
   let prog = options.response;
-  callback(options);
-}
+  //let type = options.programmingType;
+  let index = 0;
+  for (let ix = 0; ix < prog.programming.length; ix++)
+    if (prog.programming[ix].idProg > index)
+      index = prog.programming[ix].idProg;
+  if (options.programmingType === config.TypeProgramming.THEMP) {
+    var dayProg = config.getDefaultDayProgrammingTempRecord(
+      ++index,
+      "New Program"
+    );
+    prog.programming.push(dayProg);
+  } else {
+    // aggiorna programamzione Luce
+  }
+  updateProgrammingInternal(options);
+};
 
 /**
  * manage read programming info request
