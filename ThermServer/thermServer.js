@@ -76,8 +76,16 @@ app.post(
   urlencodedParser,
   termManagment.updateConfiguration
 );
-app.post("/rest/addProgramming", urlencodedParser,termManagment.addProgramming);
-
+app.post(
+  "/rest/addProgramming",
+  urlencodedParser,
+  termManagment.addProgramming
+);
+app.post(
+  "/rest/removeProgramming",
+  urlencodedParser,
+  termManagment.removeProgramming
+);
 
 app.post("/rest/monitor", jsonParser, termManagment.monitor);
 /**

@@ -7,7 +7,7 @@ var mq = require("./thermServerMQ");
 /**
  * Send JSON response
  */
-var genericHTTPPostService = function (options) {
+var genericHTTPPostService = function(options) {
   if (options.httpResponse) {
     let res = options.httpResponse;
     if (options.error) {
@@ -20,7 +20,7 @@ var genericHTTPPostService = function (options) {
   }
 };
 
-var setHeader = function (httpResponse) {
+var setHeader = function(httpResponse) {
   httpResponse.header("Access-Control-Allow-Origin", "*");
   httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
 };
@@ -28,7 +28,7 @@ var setHeader = function (httpResponse) {
 /**
  * Generic activity to validate and manage GET request
  */
-var validateGetRequest = function (httpRequest, httpResponse) {
+var validateGetRequest = function(httpRequest, httpResponse) {
   var options = {
     httpRequest: httpRequest,
     httpResponse: httpResponse,
@@ -42,31 +42,30 @@ var validateGetRequest = function (httpRequest, httpResponse) {
     httpResponse.json(httpUtils.createResponseKo(500, error));
   }
   return options;
-}
+};
 
 /**
  * Generic activity to validate and manage POST request
  */
-var validatePostRequest = function (httpRequest, httpResponse) {
-  var options = validateGetRequest(httpRequest, httpResponse)
+var validatePostRequest = function(httpRequest, httpResponse) {
+  var options = validateGetRequest(httpRequest, httpResponse);
   try {
     // check request encode
-    var contype = httpRequest.headers['content-type'];
+    var contype = httpRequest.headers["content-type"];
     console.log("Request ContentType : " + contype);
-    if (!contype || contype.indexOf('application/json') >= 0)
+    if (!contype || contype.indexOf("application/json") >= 0)
       options.request = httpRequest.body;
-    else
-      options.request = httpRequest.body.data;
+    else options.request = httpRequest.body.data;
   } catch (error) {
     httpResponse.json(httpUtils.createResponseKo(500, error));
   }
   return options;
-}
+};
 
-exports.monitorOLD = function (httpRequest, httpResponse) {
+exports.monitorOLD = function(httpRequest, httpResponse) {
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
   setHeader(httpResponse);
-  var contype = httpRequest.headers['content-type'];
+  var contype = httpRequest.headers["content-type"];
   console.log("Content Type " + contype);
   // httpResponse.header("Access-Control-Allow-Origin", "*");
   // httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
@@ -86,7 +85,7 @@ exports.monitorOLD = function (httpRequest, httpResponse) {
   }
 };
 
-exports.monitor = function (httpRequest, httpResponse) {
+exports.monitor = function(httpRequest, httpResponse) {
   var options = validatePostRequest(httpRequest, httpResponse);
   try {
     options.callback.push(genericHTTPPostService);
@@ -96,7 +95,32 @@ exports.monitor = function (httpRequest, httpResponse) {
   }
 };
 
-exports.addProgramming = function (httpRequest, httpResponse) {
+exports.removeProgramming = function(httpRequest, httpResponse) {
+  var options = validatePostRequest(httpRequest, httpResponse);
+  try {
+    let input = JSON.parse(options.request);
+    options.programmingType = input.type;
+    options.action = config.TypeAction.ADD;
+    options.callback.push(genericHTTPPostService);
+    options.usePromise = true;
+    new Promise(function(resolve, reject) {
+      mongoDBMgr.readProgramming(options);
+    })
+      .then(function(options) {
+        mongoDBMgr.deleteProgramming(options);
+      })
+      .then(function(options) {
+        genericHTTPPostService(options);
+      })
+      .catch(function(error) {
+        httpResponse.json(httpUtils.createResponseKo(500, error));
+      });
+  } catch (error) {
+    httpResponse.json(httpUtils.createResponseKo(500, error));
+  }
+};
+
+exports.addProgramming = function(httpRequest, httpResponse) {
   var options = validatePostRequest(httpRequest, httpResponse);
   try {
     let input = JSON.parse(options.request);
@@ -107,14 +131,12 @@ exports.addProgramming = function (httpRequest, httpResponse) {
   } catch (error) {
     httpResponse.json(httpUtils.createResponseKo(500, error));
   }
-}
-
+};
 
 /**
  * Update Configuration
  */
-exports.updateConfiguration = function (httpRequest, httpResponse) {
-
+exports.updateConfiguration = function(httpRequest, httpResponse) {
   var options = validatePostRequest(httpRequest, httpResponse);
   /*
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
@@ -143,8 +165,8 @@ exports.updateConfiguration = function (httpRequest, httpResponse) {
 /**
  * Read Configuration
  */
-exports.getConfiguration = function (httpRequest, httpResponse) {
-  var options = validateGetRequest(httpRequest, httpResponse)
+exports.getConfiguration = function(httpRequest, httpResponse) {
+  var options = validateGetRequest(httpRequest, httpResponse);
   /*
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
   setHeader(httpResponse);
@@ -169,10 +191,10 @@ exports.getConfiguration = function (httpRequest, httpResponse) {
       update: false,
       lastCallback: genericHTTPPostService
     };*/
-    options.action= config.TypeAction.READ;
+    options.action = config.TypeAction.READ;
     options.callback.push(genericHTTPPostService);
-    options.createIfNull= false;
-    options.update= false;
+    options.createIfNull = false;
+    options.update = false;
     thermManager.readConfigurationInternal(options);
   } catch (error) {
     httpResponse.json(httpUtils.createResponseKo(500, error));
@@ -183,7 +205,7 @@ exports.getConfiguration = function (httpRequest, httpResponse) {
  *
  */
 
-exports.checkThermostatStatus = function (httpRequest, httpResponse) {
+exports.checkThermostatStatus = function(httpRequest, httpResponse) {
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
   setHeader(httpResponse);
 
@@ -204,7 +226,7 @@ exports.checkThermostatStatus = function (httpRequest, httpResponse) {
 /**
  * Scan th local network finding for Schelly devices
  */
-exports.shellyRegister = function (httpRequest, httpResponse) {
+exports.shellyRegister = function(httpRequest, httpResponse) {
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
   setHeader(httpResponse);
   // httpResponse.header("Access-Control-Allow-Origin", "*");
@@ -232,7 +254,7 @@ exports.shellyRegister = function (httpRequest, httpResponse) {
  * @param {*} httpRequest
  * @param {*} httpResponse
  */
-exports.getProgramming = function (httpRequest, httpResponse) {
+exports.getProgramming = function(httpRequest, httpResponse) {
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
   setHeader(httpResponse);
   // httpResponse.header("Access-Control-Allow-Origin", "*");
@@ -262,5 +284,3 @@ exports.getProgramming = function (httpRequest, httpResponse) {
     genericHTTPPostService(options, error);
   }
 };
-
-
