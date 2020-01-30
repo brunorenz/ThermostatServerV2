@@ -100,7 +100,8 @@ exports.removeProgramming = function(httpRequest, httpResponse) {
   try {
     let input = JSON.parse(options.request);
     options.programmingType = input.type;
-    options.action = config.TypeAction.ADD;
+    options.idProd = input.id;
+    options.action = config.TypeAction.DELETE;
     options.callback.push(genericHTTPPostService);
     options.usePromise = true;
     new Promise(function(resolve, reject) {

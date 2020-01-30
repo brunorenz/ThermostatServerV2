@@ -15,10 +15,14 @@ exports.callbackNEW = function(options, error) {
 */
 var callback = function(options, error) {
   if (error) options.error = error;
+  let useCallBack = true;
+  if (typeof options.usePromise != "undefined") useCallBack = !options.usePromise;
   if (options.callback && options.callback.length > 0) {
     if (typeof options.callbackIndex === "undefined") options.callbackIndex = 0;
     if (options.callbackIndex < options.callback.length) {
+      if (useCallBack)
       options.callback[options.callbackIndex++](options);
+      else return options;
     }
   }
 };

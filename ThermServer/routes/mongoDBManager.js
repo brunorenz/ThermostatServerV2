@@ -218,7 +218,7 @@ var updateProgrammingInternal = function(options) {
       if (err) {
         console.error("Errore in aggiornamento record programmazione " + err);
       } else {
-        options.response = prog;
+        options.response = doc;
         console.log("Aggiornamento effettuato con successo!");
       }
       callback(options, err);
