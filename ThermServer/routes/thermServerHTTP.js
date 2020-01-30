@@ -32,6 +32,7 @@ var validateGetRequest = function(httpRequest, httpResponse) {
   var options = {
     httpRequest: httpRequest,
     httpResponse: httpResponse,
+    usePromise: false,
     callback: []
   };
   try {
@@ -95,21 +96,39 @@ exports.monitor = function(httpRequest, httpResponse) {
   }
 };
 
-exports.removeProgramming = function(httpRequest, httpResponse) {
+exports.updateProgramming = function(httpRequest, httpResponse) {
   var options = validatePostRequest(httpRequest, httpResponse);
   try {
     let input = JSON.parse(options.request);
     options.programmingType = input.type;
-    options.idProd = input.id;
-    options.action = config.TypeAction.DELETE;
-    options.callback.push(genericHTTPPostService);
+    options.programm = input.programm;
+    options.action = config.TypeAction.UPDATE;
     options.usePromise = true;
     new Promise(function(resolve, reject) {
-      mongoDBMgr.readProgramming(options);
+      thermManager.manageProgramming(options, resolve, reject);
     })
       .then(function(options) {
-        mongoDBMgr.deleteProgramming(options);
+        genericHTTPPostService(options);
       })
+      .catch(function(error) {
+        httpResponse.json(httpUtils.createResponseKo(500, error));
+      });
+  } catch (error) {
+    httpResponse.json(httpUtils.createResponseKo(500, error));
+  }
+};
+
+exports.deleteProgramming = function(httpRequest, httpResponse) {
+  var options = validatePostRequest(httpRequest, httpResponse);
+  try {
+    let input = JSON.parse(options.request);
+    options.programmingType = input.type;
+    options.idProg = input.id;
+    options.action = config.TypeAction.DELETE;
+    options.usePromise = true;
+    new Promise(function(resolve, reject) {
+      thermManager.manageProgramming(options, resolve, reject);
+    })
       .then(function(options) {
         genericHTTPPostService(options);
       })
@@ -127,12 +146,35 @@ exports.addProgramming = function(httpRequest, httpResponse) {
     let input = JSON.parse(options.request);
     options.programmingType = input.type;
     options.action = config.TypeAction.ADD;
+    options.usePromise = true;
+    new Promise(function(resolve, reject) {
+      thermManager.manageProgramming(options, resolve, reject);
+    })
+      .then(function(options) {
+        genericHTTPPostService(options);
+      })
+      .catch(function(error) {
+        httpResponse.json(httpUtils.createResponseKo(500, error));
+      });
+  } catch (error) {
+    httpResponse.json(httpUtils.createResponseKo(500, error));
+  }
+};
+
+/*
+exports.addProgrammingOLD = function(httpRequest, httpResponse) {
+  var options = validatePostRequest(httpRequest, httpResponse);
+  try {
+    let input = JSON.parse(options.request);
+    options.programmingType = input.type;
+    options.action = config.TypeAction.ADD;
     options.callback.push(genericHTTPPostService);
     thermManager.manageProgramming(options);
   } catch (error) {
     httpResponse.json(httpUtils.createResponseKo(500, error));
   }
 };
+*/
 
 /**
  * Update Configuration

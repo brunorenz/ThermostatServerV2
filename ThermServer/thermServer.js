@@ -82,9 +82,15 @@ app.post(
   termManagment.addProgramming
 );
 app.post(
-  "/rest/removeProgramming",
+  "/rest/deleteProgramming",
   urlencodedParser,
-  termManagment.removeProgramming
+  termManagment.deleteProgramming
+);
+
+app.post(
+  "/rest/updateProgramming",
+  urlencodedParser,
+  termManagment.updateProgramming
 );
 
 app.post("/rest/monitor", jsonParser, termManagment.monitor);

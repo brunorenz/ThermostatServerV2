@@ -16,14 +16,19 @@ exports.callbackNEW = function(options, error) {
 var callback = function(options, error) {
   if (error) options.error = error;
   let useCallBack = true;
-  if (typeof options.usePromise != "undefined") useCallBack = !options.usePromise;
-  if (options.callback && options.callback.length > 0) {
-    if (typeof options.callbackIndex === "undefined") options.callbackIndex = 0;
-    if (options.callbackIndex < options.callback.length) {
-      if (useCallBack)
-      options.callback[options.callbackIndex++](options);
-      else return options;
+  if (typeof options.usePromise != "undefined")
+    useCallBack = !options.usePromise;
+  if (useCallBack) {
+    if (options.callback && options.callback.length > 0) {
+      if (typeof options.callbackIndex === "undefined")
+        options.callbackIndex = 0;
+      if (options.callbackIndex < options.callback.length) {
+        options.callback[options.callbackIndex++](options);
+      }
     }
+  } else {
+    if (error) options.reject(error);
+    else options.resolve(options);
   }
 };
 
@@ -31,16 +36,54 @@ exports.callback = callback;
 /**
  * Thermostat programming management
  */
-exports.manageProgramming = function(options) {
-  if (options.action === config.TypeAction.READ) 
+exports.manageProgramming = function(options, resolveIn, rejectIn) {
+  switch (options.action) {
+    case config.TypeAction.READ:
+      mongoDBMgr.readProgramming(options);
+      break;
+    case config.TypeAction.UPDATE:
+      options.response = options.programm;
+      mongoDBMgr.updateProgramming(options, resolveIn, rejectIn);
+      break;
+    case config.TypeAction.ADD:
+    case config.TypeAction.DELETE:
+      new Promise(function(resolve, reject) {
+        mongoDBMgr.readProgramming(options, resolve, reject);
+      })
+        .then(function(options) {
+          if (options.action == config.TypeAction.ADD)
+            mongoDBMgr.addProgramming(options, resolveIn, rejectIn);
+          else if (options.action == config.TypeAction.DELETE)
+            mongoDBMgr.deleteProgramming(options, resolveIn, rejectIn);
+        })
+        .catch(function(error) {
+          reject(error);
+        });
+      break;
+  }
+  /*
+  if (options.action === config.TypeAction.READ)
     mongoDBMgr.readProgramming(options);
-  else if (options.action === config.TypeAction.ADD) 
-  {
+  else if (options.action === config.TypeAction.ADD) {
     options.callback.unshift(mongoDBMgr.addProgramming);
     mongoDBMgr.readProgramming(options);
+  } else if (options.action === config.TypeAction.DELETE) {
+    new Promise(function(resolve, reject) {
+      mongoDBMgr.readProgramming(options, resolve, reject);
+    })
+      .then(function(options) {
+        mongoDBMgr.deleteProgramming(options, resolveIn, rejectIn);
+        // return new Promise(function(resolve, reject) {
+        //   mongoDBMgr.deleteProgramming(options, resolve1, reject1);
+        // });
+      })
+      .catch(function(error) {
+        reject(error);
+      });
   }
-      
+  */
 };
+
 /**
  * check and update thermostat configuration
  */

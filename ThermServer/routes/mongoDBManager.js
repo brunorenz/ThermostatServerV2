@@ -1,30 +1,31 @@
 var globaljs = require("./global");
 var config = require("./config");
 var thermManager = require("./thermManager");
-var mq = require("./thermServerMQ");
+//var mq = require("./thermServerMQ");
 var shelly = require("./shellyManager");
+
 /**
  * Manage last function callback
  * @param {*} options
  */
-var callback = function(options, error) {
-  thermManager.callback(options, error);
-  // if (error) options.error = error;
-  // if (options.callback && options.callback.length > 0) {
-  //   if (typeof options.callbackIndex === "undefined") options.callbackIndex = 0;
-  //   if (options.callbackIndex < options.callback.length) {
-  //     options.callback[options.callbackIndex++](options);
-  //   }
-  // }
-  //if (options.internallCallback) options.internallCallback(options);
-  //else if (options.callback) options.callback(options);
-};
+// var callback = function(options, error) {
+//   return thermManager.callback(options, error);
+//   // if (error) options.error = error;
+//   // if (options.callback && options.callback.length > 0) {
+//   //   if (typeof options.callbackIndex === "undefined") options.callbackIndex = 0;
+//   //   if (options.callbackIndex < options.callback.length) {
+//   //     options.callback[options.callbackIndex++](options);
+//   //   }
+//   // }
+//   //if (options.internallCallback) options.internallCallback(options);
+//   //else if (options.callback) options.callback(options);
+// };
 
-var callbackOLD = function(options, error) {
-  if (error) options.error = error;
-  if (options.internallCallback) options.internallCallback(options);
-  else if (options.callback) options.callback(options);
-};
+// var callbackOLD = function(options, error) {
+//   if (error) options.error = error;
+//   if (options.internallCallback) options.internallCallback(options);
+//   else if (options.callback) options.callback(options);
+// };
 
 /**
  * Update management attribute of configuration
@@ -60,7 +61,7 @@ exports.updateConfiguration = function(options) {
     },
     function(err, r) {
       options.response = { update: r.modifiedCount };
-      callback(options);
+      return thermManager.callback(options);
     }
   );
 };
@@ -104,7 +105,7 @@ var updateConfigurationFull = function(confColl, options) {
       );
     }
   }
-  callback(options);
+  return thermManager.callback(options);
 };
 
 /**
@@ -144,7 +145,7 @@ exports.monitorData = function(options) {
         }
       );
     }
-    callback(options, err);
+    return thermManager.callback(options, err);
   });
 };
 
@@ -159,12 +160,12 @@ exports.readConfiguration = function(options) {
     confColl.findOne({ _id: options.macAddress }, function(err, doc) {
       if (err) {
         console.error("ERRORE lettura configurazione " + err);
-        callback(options, err);
+        return thermManager.callback(options, err);
       } else {
         if (doc) {
           options.response = doc;
           if (options.update) updateConfigurationFull(confColl, options);
-          else callback(options, err);
+          else return thermManager.callback(options, err);
         } else if (options.createIfNull) {
           // create new configuration
           var conf = config.getConfigurationRecord(options.macAddress);
@@ -172,11 +173,11 @@ exports.readConfiguration = function(options) {
           confColl.insertOne(conf, function(err, doc) {
             if (err) {
               console.log("ERRORE inserimento configurazione " + err);
-              callback(options, err);
+              return thermManager.callback(options, err);
             } else {
               options.response = conf;
               if (options.update) updateConfigurationFull(confColl, options);
-              else callback(options, err);
+              else return thermManager.callback(options, err);
             }
           });
         }
@@ -186,10 +187,10 @@ exports.readConfiguration = function(options) {
     confColl.find({}).toArray(function(err, elements) {
       if (err) {
         console.error("ERRORE lettura configurazione " + err);
-        callback(options, err);
+        return thermManager.callback(options, err);
       } else {
         options.response = elements;
-        callback(options, err);
+        return thermManager.callback(options, err);
         // for (let ix = 0; ix < elements.length; ix++) {
         //   let entry = elements[ix];
         //   let a = 1;
@@ -202,11 +203,12 @@ exports.readConfiguration = function(options) {
  * Aggiorna record di programmazione
  * @param {*} options
  */
-var updateProgrammingInternal = function(options) {
+var updateProgrammingInternal = function(options, resolve, reject) {
   var progColl = globaljs.mongoCon.collection(globaljs.PROG);
   console.log(
     "Aggiorna record programmazione di tipo " + options.programmingType
   );
+  options.response.lastUpdate = new Date().getTime();
   progColl.updateOne(
     {
       _id: options.programmingType
@@ -221,15 +223,21 @@ var updateProgrammingInternal = function(options) {
         options.response = doc;
         console.log("Aggiornamento effettuato con successo!");
       }
-      callback(options, err);
+      if (options.usePromise) {
+        if (err) reject(err);
+        else resolve(options);
+      } else thermManager.callback(options, err);
+
+      //XXXthermManager.callback(options, err);
     }
   );
 };
+exports.updateProgramming = updateProgrammingInternal;
 
 /**
  * Aggionge record di programmazione
  */
-exports.addProgramming = function(options) {
+exports.addProgramming = function(options, resolve, reject) {
   let prog = options.response;
   //let type = options.programmingType;
   let index = 0;
@@ -239,20 +247,40 @@ exports.addProgramming = function(options) {
   if (options.programmingType === config.TypeProgramming.THEMP) {
     var dayProg = config.getDefaultDayProgrammingTempRecord(
       ++index,
-      "New Program"
+      "New Program " + index
     );
     prog.programming.push(dayProg);
   } else {
     // aggiorna programamzione Luce
   }
-  updateProgrammingInternal(options);
+  updateProgrammingInternal(options, resolve, reject);
+};
+
+exports.deleteProgramming = function(options, resolve, reject) {
+  let prog = options.response;
+  let idProg = options.idProg;
+  console.log("Elimina programmazione giornaliera con id " + idProg);
+  //let type = options.programmingType;
+  let index = 0;
+  let newProg = [];
+  for (let ix = 0; ix < prog.programming.length; ix++)
+    if (prog.programming[ix].idProg != idProg)
+      newProg.push(prog.programming[ix]);
+    else
+      console.log(
+        "Travata ed eliminata programmazione giornaliera con id " + idProg
+      );
+  prog.programming = newProg;
+  updateProgrammingInternal(options, resolve, reject);
+  //resolve(options);
+  //thermManager.callback(options);
 };
 
 /**
  * manage read programming info request
  * create a new one if options.createIfNull = true
  */
-var readProgramming = function(options) {
+var readProgramming = function(options, resolve, reject) {
   var progColl = globaljs.mongoCon.collection(globaljs.PROG);
   progColl.findOne(
     {
@@ -261,11 +289,11 @@ var readProgramming = function(options) {
     function(err, doc) {
       if (err) {
         console.error("ERRORE lettura programmazione " + err);
-        callback(options, err);
+        //return thermManager.callback(options, err);
       } else {
         if (doc) {
           options.response = doc;
-          callback(options);
+          //return thermManager.callback(options);
         } else if (options.createIfNull) {
           // create new configuration
           console.log(
@@ -281,10 +309,14 @@ var readProgramming = function(options) {
             } else {
               options.response = prog;
             }
-            callback(options, err);
+            thermManager.callback(options, err);
           });
         }
       }
+      if (options.usePromise) {
+        if (err) reject(err);
+        else resolve(options);
+      } else thermManager.callback(options, err);
     }
   );
 };
@@ -367,7 +399,7 @@ exports.readThermostatProgramming = function(options) {
           "Trovati un numero di dispositivi non valido : " + doc.length;
         console.log(options.error);
       }
-      callback(options, err);
+      return thermManager.callback(options, err);
     }
   });
 };

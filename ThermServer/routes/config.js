@@ -2,17 +2,17 @@ var globaljs = require("./global");
 //var config = require("./config");
 
 // programming type
-var progTemp = 1;
-var progLight = 2;
+// var progTemp = 1;
+// var progLight = 2;
 // Temperature measurement
-var tempLocal = 1;
-var tempMedium = 2;
-var tempPriority = 3;
+// var tempLocal = 1;
+// var tempMedium = 2;
+// var tempPriority = 3;
 // status
-var statusOff = 0;
-var statusOn = 1;
-var statusManual = 2;
-var statusAutomatic = 3;
+// var statusOff = 0;
+// var statusOn = 1;
+// var statusManual = 2;
+// var statusAutomatic = 3;
 
 const status = { OFF: 0, ON: 1, MANUAL: 2, AUTO: 3 };
 const measure = { LOCAL: 1, MEDIUM: 2, PRIORITY: 2 };

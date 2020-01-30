@@ -1,5 +1,5 @@
 // MongoDB configuration
-var home = true;
+var home = false;
 var urlDB_ = "192.168.0.120:27017";
 var urlDB = home ? "192.168.0.120:27017" : "srvwas1.bpbari.it:27017";
 var DBName = "ThermDB";
@@ -31,8 +31,8 @@ exports.MQTopicShellies = "shellies/#";
 
 // HTTP
 var serverPort = 8101;
-var dbName = "/DB/termStat.db";
-var termStatdb;
+//var dbName = "/DB/termStat.db";
+//var termStatdb;
 
 // cahce
 var shellyCache = [];
@@ -55,17 +55,17 @@ var endTime2 = 23 * 60;
 var interval = 15;
 
 // programming type
-var progTemp = 1;
-var progLight = 2;
+// var progTemp = 1;
+// var progLight = 2;
 // Temperature measurement
-var tempLocal = 1;
-var tempMedium = 2;
-var tempPriority = 3;
+//var tempLocal = 1;
+//var tempMedium = 2;
+//var tempPriority = 3;
 // staus
-var statusOff = 0;
-var statusOn = 1;
-var statusManual = 2;
-var statusAutomatic = 3;
+//var statusOff = 0;
+//var statusOn = 1;
+//var statusManual = 2;
+//var statusAutomatic = 3;
 //
 var wss;
 
@@ -73,8 +73,8 @@ exports.shellyCache = shellyCache;
 exports.basicAuthShelly = basicAuthShelly;
 
 exports.SERVER_PORT = serverPort;
-exports.DB_NAME = dbName;
-exports.termStatdb = termStatdb;
+//exports.DB_NAME = dbName;
+//exports.termStatdb = termStatdb;
 exports.MONITOR_TIMEOUT = monitorTimeout;
 exports.BASIC_AUTH = basicAuth;
 exports.BASIC_AUTH_REQUIRED = basicAuthRequired;
@@ -88,15 +88,15 @@ exports.TIME_END1 = endTime1;
 exports.TIME_END2 = endTime2;
 exports.INTERVAL = interval;
 
-exports.TEMP_LOCAL = tempLocal;
-exports.TEMP_MEDIUM = tempMedium;
-exports.TEMP_PRIORITY = tempPriority;
+//exports.TEMP_LOCAL = tempLocal;
+//exports.TEMP_MEDIUM = tempMedium;
+//exports.TEMP_PRIORITY = tempPriority;
 
-exports.PROG_TEMP = progTemp;
-exports.PROG_LIGHT = progLight;
+//exports.PROG_TEMP = progTemp;
+//exports.PROG_LIGHT = progLight;
 
-exports.STATUS_OFF = statusOff;
-exports.STATUS_ON = statusOn;
-exports.STATUS_MAN = statusManual;
-exports.STATUS_AUTO = statusAutomatic;
+//exports.STATUS_OFF = statusOff;
+//exports.STATUS_ON = statusOn;
+//exports.STATUS_MAN = statusManual;
+//exports.STATUS_AUTO = statusAutomatic;
 exports.WSS = wss;
