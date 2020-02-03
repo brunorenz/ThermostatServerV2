@@ -5,6 +5,7 @@ var favicon = require("serve-favicon");
 var bodyParser = require("body-parser");
 var morgan = require("morgan");
 var errorhandler = require("errorhandler");
+var httpUtils = require("./routes/utils/httpUtils");
 
 var termManagment = require("./routes/thermServerHTTP");
 var app = express();
@@ -47,6 +48,20 @@ app.use(
     { stream: accessLogStream }
   )
 );
+
+/*
+const checkSecurity = function(req, res, next) {
+  if (!httpUtils.checkSecurity(req, res)) return;
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
+  console.log("Check Security and set CORS");
+  //res.header("Access-Control-Allow-Origin", "*");
+  //res.header("Access-Control-Allow-Methods", "*");
+  //res.header("Access-Control-Allow-Headers", "*");
+  next();
+};
+*/
+app.use(httpUtils.checkBasicSecurity);
 
 var jsonParser = bodyParser.json();
 var urlencodedParser = bodyParser.urlencoded({ extended: false });

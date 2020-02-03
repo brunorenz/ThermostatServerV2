@@ -19,12 +19,12 @@ var genericHTTPPostService = function(options) {
     }
   }
 };
-
+/*
 var setHeader = function(httpResponse) {
   httpResponse.header("Access-Control-Allow-Origin", "*");
   httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
 };
-
+*/
 /**
  * Generic activity to validate and manage GET request
  */
@@ -35,13 +35,16 @@ var validateGetRequest = function(httpRequest, httpResponse) {
     usePromise: false,
     callback: []
   };
-  try {
-    if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
-    httpResponse.header("Access-Control-Allow-Origin", "*");
-    httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
-  } catch (error) {
-    httpResponse.json(httpUtils.createResponseKo(500, error));
-  }
+  // if (!httpUtils.validateBasicAuthentication(httpRequest, httpResponse))
+  //   return null;
+  // try {
+  //   if (!httpUtils.validateBasicAuthentication(httpRequest, httpResponse))
+  //     return;
+  //   httpResponse.header("Access-Control-Allow-Origin", "*");
+  //   httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
+  // } catch (error) {
+  //   httpResponse.json(httpUtils.createResponseKo(500, error));
+  // }
   return options;
 };
 
@@ -50,16 +53,17 @@ var validateGetRequest = function(httpRequest, httpResponse) {
  */
 var validatePostRequest = function(httpRequest, httpResponse) {
   var options = validateGetRequest(httpRequest, httpResponse);
-  try {
-    // check request encode
-    var contype = httpRequest.headers["content-type"];
-    console.log("Request ContentType : " + contype);
-    if (!contype || contype.indexOf("application/json") >= 0)
-      options.request = httpRequest.body;
-    else options.request = httpRequest.body.data;
-  } catch (error) {
-    httpResponse.json(httpUtils.createResponseKo(500, error));
-  }
+  if (options != null)
+    try {
+      // check request encode
+      var contype = httpRequest.headers["content-type"];
+      console.log("Request ContentType : " + contype);
+      if (!contype || contype.indexOf("application/json") >= 0)
+        options.request = httpRequest.body;
+      else options.request = httpRequest.body.data;
+    } catch (error) {
+      httpResponse.json(httpUtils.createResponseKo(500, error));
+    }
   return options;
 };
 
@@ -210,21 +214,22 @@ exports.updateConfiguration = function(httpRequest, httpResponse) {
  */
 exports.getConfiguration = function(httpRequest, httpResponse) {
   var options = validateGetRequest(httpRequest, httpResponse);
-  /*
+  if (options != null) {
+    /*
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
   setHeader(httpResponse);
   // httpResponse.header("Access-Control-Allow-Origin", "*");
   // httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
   */
-  try {
-    var type = config.TypeProgramming.THEMP;
-    if (httpRequest.query.type) {
-      if (httpRequest.query.type === "temp")
-        type = config.TypeProgramming.THEMP;
-      else if (httpRequest.query.type === "light")
-        type = config.TypeProgramming.LIGTH;
-    }
-    /*
+    try {
+      var type = config.TypeProgramming.THEMP;
+      if (httpRequest.query.type) {
+        if (httpRequest.query.type === "temp")
+          type = config.TypeProgramming.THEMP;
+        else if (httpRequest.query.type === "light")
+          type = config.TypeProgramming.LIGTH;
+      }
+      /*
     var options = {
       httpRequest: httpRequest,
       httpResponse: httpResponse,
@@ -234,13 +239,14 @@ exports.getConfiguration = function(httpRequest, httpResponse) {
       update: false,
       lastCallback: genericHTTPPostService
     };*/
-    options.action = config.TypeAction.READ;
-    options.callback.push(genericHTTPPostService);
-    options.createIfNull = false;
-    options.update = false;
-    thermManager.readConfigurationInternal(options);
-  } catch (error) {
-    httpResponse.json(httpUtils.createResponseKo(500, error));
+      options.action = config.TypeAction.READ;
+      options.callback.push(genericHTTPPostService);
+      options.createIfNull = false;
+      options.update = false;
+      thermManager.readConfigurationInternal(options);
+    } catch (error) {
+      httpResponse.json(httpUtils.createResponseKo(500, error));
+    }
   }
 };
 

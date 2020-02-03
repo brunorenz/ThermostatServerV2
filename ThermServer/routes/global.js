@@ -40,8 +40,13 @@ var shellyCache = [];
 // const PREFIX = '/term';
 
 var monitorTimeout = 30000;
-var basicAuth = "Basic YnJ1bm86cHdk";
-var basicAuthRequired = false;
+
+// Security
+exports.JWTSecret = "Piripiccio2020";
+exports.JWTExpire = 1000 * 60 * 60 * 1; // un'ora
+
+var basicAuth = "Basic YWRtaW46YWgwNjB2eUEu";
+var basicAuthRequired = true;
 var basicAuthShelly = "Basic YWRtaW46YWgwNjB2eUEu";
 
 var minTemp = 17.0;

@@ -174,26 +174,50 @@ var createResponse = function(object, errorCode, message) {
   }
   return response;
 };
+
 /**
  * Check basic authentication from http header
  */
-var checkSecurity = function(req, res) {
+var validateBasicAuthentication = function(req, res) {
   var rc = true;
-  if (globaljs.BASIC_AUTH_REQUIRED) {
+  if (
+    (req.method === "GET" || req.method === "POST") &&
+    globaljs.BASIC_AUTH_REQUIRED
+  ) {
     if (!req.headers.authorization) {
-      res.send(400, "missing authorization header");
+      res
+        .status(401)
+        .send("missing authorization header")
+        .end();
       rc = false;
     } else if (req.headers.authorization !== globaljs.BASIC_AUTH) {
-      res.send(401);
+      res.status(401).end();
       rc = false;
     }
   }
   return rc;
 };
 
+exports.checkBasicSecurity = function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, jwttoken"
+  );
+  //res.header("Access-Control-Allow-Methods", "*");
+  //res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
+  if (validateBasicAuthentication(req, res)) {
+    console.log("Check BASIC Security and set CORS : OK");
+    next();
+  } else {
+    console.log("Check BASIC Security and set CORS : Fails!");
+  }
+};
+
 module.exports.createResponse = createResponse;
 module.exports.createResponseKo = createResponseKo;
-module.exports.checkSecurity = checkSecurity;
+module.exports.validateBasicAuthentication = validateBasicAuthentication;
 module.exports.webSocketSendEvent = webSocketSendEvent;
 module.exports.webSocketConnection = webSocketConnection;
 module.exports.httpGetJSON = httpGetJSON;
