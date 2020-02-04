@@ -244,7 +244,7 @@ exports.checkBasicSecurity = function(req, res, next) {
 
 module.exports.createResponse = createResponse;
 module.exports.createResponseKo = createResponseKo;
-module.exports.validateBasicAuthentication = validateBasicAuthentication;
+//module.exports.validateBasicAuthentication = validateBasicAuthentication;
 module.exports.webSocketSendEvent = webSocketSendEvent;
 module.exports.webSocketConnection = webSocketConnection;
 module.exports.httpGetJSON = httpGetJSON;

@@ -21,12 +21,7 @@ var genericHTTPPostService = function(options) {
     }
   }
 };
-/*
-var setHeader = function(httpResponse) {
-  httpResponse.header("Access-Control-Allow-Origin", "*");
-  httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
-};
-*/
+
 /**
  * Generic activity to validate and manage GET request
  */
@@ -37,16 +32,6 @@ var validateGetRequest = function(httpRequest, httpResponse) {
     usePromise: false,
     callback: []
   };
-  // if (!httpUtils.validateBasicAuthentication(httpRequest, httpResponse))
-  //   return null;
-  // try {
-  //   if (!httpUtils.validateBasicAuthentication(httpRequest, httpResponse))
-  //     return;
-  //   httpResponse.header("Access-Control-Allow-Origin", "*");
-  //   httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
-  // } catch (error) {
-  //   httpResponse.json(httpUtils.createResponseKo(500, error));
-  // }
   return options;
 };
 
@@ -102,6 +87,9 @@ exports.monitor = function(httpRequest, httpResponse) {
   }
 };
 
+/**
+ * Update Programming Record
+ */
 exports.updateProgramming = function(httpRequest, httpResponse) {
   var options = validatePostRequest(httpRequest, httpResponse);
   try {
@@ -124,6 +112,9 @@ exports.updateProgramming = function(httpRequest, httpResponse) {
   }
 };
 
+/**
+ * Delete Programming Record
+ */
 exports.deleteProgramming = function(httpRequest, httpResponse) {
   var options = validatePostRequest(httpRequest, httpResponse);
   try {
@@ -146,6 +137,9 @@ exports.deleteProgramming = function(httpRequest, httpResponse) {
   }
 };
 
+/**
+ * Add Programming Record
+ */
 exports.addProgramming = function(httpRequest, httpResponse) {
   var options = validatePostRequest(httpRequest, httpResponse);
   try {
@@ -282,6 +276,9 @@ exports.getProgramming = function(httpRequest, httpResponse) {
   }
 };
 
+/**
+ * Login function
+ */
 exports.login = function(httpRequest, httpResponse) {
   var options = validatePostRequest(httpRequest, httpResponse);
   if (options != null) {
