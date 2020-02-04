@@ -3,7 +3,7 @@ var config = require("./config");
 var httpUtils = require("./utils/httpUtils");
 var thermManager = require("./thermManager");
 var mq = require("./thermServerMQ");
-
+var security = require("./securityManager");
 /**
  * Send JSON response
  */
@@ -11,7 +11,9 @@ var genericHTTPPostService = function(options) {
   if (options.httpResponse) {
     let res = options.httpResponse;
     if (options.error) {
-      res.json(httpUtils.createResponseKo(500, options.error));
+      let errorCode = 500;
+      if (options.errorCode != "undefined") errorCode = options.errorCode;
+      res.json(httpUtils.createResponseKo(errorCode, options.error));
     } else {
       if (options.response)
         res.json(httpUtils.createResponse(options.response));
@@ -165,42 +167,11 @@ exports.addProgramming = function(httpRequest, httpResponse) {
   }
 };
 
-/*
-exports.addProgrammingOLD = function(httpRequest, httpResponse) {
-  var options = validatePostRequest(httpRequest, httpResponse);
-  try {
-    let input = JSON.parse(options.request);
-    options.programmingType = input.type;
-    options.action = config.TypeAction.ADD;
-    options.callback.push(genericHTTPPostService);
-    thermManager.manageProgramming(options);
-  } catch (error) {
-    httpResponse.json(httpUtils.createResponseKo(500, error));
-  }
-};
-*/
-
 /**
  * Update Configuration
  */
 exports.updateConfiguration = function(httpRequest, httpResponse) {
   var options = validatePostRequest(httpRequest, httpResponse);
-  /*
-  if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
-  setHeader(httpResponse);
-  // httpResponse.header("Access-Control-Allow-Origin", "*");
-  // httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
-
-  try {
-    var options = {
-      httpRequest: httpRequest,
-      httpResponse: httpResponse,
-      callback: [],
-      request: httpRequest.body.data
-    };
-    // propagate configuration change
-*/
-  //options.callback.push(mq.sendProgrammingData);
   try {
     options.callback.push(genericHTTPPostService);
     thermManager.updateConfigurationInternal(options);
@@ -215,12 +186,6 @@ exports.updateConfiguration = function(httpRequest, httpResponse) {
 exports.getConfiguration = function(httpRequest, httpResponse) {
   var options = validateGetRequest(httpRequest, httpResponse);
   if (options != null) {
-    /*
-  if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
-  setHeader(httpResponse);
-  // httpResponse.header("Access-Control-Allow-Origin", "*");
-  // httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
-  */
     try {
       var type = config.TypeProgramming.THEMP;
       if (httpRequest.query.type) {
@@ -229,16 +194,6 @@ exports.getConfiguration = function(httpRequest, httpResponse) {
         else if (httpRequest.query.type === "light")
           type = config.TypeProgramming.LIGTH;
       }
-      /*
-    var options = {
-      httpRequest: httpRequest,
-      httpResponse: httpResponse,
-      action: config.TypeAction.READ,
-      callback: [],
-      createIfNull: false,
-      update: false,
-      lastCallback: genericHTTPPostService
-    };*/
       options.action = config.TypeAction.READ;
       options.callback.push(genericHTTPPostService);
       options.createIfNull = false;
@@ -255,21 +210,21 @@ exports.getConfiguration = function(httpRequest, httpResponse) {
  */
 
 exports.checkThermostatStatus = function(httpRequest, httpResponse) {
-  if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
-  setHeader(httpResponse);
-
-  var options = {
-    httpRequest: httpRequest,
-    httpResponse: httpResponse,
-    callback: [],
-    lastCallback: genericHTTPPostService
-  };
-  options.callback.push(genericHTTPPostService);
-  try {
-    thermManager.checkThermostatStatus(options);
-  } catch (error) {
-    options.error = error;
-    genericHTTPPostService(options, error);
+  var options = validateGetRequest(httpRequest, httpResponse);
+  if (options != null) {
+    // var options = {
+    //   httpRequest: httpRequest,
+    //   httpResponse: httpResponse,
+    //   callback: [],
+    //   lastCallback: genericHTTPPostService
+    // };
+    options.callback.push(genericHTTPPostService);
+    try {
+      thermManager.checkThermostatStatus(options);
+    } catch (error) {
+      options.error = error;
+      genericHTTPPostService(options, error);
+    }
   }
 };
 /**
@@ -304,32 +259,37 @@ exports.shellyRegister = function(httpRequest, httpResponse) {
  * @param {*} httpResponse
  */
 exports.getProgramming = function(httpRequest, httpResponse) {
-  if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
-  setHeader(httpResponse);
-  // httpResponse.header("Access-Control-Allow-Origin", "*");
-  // httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
-
-  var type = config.TypeProgramming.THEMP;
-  //    var p = myutils.httpGetParam(req);
-  if (httpRequest.query.type) {
-    if (httpRequest.query.type === "temp") type = config.TypeProgramming.THEMP;
-    else if (httpRequest.query.type === "light")
-      type = config.TypeProgramming.LIGTH;
+  var options = validateGetRequest(httpRequest, httpResponse);
+  if (options != null) {
+    var type = config.TypeProgramming.THEMP;
+    //    var p = myutils.httpGetParam(req);
+    if (httpRequest.query.type) {
+      if (httpRequest.query.type === "temp")
+        type = config.TypeProgramming.THEMP;
+      else if (httpRequest.query.type === "light")
+        type = config.TypeProgramming.LIGTH;
+    }
+    options.programmingType = type;
+    options.action = config.TypeAction.READ;
+    options.createIfNull = true;
+    options.callback.push(genericHTTPPostService);
+    try {
+      thermManager.manageProgramming(options);
+    } catch (error) {
+      options.error = error;
+      genericHTTPPostService(options, error);
+    }
   }
-  var options = {
-    httpRequest: httpRequest,
-    httpResponse: httpResponse,
-    programmingType: type,
-    action: config.TypeAction.READ,
-    callback: [],
-    createIfNull: true,
-    lastCallback: genericHTTPPostService
-  };
-  options.callback.push(genericHTTPPostService);
-  try {
-    thermManager.manageProgramming(options);
-  } catch (error) {
-    options.error = error;
-    genericHTTPPostService(options, error);
+};
+
+exports.login = function(httpRequest, httpResponse) {
+  var options = validatePostRequest(httpRequest, httpResponse);
+  if (options != null) {
+    options.callback.push(genericHTTPPostService);
+    let input = JSON.parse(options.request);
+    console.log(JSON.stringify(input));
+    security.readUser(options);
+  } else {
+    genericHTTPPostService(options, "Generic error");
   }
 };

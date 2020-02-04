@@ -6,7 +6,6 @@ var bodyParser = require("body-parser");
 var morgan = require("morgan");
 var errorhandler = require("errorhandler");
 var httpUtils = require("./routes/utils/httpUtils");
-
 var termManagment = require("./routes/thermServerHTTP");
 var app = express();
 
@@ -84,6 +83,8 @@ app.get("/rest/getConfiguration", termManagment.getConfiguration);
 app.get("/rest/shellyRegister", termManagment.shellyRegister);
 
 app.get("/rest/check", termManagment.checkThermostatStatus);
+
+app.post("/rest/login", urlencodedParser, termManagment.login);
 
 // POST METHOD
 app.post(

@@ -42,8 +42,15 @@ var shellyCache = [];
 var monitorTimeout = 30000;
 
 // Security
+exports.JWTEnable = true;
 exports.JWTSecret = "Piripiccio2020";
-exports.JWTExpire = 1000 * 60 * 60 * 1; // un'ora
+exports.JWTExpire = "1h"; // 1000 * 60 * 60 * 1; // un'ora
+
+exports.JWT = {
+  enabled: true,
+  secret: "Piripiccio2020",
+  expire: "1h"
+};
 
 var basicAuth = "Basic YWRtaW46YWgwNjB2eUEu";
 var basicAuthRequired = true;

@@ -7,17 +7,19 @@
 	},
 	"dependencies": {
 		"express": "4.17.1",
-		"mongodb": "*",
+		"mongodb": "3.5.2",
 		"moment": "*",
 		"serve-favicon": "*",
 		"morgan": "*",
 		"body-parser": "*",
 		"errorhandler": "*",
-		"mqtt": "*",
+		"mqtt": "3.0.0",
 		"cors": "*",
 		"ws": "4.*",
 		"johnny-five": "*",
 		"etherport-client": "*",
-		"network-list": "*"
+		"network-list": "*",
+		"jsonwebtoken": "8.5.1",
+		"bcrypt": "3.0.7"
 	}
 }

@@ -1,3 +1,17 @@
+// override console.lg
+var myutils = require("./ThermServer/routes/utils/myutils");
+
+console.log = (function() {
+  var orig = console.log;
+  return function() {
+    try {
+      myutils.log.apply(console, arguments);
+    } catch {
+      orig.apply(console, arguments);
+    }
+  };
+})();
+
 var express = require("express");
 var globaljs = require("./ThermServer/routes/global");
 var assert = require("assert");

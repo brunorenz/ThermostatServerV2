@@ -61,3 +61,25 @@ var floorTime = function(interval, time, isSecond) {
 module.exports.floorTime = floorTime;
 module.exports.mapPut = mapPut;
 module.exports.mapGet = mapGet;
+
+const origlog = console.log;
+
+const getCurrentDateFormat = function() {
+  var dateStr = new Date().toLocaleString(); // default date format
+  dateStr = new Date().toLocaleString();
+  return dateStr + " ";
+};
+
+log = function(obj, ...argumentArray) {
+  var datePrefix = getCurrentDateFormat() + " : ";
+  if (typeof obj === "string") {
+    argumentArray.unshift(datePrefix + obj);
+  } else {
+    // This handles console.log( object )
+    argumentArray.unshift(obj);
+    argumentArray.unshift(datePrefix);
+  }
+  origlog.apply(this, argumentArray);
+};
+
+module.exports.log = log;
