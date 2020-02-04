@@ -173,8 +173,12 @@ exports.startMQListening = function(mqClient) {
             error
         );
       }
+    } else if (topic.startsWith("shellies"))
+    {
+      console.log("Messaggio da SHELLY "+topic);
+  
     } else {
-      console.log("Messaggio ricevuto su topic " + topic);
+      console.log("Messaggio non gestito per topic " + topic);
     }
   });
 };
