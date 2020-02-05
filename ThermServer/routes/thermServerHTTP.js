@@ -54,28 +54,28 @@ var validatePostRequest = function(httpRequest, httpResponse) {
   return options;
 };
 
-exports.monitorOLD = function(httpRequest, httpResponse) {
-  if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
-  setHeader(httpResponse);
-  var contype = httpRequest.headers["content-type"];
-  console.log("Content Type " + contype);
-  // httpResponse.header("Access-Control-Allow-Origin", "*");
-  // httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
+// exports.monitorOLD = function(httpRequest, httpResponse) {
+//   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
+//   setHeader(httpResponse);
+//   var contype = httpRequest.headers["content-type"];
+//   console.log("Content Type " + contype);
+//   // httpResponse.header("Access-Control-Allow-Origin", "*");
+//   // httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
 
-  try {
-    var options = {
-      httpRequest: httpRequest,
-      httpResponse: httpResponse,
-      callback: [],
-      request: httpRequest.body,
-      lastCallback: genericHTTPPostService
-    };
-    options.callback.push(genericHTTPPostService);
-    thermManager.monitorInternal(options);
-  } catch (error) {
-    httpResponse.json(httpUtils.createResponseKo(500, error));
-  }
-};
+//   try {
+//     var options = {
+//       httpRequest: httpRequest,
+//       httpResponse: httpResponse,
+//       callback: [],
+//       request: httpRequest.body,
+//       lastCallback: genericHTTPPostService
+//     };
+//     options.callback.push(genericHTTPPostService);
+//     thermManager.monitorInternal(options);
+//   } catch (error) {
+//     httpResponse.json(httpUtils.createResponseKo(500, error));
+//   }
+// };
 
 exports.monitor = function(httpRequest, httpResponse) {
   var options = validatePostRequest(httpRequest, httpResponse);

@@ -111,8 +111,8 @@ var updateConfigurationFull = function(confColl, options) {
 /**
  * Manage registration of monitor data
  */
-exports.monitorData = function(options) {
-  var monitorColl = globaljs.mongoCon.collection(globaljs.STAT);
+exports.monitorSensorData = function(options) {
+  var monitorColl = globaljs.mongoCon.collection(globaljs.SENSORSTAT);
   var confcoll = globaljs.mongoCon.collection(globaljs.CONF);
   let logRecord = options.request;
   var now = new Date();

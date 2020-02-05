@@ -5,14 +5,6 @@ const mongoDBMgr = require("./mongoDBManager");
 const shellyMgr = require("./shellyManager");
 const netList = require("network-list");
 
-//lastCallback;
-/*
-exports.callbackNEW = function(options, error) {
-  if (error) options.error = error;
-  if (options.callback) options.callback(options);
-  else if (options.lastCallback) options.lastCallback(options);
-};
-*/
 var callback = function(options, error) {
   if (error) options.error = error;
   let useCallBack = true;
@@ -93,7 +85,7 @@ exports.checkConfigurationInternal = function(options) {};
  * check and update thermostat configuration
  */
 exports.monitorInternal = function(options) {
-  mongoDBMgr.monitorData(options);
+  mongoDBMgr.monitorSensorData(options);
 };
 
 /**

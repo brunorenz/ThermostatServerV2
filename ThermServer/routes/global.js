@@ -1,5 +1,5 @@
 // MongoDB configuration
-var home = true;
+var home = false;
 var urlDB_ = "192.168.0.120:27017";
 var urlDB = home ? "192.168.0.120:27017" : "srvwas1.bpbari.it:27017";
 var DBName = "ThermDB";
@@ -10,9 +10,10 @@ exports.urlDB = urlDB;
 exports.mongoCon = mongoCon;
 
 exports.CONF = "configuration";
-exports.LOG = "log";
+//exports.LOG = "log";
 exports.PROG = "prog";
-exports.STAT = "stat";
+exports.SENSORSTAT = "sensorStat";
+exports.SHELLYSTAT = "shellyStat";
 
 // MQTT
 var urlMQTT_ = "mqtt://192.168.0.120";
@@ -66,27 +67,12 @@ var startTime2 = 18 * 60 + 30;
 var endTime2 = 23 * 60;
 var interval = 15;
 
-// programming type
-// var progTemp = 1;
-// var progLight = 2;
-// Temperature measurement
-//var tempLocal = 1;
-//var tempMedium = 2;
-//var tempPriority = 3;
-// staus
-//var statusOff = 0;
-//var statusOn = 1;
-//var statusManual = 2;
-//var statusAutomatic = 3;
-//
 var wss;
 
 exports.shellyCache = shellyCache;
 exports.basicAuthShelly = basicAuthShelly;
 
 exports.SERVER_PORT = serverPort;
-//exports.DB_NAME = dbName;
-//exports.termStatdb = termStatdb;
 exports.MONITOR_TIMEOUT = monitorTimeout;
 exports.BASIC_AUTH = basicAuth;
 exports.BASIC_AUTH_REQUIRED = basicAuthRequired;
@@ -100,15 +86,4 @@ exports.TIME_END1 = endTime1;
 exports.TIME_END2 = endTime2;
 exports.INTERVAL = interval;
 
-//exports.TEMP_LOCAL = tempLocal;
-//exports.TEMP_MEDIUM = tempMedium;
-//exports.TEMP_PRIORITY = tempPriority;
-
-//exports.PROG_TEMP = progTemp;
-//exports.PROG_LIGHT = progLight;
-
-//exports.STATUS_OFF = statusOff;
-//exports.STATUS_ON = statusOn;
-//exports.STATUS_MAN = statusManual;
-//exports.STATUS_AUTO = statusAutomatic;
 exports.WSS = wss;
