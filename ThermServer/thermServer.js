@@ -86,6 +86,7 @@ app.get("/rest/check", termManagment.checkThermostatStatus);
 
 app.post("/rest/login", urlencodedParser, termManagment.login);
 
+app.get("/rest/getSensorData", termManagment.getSensorData);
 // POST METHOD
 app.post(
   "/rest/updateConfiguration",

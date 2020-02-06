@@ -54,29 +54,6 @@ var validatePostRequest = function(httpRequest, httpResponse) {
   return options;
 };
 
-// exports.monitorOLD = function(httpRequest, httpResponse) {
-//   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
-//   setHeader(httpResponse);
-//   var contype = httpRequest.headers["content-type"];
-//   console.log("Content Type " + contype);
-//   // httpResponse.header("Access-Control-Allow-Origin", "*");
-//   // httpResponse.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
-
-//   try {
-//     var options = {
-//       httpRequest: httpRequest,
-//       httpResponse: httpResponse,
-//       callback: [],
-//       request: httpRequest.body,
-//       lastCallback: genericHTTPPostService
-//     };
-//     options.callback.push(genericHTTPPostService);
-//     thermManager.monitorInternal(options);
-//   } catch (error) {
-//     httpResponse.json(httpUtils.createResponseKo(500, error));
-//   }
-// };
-
 exports.monitor = function(httpRequest, httpResponse) {
   var options = validatePostRequest(httpRequest, httpResponse);
   try {
@@ -196,6 +173,25 @@ exports.getConfiguration = function(httpRequest, httpResponse) {
     } catch (error) {
       httpResponse.json(httpUtils.createResponseKo(500, error));
     }
+  }
+};
+
+exports.getSensorData = function(httpRequest, httpResponse) {
+  //   options.programmingType = config.TypeProgramming.THEMP;
+  // var confColl = globaljs.mongoCon.collection(globaljs.CONF);
+  // confColl.find({ flagReleTemp: 1 }).toArray(function(err, doc) {
+  var options = validateGetRequest(httpRequest, httpResponse);
+  if (options != null) {
+    options.usePromise = true;
+    new Promise(function(resolve, reject) {
+      thermManager.getSensorData(options, resolve, reject);
+    })
+      .then(function(options) {
+        genericHTTPPostService(options);
+      })
+      .catch(function(error) {
+        httpResponse.json(httpUtils.createResponseKo(500, error));
+      });
   }
 };
 

@@ -9,10 +9,9 @@ exports.DBName = DBName;
 exports.urlDB = urlDB;
 exports.mongoCon = mongoCon;
 
-exports.CONF = "configuration";
-//exports.LOG = "log";
-exports.PROG = "prog";
-exports.SENSORSTAT = "sensorStat";
+exports.MONGO_CONF = "configuration";
+exports.MONGO_PROG = "prog";
+exports.MONGO_SENSORSTAT = "sensorStat";
 exports.SHELLYSTAT = "shellyStat";
 
 // MQTT
@@ -43,18 +42,18 @@ var shellyCache = [];
 var monitorTimeout = 30000;
 
 // Security
-exports.JWTEnable = true;
-exports.JWTSecret = "Piripiccio2020";
-exports.JWTExpire = "1h"; // 1000 * 60 * 60 * 1; // un'ora
+//exports.JWTEnable = false;
+//exports.JWTSecret = "Piripiccio2020";
+//exports.JWTExpire = "1h"; // 1000 * 60 * 60 * 1; // un'ora
 
 exports.JWT = {
-  enabled: true,
+  enabled: false,
   secret: "Piripiccio2020",
   expire: "1h"
 };
 
 var basicAuth = "Basic YWRtaW46YWgwNjB2eUEu";
-var basicAuthRequired = true;
+var basicAuthRequired = false;
 var basicAuthShelly = "Basic YWRtaW46YWgwNjB2eUEu";
 
 var minTemp = 17.0;

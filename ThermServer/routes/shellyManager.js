@@ -4,6 +4,19 @@ const myutils = require("./utils/myutils");
 const mongoDBMgr = require("./mongoDBManager");
 const http = require("http");
 
+var getIndexProgram = function(progRecord, idProg) {
+  if (typeof idProg === "undefined") idProg = progRecord.activeProg;
+  let programming = progRecord.programming;
+  let index = 0;
+  for (let ix = 0; ix < programming.length; ix++) {
+    if (programming[ix].idProg === idProg) {
+      index = ix;
+      break;
+    }
+  }
+  return index;
+};
+
 var getStatusByProgram = function(options) {
   let shellyCommand = options.shellyCommand;
   let newStatus = shellyCommand.status;
@@ -15,7 +28,8 @@ var getStatusByProgram = function(options) {
     if (prog.idProgType === config.TypeProgramming.THEMP) {
       let themp = shellyCommand.temperature;
       let temperature = 0.0;
-      let currentProg = prog.programming[prog.activeProg];
+      //let currentProg = prog.programming[prog.activeProg];
+      let currentProg = prog.programming[getIndexProgram(prog)];
       if (themp.length === 1) temperature = themp[0].currentTemperature;
       else {
         for (let ix = 0; ix < themp.length; ix++) {
@@ -48,12 +62,17 @@ var getStatusByProgram = function(options) {
                     " a " +
                     entry.timeEnd
                 );
-                minTemp = entry.minTemp;            
+                minTemp = entry.minTemp;
                 break;
               }
             }
       }
-      console.log("Temperatura calcolata : " + temperature+" - Di riferimento "+minTemp);
+      console.log(
+        "Temperatura calcolata : " +
+          temperature +
+          " - Di riferimento " +
+          minTemp
+      );
       newStatus =
         temperature < minTemp ? config.TypeStatus.ON : config.TypeStatus.OFF;
     } else {

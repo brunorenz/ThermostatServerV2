@@ -49,31 +49,10 @@ exports.manageProgramming = function(options, resolveIn, rejectIn) {
             mongoDBMgr.deleteProgramming(options, resolveIn, rejectIn);
         })
         .catch(function(error) {
-          reject(error);
+          rejectIn(error);
         });
       break;
   }
-  /*
-  if (options.action === config.TypeAction.READ)
-    mongoDBMgr.readProgramming(options);
-  else if (options.action === config.TypeAction.ADD) {
-    options.callback.unshift(mongoDBMgr.addProgramming);
-    mongoDBMgr.readProgramming(options);
-  } else if (options.action === config.TypeAction.DELETE) {
-    new Promise(function(resolve, reject) {
-      mongoDBMgr.readProgramming(options, resolve, reject);
-    })
-      .then(function(options) {
-        mongoDBMgr.deleteProgramming(options, resolveIn, rejectIn);
-        // return new Promise(function(resolve, reject) {
-        //   mongoDBMgr.deleteProgramming(options, resolve1, reject1);
-        // });
-      })
-      .catch(function(error) {
-        reject(error);
-      });
-  }
-  */
 };
 
 /**
@@ -166,4 +145,62 @@ exports.checkThermostatStatus = function(options) {
   // recupera temperature
   // calcola
   mongoDBMgr.readThermostatProgramming(options);
+};
+
+exports.getSensorData = function(options, resolveIn, rejectIn) {
+  new Promise(function(resolve, reject) {
+    let query = {
+      collection: globaljs.mongoCon.collection(globaljs.MONGO_CONF),
+      filter: {
+        $or: [{ flagTemperatureSensor: 1 }, { flagLightSensor: 1 }]
+      },
+      selectOne: false
+    };
+    options.genericQuery = query;
+    mongoDBMgr.genericQuery(options, resolve, reject);
+  })
+    .then(function(options) {
+      if (options.response) {
+        query = {
+          collection: globaljs.mongoCon.collection(globaljs.MONGO_SENSORSTAT),
+          selectOne: true,
+          sort: { time: -1 }
+        };
+        let optionsN = {
+          genericQuery: query,
+          usePromise: true
+        };
+        let pIn = [];
+        for (let ix = 0; ix < options.response.length; ix++)
+          pIn.push(
+            new Promise(function(resolve, reject) {
+              let nOptions = Object.assign({}, optionsN);
+              nOptions.macAddress = options.response[ix].macAddress;
+              nOptions.location = options.response[ix].location;
+              nOptions.genericQuery.filter = {
+                macAddress: nOptions.macAddress
+              };
+              mongoDBMgr.genericQuery(nOptions, resolve, reject);
+            })
+          );
+        if (pIn.length > 0) {
+          Promise.all(pIn)
+            .then(function(optionsN) {
+              options.response = [];
+              for (let ix = 0; ix < optionsN.length; ix++) {
+                let record = optionsN[ix].response;
+                record.location = optionsN[ix].location;
+                options.response.push(record);
+              }
+              resolveIn(options);
+            })
+            .catch(function(error) {
+              rejectIn(error);
+            });
+        }
+      } else resolveIn(options);
+    })
+    .catch(function(error) {
+      rejectIn(error);
+    });
 };
