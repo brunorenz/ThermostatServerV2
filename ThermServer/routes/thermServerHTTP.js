@@ -176,10 +176,23 @@ exports.getConfiguration = function(httpRequest, httpResponse) {
   }
 };
 
+exports.getReleData = function(httpRequest, httpResponse) {
+  var options = validateGetRequest(httpRequest, httpResponse);
+  if (options != null) {
+    options.usePromise = true;
+    new Promise(function(resolve, reject) {
+      thermManager.getReleData(options, resolve, reject);
+    })
+      .then(function(options) {
+        genericHTTPPostService(options);
+      })
+      .catch(function(error) {
+        httpResponse.json(httpUtils.createResponseKo(500, error));
+      });
+  }
+};
+
 exports.getSensorData = function(httpRequest, httpResponse) {
-  //   options.programmingType = config.TypeProgramming.THEMP;
-  // var confColl = globaljs.mongoCon.collection(globaljs.CONF);
-  // confColl.find({ flagReleTemp: 1 }).toArray(function(err, doc) {
   var options = validateGetRequest(httpRequest, httpResponse);
   if (options != null) {
     options.usePromise = true;
