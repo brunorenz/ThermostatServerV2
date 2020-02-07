@@ -12,7 +12,7 @@ exports.mongoCon = mongoCon;
 exports.MONGO_CONF = "configuration";
 exports.MONGO_PROG = "prog";
 exports.MONGO_SENSORSTAT = "sensorStat";
-exports.SHELLYSTAT = "shellyStat";
+exports.MONGO_SHELLYSTAT = "shellyStat";
 
 // MQTT
 var urlMQTT_ = "mqtt://192.168.0.120";

@@ -17,15 +17,15 @@ let getUserRecord = function() {
 };
 
 let sign = function(user) {
-  let token = jwt.sign(user, globaljs.JWTSecret, {
-    expiresIn: globaljs.JWTExpire
+  let token = jwt.sign(user, globaljs.JWT.secret, {
+    expiresIn: globaljs.JWT.expire
   });
   return token;
 };
 
 let verify = function(token) {
   try {
-    let user = jwt.verify(token, globaljs.JWTSecret);
+    let user = jwt.verify(token, globaljs.JWT.secret);
     console.log("JWT OK for " + user.email);
   } catch (error) {
     console.log("JWT KO for token " + token + " : " + error);

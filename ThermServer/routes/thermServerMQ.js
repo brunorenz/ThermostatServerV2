@@ -173,14 +173,42 @@ exports.startMQListening = function(mqClient) {
             error
         );
       }
-    } else if (topic.startsWith("shellies"))
-    {
-      console.log("Messaggio da SHELLY "+topic);
-  
+    } else if (topic.startsWith("shellies")) {
+      console.log("Messaggio da SHELLY " + topic);
+      try {
+        var options = {
+          request: message,
+          type: "MQ",
+          callback: [],
+          topic: topic
+        };
+        processShellyMessage(options);
+      } catch (error) {
+        console.log(
+          "Error while processing message on topic " + topic + " : " + error
+        );
+      }
     } else {
       console.log("Messaggio non gestito per topic " + topic);
     }
   });
+};
+
+var processShellyMessage = function(options) {
+  let topic = options.topic.split("/");
+  if (topic.length > 2) {
+    let shellyId = topic[1];
+    let command = topic[2];
+    console.log("Shelly id : " + shellyId + " - command : " + command);
+    if (command === "relay" && topic[topic.length - 1] === "0") {
+      console.log("Current status of " + shellyId + " is " + options.request);
+      options.shellyCommand = {
+        command: config.TypeShellyCommand.RELAY,
+        deviceid: shellyId
+      };
+      thermManager.monitorReleData(options);
+    }
+  }
 };
 
 var programmingMQService = function(options) {

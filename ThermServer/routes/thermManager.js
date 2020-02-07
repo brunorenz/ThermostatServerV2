@@ -67,6 +67,9 @@ exports.monitorInternal = function(options) {
   mongoDBMgr.monitorSensorData(options);
 };
 
+exports.monitorReleData = function(options) {
+  mongoDBMgr.monitorReleData(options);
+};
 /**
  * Thermostat register function
  */
@@ -145,6 +148,74 @@ exports.checkThermostatStatus = function(options) {
   // recupera temperature
   // calcola
   mongoDBMgr.readThermostatProgramming(options);
+};
+
+exports.getReleData = function(options, resolveIn, rejectIn) {
+  new Promise(function(resolve, reject) {
+    let query = {
+      collection: globaljs.mongoCon.collection(globaljs.MONGO_CONF),
+      filter: {
+        $or: [{ flagReleTemp: 1 }, { flagReleLight: 1 }]
+      },
+      selectOne: false
+    };
+    options.genericQuery = query;
+    mongoDBMgr.genericQuery(options, resolve, reject);
+  })
+    .then(function(options) {
+      if (options.response) {
+        query = {
+          collection: globaljs.mongoCon.collection(globaljs.MONGO_SHELLYSTAT),
+          selectOne: true,
+          sort: { time: -1 }
+        };
+        let pIn = [];
+        // recupero stato rele
+        for (let ix = 0; ix < options.response.length; ix++)
+          pIn.push(
+            new Promise(function(resolve, reject) {
+              let conf = options.response[ix];
+              let nOptions = {
+                genericQuery: query,
+                usePromise: true,
+                shellyId: conf.shellyMqttId,
+                macAddress: conf.macAddress,
+                location: conf.location,
+                flagReleTemp: conf.flagReleTemp,
+                flagReleLight: conf.flagReleLight,
+                temperatureMeasure: conf.temperatureMeasure
+              };
+              nOptions.genericQuery.filter = {
+                shellyId: nOptions.shellyId
+              };
+              mongoDBMgr.genericQuery(nOptions, resolve, reject);
+            })
+          );
+        if (pIn.length > 0) {
+          Promise.all(pIn)
+            .then(function(optionsN) {
+              options.response = [];
+              for (let ix = 0; ix < optionsN.length; ix++) {
+                let entry = optionsN[ix];
+                let record = entry.response;
+                record.location = entry.location;
+                record.flagReleTemp = entry.flagReleTemp;
+                record.flagReleLight = entry.flagReleLight;
+                if (record.flagReleTemp === 1)
+                  record.temperatureMeasure = entry.temperatureMeasure;
+                options.response.push(record);
+              }
+              resolveIn(options);
+            })
+            .catch(function(error) {
+              rejectIn(error);
+            });
+        }
+      } else resolveIn(options);
+    })
+    .catch(function(error) {
+      rejectIn(error);
+    });
 };
 
 exports.getSensorData = function(options, resolveIn, rejectIn) {
