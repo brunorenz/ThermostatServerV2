@@ -183,7 +183,7 @@ exports.getReleData = function(options, resolveIn, rejectIn) {
                 location: conf.location,
                 flagReleTemp: conf.flagReleTemp,
                 flagReleLight: conf.flagReleLight,
-                temperatureMeasure: conf.temperatureMeasure
+                statusThermostat: conf.statusThermostat
               };
               nOptions.genericQuery.filter = {
                 shellyId: nOptions.shellyId
@@ -202,7 +202,7 @@ exports.getReleData = function(options, resolveIn, rejectIn) {
                 record.flagReleTemp = entry.flagReleTemp;
                 record.flagReleLight = entry.flagReleLight;
                 if (record.flagReleTemp === 1)
-                  record.temperatureMeasure = entry.temperatureMeasure;
+                  record.statusThermostat = entry.statusThermostat;
                 options.response.push(record);
               }
               resolveIn(options);

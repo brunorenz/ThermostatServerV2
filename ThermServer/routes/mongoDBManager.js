@@ -62,7 +62,7 @@ exports.updateConfiguration = function(options) {
     function(err, r) {
       if (!err) {
         // aggiorna dispositivi shelly
-        thermManager.checkThermostatStatus({});
+        thermManager.checkThermostatStatus({callback:[]});
       }
       options.response = { update: r.modifiedCount };
       thermManager.callback(options);
