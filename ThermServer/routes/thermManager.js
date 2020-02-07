@@ -67,6 +67,9 @@ exports.monitorInternal = function(options) {
   mongoDBMgr.monitorSensorData(options);
 };
 
+exports.monitorReleData = function(options) {
+  mongoDBMgr.monitorReleData(options);
+};
 /**
  * Thermostat register function
  */

@@ -12,7 +12,7 @@ var checkTemperature = function() {
   } catch (error) {
     console.log("Errore in task checkThermostatStatus : " + error);
   }
-  setTimeout(checkTemperature, 5000);
+  setTimeout(checkTemperature, 30000);
 };
 
 exports.checkTemperature = checkTemperature;

@@ -60,8 +60,12 @@ exports.updateConfiguration = function(options) {
       $set: updateField
     },
     function(err, r) {
+      if (!err) {
+        // aggiorna dispositivi shelly
+        thermManager.checkThermostatStatus({});
+      }
       options.response = { update: r.modifiedCount };
-      return thermManager.callback(options);
+      thermManager.callback(options);
     }
   );
 };
@@ -108,6 +112,25 @@ var updateConfigurationFull = function(confColl, options) {
   return thermManager.callback(options);
 };
 
+exports.monitorReleData = function(options) {
+  var monitorColl = globaljs.mongoCon.collection(globaljs.MONGO_SHELLYSTAT);
+  let logRecord = options.request.toString();
+  var now = new Date();
+  var record = {
+    shellyId: options.shellyCommand.deviceid,
+    time: now.getTime(),
+    date: now,
+    status: logRecord === "on" ? 1 : 0
+  };
+  monitorColl.insertOne(record, function(err, doc) {
+    if (err) {
+      console.log("ERRORE inserimento monitor data " + err);
+    } else {
+    }
+    thermManager.callback(options, err);
+  });
+};
+
 /**
  * Manage registration of monitor data
  */
@@ -145,7 +168,7 @@ exports.monitorSensorData = function(options) {
         }
       );
     }
-    return thermManager.callback(options, err);
+    thermManager.callback(options, err);
   });
 };
 
