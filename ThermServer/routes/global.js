@@ -1,5 +1,7 @@
 // MongoDB configuration
-var home = false;
+var home = true;
+const security = false;
+
 var urlDB_ = "192.168.0.120:27017";
 var urlDB = home ? "192.168.0.120:27017" : "srvwas1.bpbari.it:27017";
 var DBName = "ThermDB";
@@ -39,7 +41,8 @@ var shellyCache = [];
 
 // const PREFIX = '/term';
 
-var monitorTimeout = 30000;
+const monitorTimeout = 30000;
+exports.MONITOR_TIMEOUT = monitorTimeout;
 
 // Security
 //exports.JWTEnable = false;
@@ -47,13 +50,13 @@ var monitorTimeout = 30000;
 //exports.JWTExpire = "1h"; // 1000 * 60 * 60 * 1; // un'ora
 
 exports.JWT = {
-  enabled: false,
+  enabled: security,
   secret: "Piripiccio2020",
   expire: "1h"
 };
 
 var basicAuth = "Basic YWRtaW46YWgwNjB2eUEu";
-var basicAuthRequired = false;
+var basicAuthRequired = security;
 var basicAuthShelly = "Basic YWRtaW46YWgwNjB2eUEu";
 
 var minTemp = 17.0;
