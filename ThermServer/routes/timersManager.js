@@ -1,4 +1,5 @@
 var thermManager = require("./thermManager");
+const globaljs = require("./global");
 
 var checkTemperature = function() {
   var options = {
@@ -12,7 +13,7 @@ var checkTemperature = function() {
   } catch (error) {
     console.log("Errore in task checkThermostatStatus : " + error);
   }
-  setTimeout(checkTemperature, 5000);
+  setTimeout(checkTemperature, globaljs.MONITOR_TIMEOUT);
 };
 
 exports.checkTemperature = checkTemperature;
