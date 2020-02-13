@@ -2,6 +2,8 @@ const globaljs = require("./global");
 const config = require("./config");
 const myutils = require("./utils/myutils");
 const mongoDBMgr = require("./mongoDBManager");
+const mongoDBStatMgr = require("./mongoDBStatManager");
+
 const shellyMgr = require("./shellyManager");
 const netList = require("network-list");
 
@@ -270,6 +272,49 @@ exports.getSensorData = function(options, resolveIn, rejectIn) {
             });
         }
       } else resolveIn(options);
+    })
+    .catch(function(error) {
+      rejectIn(error);
+    });
+};
+
+exports.getStatistics = function(options, resolveIn, rejectIn) {
+  // leggo sensori - rele
+  // per ogni esegui map/reduce
+  new Promise(function(resolve, reject) {
+    let query = {
+      collection: globaljs.mongoCon.collection(globaljs.MONGO_CONF),
+      filter:
+        options.statisticType === "RELE"
+          ? {
+              $or: [{ flagReleTemp: 1 }, { flagReleLight: 1 }]
+            }
+          : {
+              $or: [{ flagTemperatureSensor: 1 }, { flagLightSensor: 1 }]
+            },
+      selectOne: false
+    };
+    options.genericQuery = query;
+    mongoDBMgr.genericQuery(options, resolve, reject);
+  })
+    .then(function(options) {
+      new Promise(function(resolve, reject) {
+        options.configuration = options.response;
+        options.depth = 72; //  hour
+        options.interval = 5; //minutes
+
+        options.endTime = new Date().getTime();
+        options.startTime = options.endTime - options.depth * 60 * 60 * 1000;
+        if (options.statisticType === "RELE")
+          mongoDBStatMgr.getReleStatistics(options, resolve, reject);
+        else mongoDBStatMgr.getSensorStatistics(options, resolve, reject);
+      })
+        .then(function(options) {
+          resolveIn(options);
+        })
+        .catch(function(error) {
+          rejectIn(error);
+        });
     })
     .catch(function(error) {
       rejectIn(error);

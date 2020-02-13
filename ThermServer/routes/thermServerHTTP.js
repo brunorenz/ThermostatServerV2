@@ -40,17 +40,16 @@ var validateGetRequest = function(httpRequest, httpResponse) {
  */
 var validatePostRequest = function(httpRequest, httpResponse) {
   var options = validateGetRequest(httpRequest, httpResponse);
-  if (options != null)
-    try {
-      // check request encode
-      var contype = httpRequest.headers["content-type"];
-      console.log("Request ContentType : " + contype);
-      if (!contype || contype.indexOf("application/json") >= 0)
-        options.request = httpRequest.body;
-      else options.request = httpRequest.body.data;
-    } catch (error) {
-      httpResponse.json(httpUtils.createResponseKo(500, error));
-    }
+  try {
+    // check request encode
+    var contype = httpRequest.headers["content-type"];
+    console.log("Request ContentType : " + contype);
+    if (!contype || contype.indexOf("application/json") >= 0)
+      options.request = httpRequest.body;
+    else options.request = httpRequest.body.data;
+  } catch (error) {
+    httpResponse.json(httpUtils.createResponseKo(500, error));
+  }
   return options;
 };
 
@@ -298,4 +297,29 @@ exports.login = function(httpRequest, httpResponse) {
   } else {
     genericHTTPPostService(options, "Generic error");
   }
+};
+
+exports.getReleStatistics = function(httpRequest, httpResponse) {
+  var options = validateGetRequest(httpRequest, httpResponse);
+  options.statisticType = "RELE";
+  getStatistics(options);
+};
+
+exports.getSensorStatistics = function(httpRequest, httpResponse) {
+  var options = validateGetRequest(httpRequest, httpResponse);
+  options.statisticType = "SENSOR";
+  getStatistics(options);
+};
+
+var getStatistics = function(options) {
+  options.usePromise = true;
+  new Promise(function(resolve, reject) {
+    thermManager.getStatistics(options, resolve, reject);
+  })
+    .then(function(options) {
+      genericHTTPPostService(options);
+    })
+    .catch(function(error) {
+      options.httpResponse.json(httpUtils.createResponseKo(500, error));
+    });
 };

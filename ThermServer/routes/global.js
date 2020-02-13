@@ -1,5 +1,5 @@
 // MongoDB configuration
-var home = true;
+var home = false;
 const security = false;
 
 var urlDB_ = "192.168.0.120:27017";
