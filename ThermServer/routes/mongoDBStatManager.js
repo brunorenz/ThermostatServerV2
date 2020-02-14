@@ -146,8 +146,11 @@ let getStatistics = function(options, resolve, reject) {
             options.configuration[ix][options.keyField] ===
             sortedValues[i]._id.server
           ) {
-            if (typeof options.configuration[ix].statistics === "undefined")
+            if (typeof options.configuration[ix].statistics === "undefined") {
+              options.configuration[ix].startTime = options.startTime;
+              options.configuration[ix].endTime = options.endTime;
               options.configuration[ix].statistics = [];
+            }
             options.configuration[ix].statistics.push({
               time: sortedValues[i]._id.time.getTime(),
               value: sortedValues[i].value
@@ -156,8 +159,6 @@ let getStatistics = function(options, resolve, reject) {
           }
         }
       }
-      options.configuration.startTime = options.startTime;
-      options.configuration.endTime = options.endTime;
       options.response = options.configuration;
       resolve(options);
     }
@@ -171,18 +172,18 @@ let getStatistics = function(options, resolve, reject) {
   };
   let st = floorTimeSecond(options.interval, options.startTime);
   let et = floorTimeSecond(options.interval, options.endTime);
-  options.startTime = st;
-  options.endTime = et;
+  options.startTime = st.getTime();
+  options.endTime = et.getTime();
   var query = {
     $and: [
       {
         time: {
-          $gte: st
+          $gte: options.startTime
         }
       },
       {
         time: {
-          $lte: et
+          $lt: options.endTime
         }
       }
     ]

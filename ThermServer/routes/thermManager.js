@@ -300,7 +300,7 @@ exports.getStatistics = function(options, resolveIn, rejectIn) {
     .then(function(options) {
       new Promise(function(resolve, reject) {
         options.configuration = options.response;
-        options.depth = 96; //  hour
+        options.depth = 120; //  hour
         options.interval = 5; //minutes
 
         options.endTime = new Date().getTime();
