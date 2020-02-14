@@ -1,6 +1,9 @@
 // MongoDB configuration
 var home = false;
 const security = false;
+const jwt = true;
+const jwtGET = false;
+const jwtPOST = true;
 
 var urlDB_ = "192.168.0.120:27017";
 var urlDB = home ? "192.168.0.120:27017" : "srvwas1.bpbari.it:27017";
@@ -50,7 +53,9 @@ exports.MONITOR_TIMEOUT = monitorTimeout;
 //exports.JWTExpire = "1h"; // 1000 * 60 * 60 * 1; // un'ora
 
 exports.JWT = {
-  enabled: security,
+  enabled: jwt,
+  securityGET: jwtGET,
+  securityPOST: jwtPOST,
   secret: "Piripiccio2020",
   expire: "1h"
 };

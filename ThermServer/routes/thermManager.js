@@ -300,14 +300,12 @@ exports.getStatistics = function(options, resolveIn, rejectIn) {
     .then(function(options) {
       new Promise(function(resolve, reject) {
         options.configuration = options.response;
-        options.depth = 72; //  hour
+        options.depth = 96; //  hour
         options.interval = 5; //minutes
 
         options.endTime = new Date().getTime();
         options.startTime = options.endTime - options.depth * 60 * 60 * 1000;
-        if (options.statisticType === "RELE")
-          mongoDBStatMgr.getReleStatistics(options, resolve, reject);
-        else mongoDBStatMgr.getSensorStatistics(options, resolve, reject);
+        mongoDBStatMgr.getStatistics(options, resolve, reject);
       })
         .then(function(options) {
           resolveIn(options);

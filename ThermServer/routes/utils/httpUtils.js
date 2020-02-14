@@ -174,11 +174,11 @@ var createResponse = function(object, errorCode, message) {
     response.data = object;
   }
   return response;
-};
-
+}; //
+/****
 /**
  * Check basic authentication from http header
- */
+
 var validateBasicAuthentication = function(req, res) {
   var rc = true;
   if (
@@ -201,11 +201,15 @@ var validateBasicAuthentication = function(req, res) {
 
 /**
  * Check basic authentication from http header
- */
+ 
 var validateJWTSecurity = function(req, res) {
   var rc = true;
   if (req.path.endsWith("login")) return true;
-  if ((req.method === "GET" || req.method === "POST") && globaljs.JWT.enabled) {
+  if (
+    globaljs.JWT.enabled &&
+    ((globaljs.JWT.securityGET && req.method === "GET") ||
+      (globaljs.JWT.securityPOST && req.method === "POST"))
+  ) {
     if (typeof req.headers.jwttoken === "undefined") {
       res
         .status(401)
@@ -241,6 +245,7 @@ exports.checkBasicSecurity = function(req, res, next) {
     console.log("Check BASIC Security, JWT and set CORS : Fails!");
   }
 };
+*/
 
 module.exports.createResponse = createResponse;
 module.exports.createResponseKo = createResponseKo;
