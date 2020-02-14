@@ -118,8 +118,6 @@ exports.checkBasicSecurity = function(req, res, next) {
     "Access-Control-Allow-Headers",
     "Content-Type, Authorization, jwttoken"
   );
-  //res.header("Access-Control-Allow-Methods", "*");
-  //res.header("Access-Control-Allow-Credentials", "true");
   res.header("Set-Cookie", "HttpOnly;Secure;SameSite=Strict");
   if (validateBasicAuthentication(req, res) && validateJWTSecurity(req, res)) {
     next();

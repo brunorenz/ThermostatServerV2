@@ -156,21 +156,33 @@ let getStatistics = function(options, resolve, reject) {
           }
         }
       }
+      options.configuration.startTime = options.startTime;
+      options.configuration.endTime = options.endTime;
       options.response = options.configuration;
       resolve(options);
     }
   };
 
+  var floorTimeSecond = function(interval, time) {
+    var div = 60 * 1000 * interval;
+    var l1 = time;
+    var l2 = Math.floor(l1 / div) * div;
+    return new Date(l2);
+  };
+  let st = floorTimeSecond(options.interval, options.startTime);
+  let et = floorTimeSecond(options.interval, options.endTime);
+  options.startTime = st;
+  options.endTime = et;
   var query = {
     $and: [
       {
         time: {
-          $gte: options.startTime
+          $gte: st
         }
       },
       {
         time: {
-          $lt: options.endTime
+          $lte: et
         }
       }
     ]
