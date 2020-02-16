@@ -313,6 +313,16 @@ exports.getSensorStatistics = function(httpRequest, httpResponse) {
 
 var getStatistics = function(options) {
   options.usePromise = true;
+  options.depth = 24; //  hour
+  options.interval = 15; //minutes
+  if (typeof options.httpRequest.query.type != "undefined")
+  {
+    options.depth = options.httpRequest.query.type === "hour" ? 1 : 24;
+    options.interval = options.depth === 1 ? 5 : 15;
+  } 
+  if (typeof options.httpRequest.query.interval != "undefined")
+    options.interval = parseInt(options.httpRequest.query.interval); 
+
   new Promise(function(resolve, reject) {
     thermManager.getStatistics(options, resolve, reject);
   })

@@ -100,10 +100,12 @@ function setupMQTT() {
     // - update themperture if more then one thermostat ->
     // - wifiRegister <-
     mqManager.defineWifiRegisterTopic(client);
-    mqManager.defineMonitorTopic(client);
+    //mqManager.defineMonitorTopic(client);
     mqManager.defineLastWillTopic(client);
     mqManager.defineProgrammingTopic(client);
     mqManager.defineShelliesGenericTopic(client);
+    mqManager.subscribeTopic(client,globaljs.MQTopicMonitor);
+    mqManager.subscribeTopic(client,globaljs.MQTopicMotion);
     mqManager.startMQListening(client);
   });
 }

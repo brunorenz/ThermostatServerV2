@@ -23,7 +23,7 @@ let sign = function(user) {
   return token;
 };
 
-let verify = function(token) {
+let verifyToken = function(token) {
   try {
     let user = jwt.verify(token, globaljs.JWT.secret);
     console.log("JWT OK for " + user.email);
@@ -34,7 +34,7 @@ let verify = function(token) {
   return true;
 };
 
-exports.verifyToken = verify;
+//exports.verifyToken = verify;
 
 exports.readUser = function(options) {
   // mongodb
@@ -99,7 +99,7 @@ var validateJWTSecurity = function(req, res) {
         .end();
       rc = false;
     } else {
-      let ok = security.verifyToken(req.headers.jwttoken);
+      let ok = verifyToken(req.headers.jwttoken);
       if (!ok) {
         res
           .status(403)

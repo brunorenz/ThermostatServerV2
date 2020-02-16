@@ -1,6 +1,6 @@
 // MongoDB configuration
-var home = false;
-const security = false;
+var home = true;
+const security = true;
 const jwt = true;
 const jwtGET = false;
 const jwtPOST = true;
@@ -27,7 +27,8 @@ exports.urlMQTT = urlMQTT;
 exports.mqttCli = mqttCli;
 
 exports.MQTopicWifi = "ThermApp/wifiRegister";
-exports.MQTopicMonitor = "ThermApp/monitoData";
+exports.MQTopicMonitor = "ThermApp/monitorData";
+exports.MQTopicMotion = "ThermApp/motionSensor";
 exports.MQTopicLastWill = "ThermApp/lastWill";
 exports.MQTopicUpdateProgramming = "ThermApp/updateProgramming";
 exports.MQTopicUpdateTemperature = "ThermApp/updateTemperature";

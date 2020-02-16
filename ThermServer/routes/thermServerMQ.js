@@ -55,6 +55,26 @@ exports.defineLastWillTopic = function(mqClient) {
   });
 };
 
+
+
+/**
+ * Monitor Topic
+ */
+exports.subscribeTopic = function(mqClient,topic) {
+  //console.log("Define MonitorTopic ..");
+  mqClient.subscribe(topic, function(err) {
+    if (err)
+      console.error(
+        "Subscribe to topic " + topic + " failed : " + err
+      );
+    else
+      console.log(
+        "Subscribe to topic " + topic + " successfull"
+      );
+  });
+};
+
+
 /**
  * Monitor Topic
  */
