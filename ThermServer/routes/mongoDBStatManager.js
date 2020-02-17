@@ -140,22 +140,20 @@ let getStatistics = function(options, resolve, reject) {
       };
       var out = [];
       var sortedValues = values.sort(compareFunction);
-      for (var i = 0; i < sortedValues.length; i++) {
-        for (var ix = 0; ix < options.configuration.length; ix++) {
+
+      for (var ix = 0; ix < options.configuration.length; ix++) {
+        options.configuration[ix].startTime = options.startTime;
+        options.configuration[ix].endTime = options.endTime;
+        options.configuration[ix].statistics = [];
+        for (var i = 0; i < sortedValues.length; i++) {
           if (
             options.configuration[ix][options.keyField] ===
             sortedValues[i]._id.server
           ) {
-            if (typeof options.configuration[ix].statistics === "undefined") {
-              options.configuration[ix].startTime = options.startTime;
-              options.configuration[ix].endTime = options.endTime;
-              options.configuration[ix].statistics = [];
-            }
             options.configuration[ix].statistics.push({
               time: sortedValues[i]._id.time.getTime(),
               value: sortedValues[i].value
             });
-            break;
           }
         }
       }
