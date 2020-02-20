@@ -454,7 +454,42 @@ exports.readThermostatProgramming = function(options) {
           "Trovati un numero di dispositivi non valido : " + doc.length;
         console.log(options.error);
       }
-      return thermManager.callback(options, err);
+      thermManager.callback(options, err);
     }
   });
+};
+
+/**
+ * Update management attribute of configuration
+ *
+ */
+exports.updateStatus = function(options,resolve, reject) {
+  var confcoll = globaljs.mongoCon.collection(globaljs.MONGO_CONF);
+  let json = options.request;
+  var req = JSON.parse(json);
+  let updateField = {
+    statusThermostat : parseInt(req.statusThermostat
+  };
+  console.log(
+    "Aggiorno MAC : " + req.macAddress + " => " + JSON.stringify(updateField)
+  );
+  confcoll.updateOne(
+    {
+      _id: req.macAddress
+    },
+    {
+      $set: updateField
+    },
+    function(err, r) {
+      if (!err) {
+        // aggiorna dispositivi shelly
+        thermManager.checkThermostatStatus({callback:[]});
+      }
+      options.response = { update: r.modifiedCount };
+      if (options.usePromise) {
+        if (err) reject(err);
+        else resolve(options);
+      } else thermManager.callback(options, err);
+    }
+  );
 };
