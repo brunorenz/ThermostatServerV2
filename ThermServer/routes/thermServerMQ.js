@@ -7,107 +7,98 @@ var thermManager = require("./thermManager");
 /**
  *
  */
-exports.defineShelliesGenericTopic = function(mqClient) {
-  console.log("Define MQTopicShellies ..");
-  mqClient.subscribe(globaljs.MQTopicShellies, function(err) {
-    if (err)
-      console.error(
-        "Subscribe to topic " + globaljs.MQTopicShellies + " failed : " + err
-      );
-    else
-      console.log(
-        "Subscribe to topic " + globaljs.MQTopicShellies + " successfull"
-      );
-  });
-};
+// exports.defineShelliesGenericTopic = function(mqClient) {
+//   console.log("Define MQTopicShellies ..");
+//   mqClient.subscribe(globaljs.MQTopicShellies, function(err) {
+//     if (err)
+//       console.error(
+//         "Subscribe to topic " + globaljs.MQTopicShellies + " failed : " + err
+//       );
+//     else
+//       console.log(
+//         "Subscribe to topic " + globaljs.MQTopicShellies + " successfull"
+//       );
+//   });
+// };
 
 /**
  * Request Programming Topic
  */
-exports.defineProgrammingTopic = function(mqClient) {
-  console.log("Define ProgrammingTopic ..");
-  mqClient.subscribe(globaljs.MQTopicProgramming, function(err) {
-    if (err)
-      console.error(
-        "Subscribe to topic " + globaljs.MQTopicProgramming + " failed : " + err
-      );
-    else
-      console.log(
-        "Subscribe to topic " + globaljs.MQTopicProgramming + " successfull"
-      );
-  });
-};
+// exports.defineProgrammingTopic = function(mqClient) {
+//   console.log("Define ProgrammingTopic ..");
+//   mqClient.subscribe(globaljs.MQTopicProgramming, function(err) {
+//     if (err)
+//       console.error(
+//         "Subscribe to topic " + globaljs.MQTopicProgramming + " failed : " + err
+//       );
+//     else
+//       console.log(
+//         "Subscribe to topic " + globaljs.MQTopicProgramming + " successfull"
+//       );
+//   });
+// };
 
-/**
- * LastWill Topic
- */
-exports.defineLastWillTopic = function(mqClient) {
-  console.log("Define LastWillTopic ..");
-  mqClient.subscribe(globaljs.MQTopicLastWill, function(err) {
-    if (err)
-      console.error(
-        "Subscribe to topic " + globaljs.MQTopicLastWill + " failed : " + err
-      );
-    else
-      console.log(
-        "Subscribe to topic " + globaljs.MQTopicLastWill + " successfull"
-      );
-  });
-};
-
-
+// /**
+//  * LastWill Topic
+//  */
+// exports.defineLastWillTopic = function(mqClient) {
+//   console.log("Define LastWillTopic ..");
+//   mqClient.subscribe(globaljs.MQTopicLastWill, function(err) {
+//     if (err)
+//       console.error(
+//         "Subscribe to topic " + globaljs.MQTopicLastWill + " failed : " + err
+//       );
+//     else
+//       console.log(
+//         "Subscribe to topic " + globaljs.MQTopicLastWill + " successfull"
+//       );
+//   });
+// };
 
 /**
  * Monitor Topic
  */
-exports.subscribeTopic = function(mqClient,topic) {
+exports.subscribeTopic = function(mqClient, topic) {
   //console.log("Define MonitorTopic ..");
   mqClient.subscribe(topic, function(err) {
-    if (err)
-      console.error(
-        "Subscribe to topic " + topic + " failed : " + err
-      );
-    else
-      console.log(
-        "Subscribe to topic " + topic + " successfull"
-      );
+    if (err) console.error("Subscribe to topic " + topic + " failed : " + err);
+    else console.log("Subscribe to topic " + topic + " successfull");
   });
 };
-
 
 /**
  * Monitor Topic
  */
-exports.defineMonitorTopic = function(mqClient) {
-  console.log("Define MonitorTopic ..");
-  mqClient.subscribe(globaljs.MQTopicMonitor, function(err) {
-    if (err)
-      console.error(
-        "Subscribe to topic " + globaljs.MQTopicMonitor + " failed : " + err
-      );
-    else
-      console.log(
-        "Subscribe to topic " + globaljs.MQTopicMonitor + " successfull"
-      );
-  });
-};
+// exports.defineMonitorTopic = function(mqClient) {
+//   console.log("Define MonitorTopic ..");
+//   mqClient.subscribe(globaljs.MQTopicMonitor, function(err) {
+//     if (err)
+//       console.error(
+//         "Subscribe to topic " + globaljs.MQTopicMonitor + " failed : " + err
+//       );
+//     else
+//       console.log(
+//         "Subscribe to topic " + globaljs.MQTopicMonitor + " successfull"
+//       );
+//   });
+// };
 
 /**
  * WiFi register Topic
  */
-exports.defineWifiRegisterTopic = function(mqClient) {
-  console.log("Define WifiRegisterTopic ..");
-  mqClient.subscribe(globaljs.MQTopicWifi, function(err) {
-    if (err)
-      console.error(
-        "Subscribe to topic " + globaljs.MQTopicWifi + " failed : " + err
-      );
-    else
-      console.log(
-        "Subscribe to topic " + globaljs.MQTopicWifi + " successfull"
-      );
-  });
-};
+// exports.defineWifiRegisterTopic = function(mqClient) {
+//   console.log("Define WifiRegisterTopic ..");
+//   mqClient.subscribe(globaljs.MQTopicWifi, function(err) {
+//     if (err)
+//       console.error(
+//         "Subscribe to topic " + globaljs.MQTopicWifi + " failed : " + err
+//       );
+//     else
+//       console.log(
+//         "Subscribe to topic " + globaljs.MQTopicWifi + " successfull"
+//       );
+//   });
+// };
 
 /**
  * manage Topic subscription

@@ -94,18 +94,12 @@ function setupMQTT() {
   client.on("connect", function() {
     console.log("Connected successfully to MQTT server : " + globaljs.urlMQTT);
     globaljs.mqttCli = client;
-    // call function to create topic
-    // - update configuration ->
-    // - collect monitor data <-
-    // - update themperture if more then one thermostat ->
-    // - wifiRegister <-
-    mqManager.defineWifiRegisterTopic(client);
-    //mqManager.defineMonitorTopic(client);
-    mqManager.defineLastWillTopic(client);
-    mqManager.defineProgrammingTopic(client);
-    mqManager.defineShelliesGenericTopic(client);
-    mqManager.subscribeTopic(client,globaljs.MQTopicMonitor);
-    mqManager.subscribeTopic(client,globaljs.MQTopicMotion);
+    mqManager.subscribeTopic(client, globaljs.MQTopicLastWill);
+    mqManager.subscribeTopic(client, globaljs.MQTopicWifi);
+    mqManager.subscribeTopic(client, globaljs.MQTopicProgramming);
+    mqManager.subscribeTopic(client, globaljs.MQTopicShellies);
+    mqManager.subscribeTopic(client, globaljs.MQTopicMonitor);
+    mqManager.subscribeTopic(client, globaljs.MQTopicMotion);
     mqManager.startMQListening(client);
   });
 }

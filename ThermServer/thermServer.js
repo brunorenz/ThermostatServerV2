@@ -82,6 +82,8 @@ app.get("/rest/getReleStatistics", termManagment.getReleStatistics);
 app.get("/rest/getSensorStatistics", termManagment.getSensorStatistics);
 
 // POST METHOD
+
+app.post("/rest/updateStatus", urlencodedParser, termManagment.updateStatus);
 app.post(
   "/rest/updateConfiguration",
   urlencodedParser,

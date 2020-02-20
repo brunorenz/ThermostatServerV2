@@ -150,6 +150,37 @@ exports.updateConfiguration = function(httpRequest, httpResponse) {
   }
 };
 
+exports.updateStatus = function(httpRequest, httpResponse) {
+  var options = validatePostRequest(httpRequest, httpResponse);
+  if (options != null) {
+    options.usePromise = true;
+    new Promise(function(resolve, reject) {
+      thermManager.updateStatus(options, resolve, reject);
+    })
+      .then(function(options) {
+        genericHTTPPostService(options);
+      })
+      .catch(function(error) {
+        httpResponse.json(httpUtils.createResponseKo(500, error));
+      });
+  }
+};
+
+exports.updateConfigurationN = function(httpRequest, httpResponse) {
+  var options = validatePostRequest(httpRequest, httpResponse);
+  if (options != null) {
+    options.usePromise = true;
+    new Promise(function(resolve, reject) {
+      thermManager.updateConfiguration(options, resolve, reject);
+    })
+      .then(function(options) {
+        genericHTTPPostService(options);
+      })
+      .catch(function(error) {
+        httpResponse.json(httpUtils.createResponseKo(500, error));
+      });
+  }
+};
 /**
  * Read Configuration
  */
@@ -315,13 +346,12 @@ var getStatistics = function(options) {
   options.usePromise = true;
   options.depth = 24; //  hour
   options.interval = 15; //minutes
-  if (typeof options.httpRequest.query.type != "undefined")
-  {
+  if (typeof options.httpRequest.query.type != "undefined") {
     options.depth = options.httpRequest.query.type === "hour" ? 1 : 24;
     options.interval = options.depth === 1 ? 5 : 15;
-  } 
+  }
   if (typeof options.httpRequest.query.interval != "undefined")
-    options.interval = parseInt(options.httpRequest.query.interval); 
+    options.interval = parseInt(options.httpRequest.query.interval);
 
   new Promise(function(resolve, reject) {
     thermManager.getStatistics(options, resolve, reject);

@@ -85,6 +85,38 @@ exports.readConfigurationInternal = function(options) {
 /**
  * Update configuration
  */
+exports.updateConfiguration = function(options, resolveIn, rejectIn) {
+  mongoDBMgr.updateConfiguration(options, resolveIn, rejectIn);
+};
+
+/**
+ * Update configuration
+ */
+exports.updateStatus = function(options, resolveIn, rejectIn) {
+  try {
+    let json = options.request;
+    let req = JSON.parse(json);
+    options.updateField = {
+      statusThermostat: parseInt(req.statusThermostat)
+    };
+    options.macAddress = req.macAddress;
+  } catch (error) {
+    rejectIn(error);
+  }
+  new Promise(function(resolve, reject) {
+    mongoDBMgr.updateConfigurationInternal(options, resolve, reject);
+  })
+    .then(function(options) {
+      resolveIn(options);
+    })
+    .catch(function(error) {
+      rejectIn(error);
+    });
+};
+
+/**
+ * Update configuration
+ */
 exports.updateConfigurationInternal = function(options) {
   mongoDBMgr.updateConfiguration(options);
 };
@@ -203,6 +235,7 @@ exports.getReleData = function(options, resolveIn, rejectIn) {
                 record.location = entry.location;
                 record.flagReleTemp = entry.flagReleTemp;
                 record.flagReleLight = entry.flagReleLight;
+                record.macAddress = entry.macAddress;
                 if (record.flagReleTemp === 1)
                   record.statusThermostat = entry.statusThermostat;
                 options.response.push(record);
