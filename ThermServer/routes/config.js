@@ -2,7 +2,7 @@ var globaljs = require("./global");
 
 const status = { OFF: 0, ON: 1, MANUAL: 2, AUTO: 3 };
 const measure = { LOCAL: 1, MEDIUM: 2, PRIORITY: 2 };
-const programming = { THEMP: 1, LIGTH: 2 };
+const programming = { TEMP: 1, LIGTH: 2 };
 const deviceType = { ANY: 0, ARDUINO: 1, SHELLY: 2 };
 const shellyCommand = { RELAY: 0, COMMAND: 1 };
 const action = { READ: 1, RESET: 2, UPDATE: 3, DELETE: 4, ADD: 5 };
@@ -34,6 +34,7 @@ var configurationRecord = {
   flagReleTemp: 0,
   flagReleLight: 0,
   shellyMqttId: "",
+  primarySensor: "",
   currentTemperature: 0.0,
   currentLigth: 0.0
 };
@@ -120,7 +121,7 @@ function getDefaultProgrammingTempRecord(idType) {
  */
 exports.getProgrammingRecord = function(idType) {
   var conf;
-  if (idType === programming.THEMP) {
+  if (idType === programming.TEMP) {
     conf = getDefaultProgrammingTempRecord(idType);
   } else if (idType === programming.LIGTH) {
     var confRecord = {

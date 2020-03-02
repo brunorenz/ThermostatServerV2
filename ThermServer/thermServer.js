@@ -84,6 +84,13 @@ app.get("/rest/getSensorStatistics", termManagment.getSensorStatistics);
 // POST METHOD
 
 app.post("/rest/updateStatus", urlencodedParser, termManagment.updateStatus);
+
+app.post(
+  "/rest/updateTemperatureReleStatus",
+  urlencodedParser,
+  termManagment.updateTemperatureReleStatus
+);
+
 app.post(
   "/rest/updateConfiguration",
   urlencodedParser,

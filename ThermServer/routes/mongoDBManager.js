@@ -48,9 +48,11 @@ exports.updateConfiguration = function(options) {
   if (updateField.flagReleTemp === 1) {
     updateField.statusThermostat = parseInt(req.statusThermostat);
     updateField.temperatureMeasure = parseInt(req.temperatureMeasure);
+    updateField.primarySensor = req.primarySensor;
   }
   if (updateField.flagReleLight === 1) {
     //statusLight: req.statusThermostat
+    updateField.primarySensor = req.primarySensor;
   }
   confcoll.updateOne(
     {
@@ -97,6 +99,7 @@ var updateConfigurationFull = function(confColl, options) {
     updateField.flagTemperatureSensor = req.flagTemperatureSensor;
     updateField.flagPressureSensor = req.flagPressureSensor;
     updateField.flagHumiditySensor = req.flagHumiditySensor;
+    updateField.primarySensor = req.primarySensor;
     updateField.shellyMqttId = req.shellyMqttId;
     if (confColl) {
       confColl.updateOne(
@@ -267,7 +270,7 @@ exports.addProgramming = function(options, resolve, reject) {
   for (let ix = 0; ix < prog.programming.length; ix++)
     if (prog.programming[ix].idProg > index)
       index = prog.programming[ix].idProg;
-  if (options.programmingType === config.TypeProgramming.THEMP) {
+  if (options.programmingType === config.TypeProgramming.TEMP) {
     var dayProg = config.getDefaultDayProgrammingTempRecord(
       ++index,
       "New Program " + index
@@ -381,7 +384,7 @@ exports.genericQuery = function(options, resolve, reject) {
  * evalute themperature
  */
 exports.readThermostatProgramming = function(options) {
-  options.programmingType = config.TypeProgramming.THEMP;
+  options.programmingType = config.TypeProgramming.TEMP;
   var confColl = globaljs.mongoCon.collection(globaljs.MONGO_CONF);
   confColl.find({ flagReleTemp: 1 }).toArray(function(err, doc) {
     if (err) {

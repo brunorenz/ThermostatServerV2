@@ -25,7 +25,7 @@ var getStatusByProgram = function(options) {
     shellyCommand.status === config.TypeStatus.AUTO
   ) {
     let prog = options.response;
-    if (prog.idProgType === config.TypeProgramming.THEMP) {
+    if (prog.idProgType === config.TypeProgramming.TEMP) {
       let themp = shellyCommand.temperature;
       let temperature = 0.0;
       //let currentProg = prog.programming[prog.activeProg];

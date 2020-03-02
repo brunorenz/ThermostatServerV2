@@ -351,3 +351,178 @@ exports.getStatistics = function(options, resolveIn, rejectIn) {
       rejectIn(error);
     });
 };
+
+/**
+ * Read rele configuration
+ * @param {*} options
+ * @param {*} resolveIn
+ * @param {*} rejectIn
+ */
+let readRele = function(options, resolveIn, rejectIn) {
+  return new Promise(function(resolve, reject) {
+    let query = {
+      collection: globaljs.mongoCon.collection(globaljs.MONGO_CONF),
+      filter: { flagReleTemp: 1 },
+      selectOne: true
+    };
+    options.genericQuery = query;
+    mongoDBMgr.genericQuery(options, resolve, reject);
+  });
+};
+
+/**
+ * Read sensor configuration
+ * @param {*} options
+ * @param {*} resolveIn
+ * @param {*} rejectIn
+ */
+let readSensor = function(options, resolveIn, rejectIn) {
+  return new Promise(function(resolve, reject) {
+    let query = {
+      collection: globaljs.mongoCon.collection(globaljs.MONGO_CONF),
+      filter: { flagTemperatureSensor: 1 },
+      selectOne: false
+    };
+    options.genericQuery = query;
+    mongoDBMgr.genericQuery(options, resolve, reject);
+  });
+};
+
+let readTempProgramming = function(options, resolveIn, rejectIn) {
+  return new Promise(function(resolve, reject) {
+    let query = {
+      collection: globaljs.mongoCon.collection(globaljs.MONGO_PROG),
+      filter: { _id: config.TypeProgramming.TEMP },
+      selectOne: true
+    };
+    options.genericQuery = query;
+    mongoDBMgr.genericQuery(options, resolve, reject);
+  });
+};
+
+/**
+ *
+ * @param {*} options
+ * @param {*} resolveIn
+ * @param {*} rejectIn
+ */
+let updateTemperatureReleStatus = function(options, resolveIn, rejectIn) {
+  // find the temperature rele
+  let r1 = readRele(options, resolveIn, rejectIn);
+  r1.then(function(options) {
+    let conf = options.response;
+    options.releConf = conf;
+    // find all temperature sensore
+    let r2 = readSensor(options, resolveIn, rejectIn);
+    r2.then(function(options) {
+      // compute temperature according to rele configuration
+      options.tempSensor = options.response;
+      // read actual programming
+      let r3 = readTempProgramming(options, resolveIn, rejectIn);
+      r3.then(function(options) {
+        evaluateTemperature(options, resolveIn, rejectIn);
+        resolveIn(options);
+      }).catch(function(error) {
+        rejectIn(error);
+      });
+    }).catch(function(error) {
+      rejectIn(error);
+    });
+  }).catch(function(error) {
+    rejectIn(error);
+  });
+};
+
+/**
+ * get index of current program
+ * @param {*} progRecord
+ * @param {*} idProg
+ */
+var getIndexProgram = function(progRecord, idProg) {
+  if (typeof idProg === "undefined") idProg = progRecord.activeProg;
+  let programming = progRecord.programming;
+  let index = 0;
+  for (let ix = 0; ix < programming.length; ix++) {
+    if (programming[ix].idProg === idProg) {
+      index = ix;
+      break;
+    }
+  }
+  return index;
+};
+
+/**
+ * evalute themperature
+ */
+let evaluateTemperature = function(options, resolveIn, rejectIn) {
+  let temperature = 0;
+  let conf = options.releConf;
+  let sensor = options.tempSensor;
+  let prog = options.response;
+  let currentProg = prog.programming[getIndexProgram(prog)];
+  console.log("Current program : " + currentProg.name);
+  let primarySensor = conf.primarySensor;
+  if (sensor && sensor.length > 0) {
+    console.log(
+      "trovati " + sensor.length + " sensori che misurano temperatura"
+    );
+    for (let ix = 0; ix < sensor.length; ix++) {
+      if (primarySensor == sensor[ix].macAddress)
+        primarySensor = sensor[ix].location;
+      console.log(
+        "Location " +
+          sensor[ix].location +
+          " - Temperatura " +
+          sensor[ix].currentTemperature
+      );
+      console.log(
+        "Location " + sensor[ix].location + " - Luce " + sensor[ix].currentLigth
+      );
+    }
+  }
+  // get current program
+  let minTempManual = currentProg.minTempManual;
+  let minTempAuto = currentProg.minTemp;
+  let autoRecord = null;
+  console.log("Calcolo fascia ora..");
+  let now = new Date();
+  let minsec = now.getHours() * 60 + now.getMinutes();
+  let day = now.getDay();
+  minTempAuto = currentProg.minTemp;
+  // day su db 0 Lun - 7 Dom
+  let dayDb = day - 1;
+  if (dayDb < 0) dayDb = 6;
+  console.log("Giorno : " + day + " (dayDB) " + dayDb + " - Ora " + minsec);
+  for (let ix = 0; ix < 7; ix++)
+    if (currentProg.dayProgramming[ix].idDay === dayDb)
+      for (let iy = 0; iy < currentProg.dayProgramming[ix].prog.length; iy++) {
+        let entry = currentProg.dayProgramming[ix].prog[iy];
+        if (minsec >= entry.timeStart && minsec <= entry.timeEnd) {
+          autoRecord = entry;
+          break;
+        }
+      }
+  if (autoRecord != null) {
+    console.log(
+      "Trovata fascia oraria da " +
+        autoRecord.timeStart +
+        " a " +
+        autoRecord.timeEnd
+    );
+    minTempAuto = autoRecord.minTemp;
+  }
+  if (sensor.length === 1) temperature = sensor[0].currentTemperature;
+  else {
+  }
+  options.response = {
+    temperature: temperature,
+    temperatureRif: 0,
+    temperatureMeasure: conf.temperatureMeasure,
+    primarySensor: primarySensor,
+    minTempManual: minTempManual,
+    minTempAuto: minTempAuto
+  };
+  resolveIn(options);
+};
+
+exports.updateTemperatureReleStatus = updateTemperatureReleStatus;

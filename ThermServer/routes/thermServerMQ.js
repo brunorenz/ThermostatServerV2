@@ -277,7 +277,7 @@ var sendProgrammingData = function(options) {
   if (record.flagReleTemp) {
     console.log("Send Temperature configuration to " + record.macAddress);
     var optionsN = {
-      programmingType: config.TypeProgramming.THEMP,
+      programmingType: config.TypeProgramming.TEMP,
       configuration: configuration,
       action: config.TypeAction.READ,
       callback: [],

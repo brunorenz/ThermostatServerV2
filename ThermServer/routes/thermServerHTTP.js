@@ -150,6 +150,22 @@ exports.updateConfiguration = function(httpRequest, httpResponse) {
   }
 };
 
+exports.updateTemperatureReleStatus = function(httpRequest, httpResponse) {
+  var options = validatePostRequest(httpRequest, httpResponse);
+  if (options != null) {
+    options.usePromise = true;
+    new Promise(function(resolve, reject) {
+      thermManager.updateTemperatureReleStatus(options, resolve, reject);
+    })
+      .then(function(options) {
+        genericHTTPPostService(options);
+      })
+      .catch(function(error) {
+        httpResponse.json(httpUtils.createResponseKo(500, error));
+      });
+  }
+};
+
 exports.updateStatus = function(httpRequest, httpResponse) {
   var options = validatePostRequest(httpRequest, httpResponse);
   if (options != null) {
@@ -188,10 +204,10 @@ exports.getConfiguration = function(httpRequest, httpResponse) {
   var options = validateGetRequest(httpRequest, httpResponse);
   if (options != null) {
     try {
-      var type = config.TypeProgramming.THEMP;
+      var type = config.TypeProgramming.TEMP;
       if (httpRequest.query.type) {
         if (httpRequest.query.type === "temp")
-          type = config.TypeProgramming.THEMP;
+          type = config.TypeProgramming.TEMP;
         else if (httpRequest.query.type === "light")
           type = config.TypeProgramming.LIGTH;
       }
@@ -294,11 +310,10 @@ exports.shellyRegister = function(httpRequest, httpResponse) {
 exports.getProgramming = function(httpRequest, httpResponse) {
   var options = validateGetRequest(httpRequest, httpResponse);
   if (options != null) {
-    var type = config.TypeProgramming.THEMP;
+    var type = config.TypeProgramming.TEMP;
     //    var p = myutils.httpGetParam(req);
     if (httpRequest.query.type) {
-      if (httpRequest.query.type === "temp")
-        type = config.TypeProgramming.THEMP;
+      if (httpRequest.query.type === "temp") type = config.TypeProgramming.TEMP;
       else if (httpRequest.query.type === "light")
         type = config.TypeProgramming.LIGTH;
     }
