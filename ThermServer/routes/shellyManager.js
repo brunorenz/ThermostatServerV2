@@ -98,6 +98,23 @@ var shellySendCommand = function(options) {
     }
   } else console.error("Nessun comando da inviare a dispositivi Shelly!");
 };
+
+var shellySendCommand2 = function(options) {
+  //
+  //     globaljs.mqttCli.publish(topic, JSON.stringify(msg));
+  if (typeof options.shellyCommand !== "undefined") {
+    let shellyCommand = options.shellyCommand;
+    if (shellyCommand.command === config.TypeShellyCommand.COMMAND) {
+      let topic = "shellies/" + shellyCommand.deviceid + "/relay/0/command";
+      //
+      let newStatus = shellyCommand.status;
+      let message = newStatus === config.TypeStatus.ON ? "on" : "off";
+      console.log("Invio messaggio a " + topic + " => " + message);
+      globaljs.mqttCli.publish(topic, message);
+    }
+  } else console.error("Nessun comando da inviare a dispositivi Shelly!");
+};
+
 exports.shellySendCommand = shellySendCommand;
 
 var callShellySetting = function(options) {

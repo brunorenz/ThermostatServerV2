@@ -176,7 +176,7 @@ exports.shellyRegisterInternal = function(options) {
   });
 };
 
-exports.checkThermostatStatus = function(options) {
+let checkThermostatStatus = function(options) {
   // recupera dispositivo rele termostato
   // recupera confugurazione e modalità di misura
   // recupera temperature
@@ -197,7 +197,7 @@ exports.getReleData = function(options, resolveIn, rejectIn) {
     mongoDBMgr.genericQuery(options, resolve, reject);
   })
     .then(function(options) {
-      if (options.response) {
+      if (options.response && options.response.length > 0) {
         query = {
           collection: globaljs.mongoCon.collection(globaljs.MONGO_SHELLYSTAT),
           selectOne: true,
@@ -355,10 +355,8 @@ exports.getStatistics = function(options, resolveIn, rejectIn) {
 /**
  * Read rele configuration
  * @param {*} options
- * @param {*} resolveIn
- * @param {*} rejectIn
  */
-let readRele = function(options, resolveIn, rejectIn) {
+let readRele = function(options) {
   return new Promise(function(resolve, reject) {
     let query = {
       collection: globaljs.mongoCon.collection(globaljs.MONGO_CONF),
@@ -373,10 +371,8 @@ let readRele = function(options, resolveIn, rejectIn) {
 /**
  * Read sensor configuration
  * @param {*} options
- * @param {*} resolveIn
- * @param {*} rejectIn
  */
-let readSensor = function(options, resolveIn, rejectIn) {
+let readSensor = function(options) {
   return new Promise(function(resolve, reject) {
     let query = {
       collection: globaljs.mongoCon.collection(globaljs.MONGO_CONF),
@@ -388,7 +384,11 @@ let readSensor = function(options, resolveIn, rejectIn) {
   });
 };
 
-let readTempProgramming = function(options, resolveIn, rejectIn) {
+/**
+ * read temperature program
+ * @param {*} options
+ */
+let readTempProgramming = function(options) {
   return new Promise(function(resolve, reject) {
     let query = {
       collection: globaljs.mongoCon.collection(globaljs.MONGO_PROG),
@@ -408,17 +408,17 @@ let readTempProgramming = function(options, resolveIn, rejectIn) {
  */
 let updateTemperatureReleStatus = function(options, resolveIn, rejectIn) {
   // find the temperature rele
-  let r1 = readRele(options, resolveIn, rejectIn);
+  let r1 = readRele(options);
   r1.then(function(options) {
     let conf = options.response;
     options.releConf = conf;
     // find all temperature sensore
-    let r2 = readSensor(options, resolveIn, rejectIn);
+    let r2 = readSensor(options);
     r2.then(function(options) {
       // compute temperature according to rele configuration
       options.tempSensor = options.response;
       // read actual programming
-      let r3 = readTempProgramming(options, resolveIn, rejectIn);
+      let r3 = readTempProgramming(options);
       r3.then(function(options) {
         evaluateTemperature(options, resolveIn, rejectIn);
         resolveIn(options);
@@ -433,6 +433,71 @@ let updateTemperatureReleStatus = function(options, resolveIn, rejectIn) {
   });
 };
 
+let a = function(options, resolveIn, rejectIn) {
+  new Promise(function(resolve, reject) {
+    thermManager.updateTemperatureReleStatus(options, resolve, reject);
+  })
+    .then(function(options) {
+      let status = config.TypeStatus.OFF;
+      switch (conf.statusThermostat) {
+        case config.TypeStatus.ON:
+          status = config.TypeStatus.ON;
+          break;
+        case config.TypeStatus.AUTO:
+          if (options.response.temperature < options.response.minTempAuto)
+            status = config.TypeStatus.ON;
+          break;
+        case config.TypeStatus.MANUAL:
+          if (options.response.temperature < options.response.minTempManual)
+            status = config.TypeStatus.ON;
+          break;
+      }
+      options.shellyCommand = {
+        command: config.TypeShellyCommand.COMMAND,
+        status: status,
+        deviceid: options.conf.shellyMqttId
+      };
+      shelly.shellySendCommand(options);
+      resolveIn(options);
+    })
+    .catch(function(error) {
+      rejectIn(error);
+    });
+};
+
+let checkThermostatStatus2 = function(options, resolveIn, rejectIn) {
+  new Promise(function(resolve, reject) {
+    updateTemperatureReleStatus(options, resolve, reject);
+  })
+    .then(function(options) {
+      let status = config.TypeStatus.OFF;
+      switch (conf.statusThermostat) {
+        case config.TypeStatus.ON:
+          status = config.TypeStatus.ON;
+          break;
+        case config.TypeStatus.AUTO:
+          if (options.response.temperature < options.response.minTempAuto)
+            status = config.TypeStatus.ON;
+          break;
+        case config.TypeStatus.MANUAL:
+          if (options.response.temperature < options.response.minTempManual)
+            status = config.TypeStatus.ON;
+          break;
+      }
+      options.shellyCommand = {
+        command: config.TypeShellyCommand.COMMAND,
+        status: status,
+        deviceid: options.conf.shellyMqttId
+      };
+      shelly.shellySendCommand(options);
+      resolveIn(options);
+    })
+    .catch(function(error) {
+      rejectIn(error);
+    });
+};
+
+exports.checkThermostatStatus = a;
 /**
  * get index of current program
  * @param {*} progRecord
@@ -502,6 +567,7 @@ let evaluateTemperature = function(options, resolveIn, rejectIn) {
           break;
         }
       }
+  let prioritySensor = null;
   if (autoRecord != null) {
     console.log(
       "Trovata fascia oraria da " +
@@ -510,19 +576,55 @@ let evaluateTemperature = function(options, resolveIn, rejectIn) {
         autoRecord.timeEnd
     );
     minTempAuto = autoRecord.minTemp;
+    prioritySensor = autoRecord.prioritySensor;
   }
+
   if (sensor.length === 1) temperature = sensor[0].currentTemperature;
   else {
+    switch (conf.temperatureMeasure) {
+      case config.TypeMeasure.LOCAL:
+        temperature = getTemperature(sensor, conf.primarySensor);
+        break;
+      case config.TypeMeasure.MEDIUM:
+        temperature = getTemperature(sensor);
+        break;
+      case config.TypeMeasure.PRIORITY:
+        temperature = getTemperature(
+          sensor,
+          autoRecord != null ? autoRecord.priorityDisp : ""
+        );
+        break;
+    }
   }
   options.response = {
     temperature: temperature,
-    temperatureRif: 0,
     temperatureMeasure: conf.temperatureMeasure,
     primarySensor: primarySensor,
     minTempManual: minTempManual,
     minTempAuto: minTempAuto
   };
+  if (prioritySensor != null && prioritySensor != "")
+    options.response.prioritySensor = prioritySensor;
   resolveIn(options);
 };
 
+let getTemperature = function(sensor, macAddress) {
+  let temperature = null;
+  if (typeof macAddress != "undefined") {
+    for (let ix = 0; ix < sensor.length; ix++)
+      if (sensor[ix].macAddress === macAddress) {
+        temperature = sensor[ix].currentTemperature;
+        break;
+      }
+  }
+  if (temperature === null) {
+    // calcolo media
+    temperature = 0;
+    for (let ix = 0; ix < sensor.length; ix++) {
+      temperature += sensor[ix].currentTemperature;
+    }
+    temperature = temperature / sensor.length;
+  }
+  return temperature;
+};
 exports.updateTemperatureReleStatus = updateTemperatureReleStatus;

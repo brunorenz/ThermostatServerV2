@@ -1,7 +1,7 @@
 var globaljs = require("./global");
 
 const status = { OFF: 0, ON: 1, MANUAL: 2, AUTO: 3 };
-const measure = { LOCAL: 1, MEDIUM: 2, PRIORITY: 2 };
+const measure = { LOCAL: 1, MEDIUM: 2, PRIORITY: 3 };
 const programming = { TEMP: 1, LIGTH: 2 };
 const deviceType = { ANY: 0, ARDUINO: 1, SHELLY: 2 };
 const shellyCommand = { RELAY: 0, COMMAND: 1 };

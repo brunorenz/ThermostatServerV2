@@ -150,22 +150,6 @@ exports.updateConfiguration = function(httpRequest, httpResponse) {
   }
 };
 
-exports.updateTemperatureReleStatus = function(httpRequest, httpResponse) {
-  var options = validatePostRequest(httpRequest, httpResponse);
-  if (options != null) {
-    options.usePromise = true;
-    new Promise(function(resolve, reject) {
-      thermManager.updateTemperatureReleStatus(options, resolve, reject);
-    })
-      .then(function(options) {
-        genericHTTPPostService(options);
-      })
-      .catch(function(error) {
-        httpResponse.json(httpUtils.createResponseKo(500, error));
-      });
-  }
-};
-
 exports.updateStatus = function(httpRequest, httpResponse) {
   var options = validatePostRequest(httpRequest, httpResponse);
   if (options != null) {
@@ -261,19 +245,32 @@ exports.getSensorData = function(httpRequest, httpResponse) {
 exports.checkThermostatStatus = function(httpRequest, httpResponse) {
   var options = validateGetRequest(httpRequest, httpResponse);
   if (options != null) {
-    // var options = {
-    //   httpRequest: httpRequest,
-    //   httpResponse: httpResponse,
-    //   callback: [],
-    //   lastCallback: genericHTTPPostService
-    // };
-    options.callback.push(genericHTTPPostService);
-    try {
-      thermManager.checkThermostatStatus(options);
-    } catch (error) {
-      options.error = error;
-      genericHTTPPostService(options, error);
-    }
+    options.usePromise = true;
+    new Promise(function(resolve, reject) {
+      thermManager.checkThermostatStatus(options, resolve, reject);
+    })
+      .then(function(options) {
+        genericHTTPPostService(options);
+      })
+      .catch(function(error) {
+        httpResponse.json(httpUtils.createResponseKo(500, error));
+      });
+  }
+};
+
+exports.updateTemperatureReleStatus = function(httpRequest, httpResponse) {
+  var options = validatePostRequest(httpRequest, httpResponse);
+  if (options != null) {
+    options.usePromise = true;
+    new Promise(function(resolve, reject) {
+      thermManager.updateTemperatureReleStatus(options, resolve, reject);
+    })
+      .then(function(options) {
+        genericHTTPPostService(options);
+      })
+      .catch(function(error) {
+        httpResponse.json(httpUtils.createResponseKo(500, error));
+      });
   }
 };
 /**
