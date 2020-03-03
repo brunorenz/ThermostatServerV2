@@ -435,7 +435,7 @@ let updateTemperatureReleStatus = function(options, resolveIn, rejectIn) {
 
 let a = function(options, resolveIn, rejectIn) {
   new Promise(function(resolve, reject) {
-    thermManager.updateTemperatureReleStatus(options, resolve, reject);
+    updateTemperatureReleStatus(options, resolve, reject);
   })
     .then(function(options) {
       let status = config.TypeStatus.OFF;
