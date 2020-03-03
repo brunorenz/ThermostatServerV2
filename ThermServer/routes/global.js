@@ -1,5 +1,5 @@
 // MongoDB configuration
-var home = false;
+var home = true;
 const security = true;
 const jwt = true;
 const jwtGET = false;
