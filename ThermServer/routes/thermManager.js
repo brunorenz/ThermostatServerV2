@@ -3,6 +3,7 @@ const config = require("./config");
 const myutils = require("./utils/myutils");
 const mongoDBMgr = require("./mongoDBManager");
 const mongoDBStatMgr = require("./mongoDBStatManager");
+const shelly = require("./shellyManager");
 
 const shellyMgr = require("./shellyManager");
 const netList = require("network-list");
@@ -135,10 +136,56 @@ var readProgramming = function(options) {
   mongoDBMgr.readProgramming(options);
 };
 
+let shellyRegister = function(options, resolveIn, rejectIn) {
+  new Promise(function(resolve, reject) {
+    console.log("Find shelly devices ..");
+    netList.scan({ vendor: false, timeout: 10 }, (err, arr) => {
+      if (err) {
+        reject(err);
+      } else {
+        // array with all devices
+        nAlive = 0;
+        nShelly = 0;
+        newFound = 0;
+        for (let i = 0; i < arr.length; i++) {
+          let entry = arr[i];
+          if (entry.alive) {
+            nAlive++;
+            var mac = entry.mac != null ? entry.mac.toUpperCase() : "N/A";
+            console.log(
+              "Chech for IP address " + entry.ip + " with mac address " + mac
+            );
+            var outOptions = {
+              ip: entry.ip,
+              mac: mac
+            };
+            shellyMgr.updateShellyConfiguration(outOptions);
+            newFound++;
+          }
+        }
+        var out = {
+          networkDevices: arr.length,
+          networkDevicesAlive: nAlive,
+          networkDevicesShelly: nShelly,
+          networkDevicesNew: newFound
+        };
+        options.response = out;
+        resolve(options);
+      }
+    });
+  })
+    .then(function(options) {
+      resolveIn(options);
+    })
+    .catch(function(error) {
+      rejectIn(error);
+    });
+};
+
 /**
  * Check if any shelly device is present. If so register it
  */
-exports.shellyRegisterInternal = function(options) {
+let shellyRegisterInternal = function(options) {
   console.log("Find shelly devices ..");
   netList.scan({ vendor: false, timeout: 10 }, (err, arr) => {
     if (err) {
@@ -176,13 +223,7 @@ exports.shellyRegisterInternal = function(options) {
   });
 };
 
-let checkThermostatStatus = function(options) {
-  // recupera dispositivo rele termostato
-  // recupera confugurazione e modalità di misura
-  // recupera temperature
-  // calcola
-  mongoDBMgr.readThermostatProgramming(options);
-};
+exports.shellyRegister = shellyRegister;
 
 exports.getReleData = function(options, resolveIn, rejectIn) {
   new Promise(function(resolve, reject) {
@@ -433,45 +474,13 @@ let updateTemperatureReleStatus = function(options, resolveIn, rejectIn) {
   });
 };
 
-let a = function(options, resolveIn, rejectIn) {
-  new Promise(function(resolve, reject) {
-    updateTemperatureReleStatus(options, resolve, reject);
-  })
-    .then(function(options) {
-      let status = config.TypeStatus.OFF;
-      switch (conf.statusThermostat) {
-        case config.TypeStatus.ON:
-          status = config.TypeStatus.ON;
-          break;
-        case config.TypeStatus.AUTO:
-          if (options.response.temperature < options.response.minTempAuto)
-            status = config.TypeStatus.ON;
-          break;
-        case config.TypeStatus.MANUAL:
-          if (options.response.temperature < options.response.minTempManual)
-            status = config.TypeStatus.ON;
-          break;
-      }
-      options.shellyCommand = {
-        command: config.TypeShellyCommand.COMMAND,
-        status: status,
-        deviceid: options.conf.shellyMqttId
-      };
-      shelly.shellySendCommand(options);
-      resolveIn(options);
-    })
-    .catch(function(error) {
-      rejectIn(error);
-    });
-};
-
 let checkThermostatStatus2 = function(options, resolveIn, rejectIn) {
   new Promise(function(resolve, reject) {
     updateTemperatureReleStatus(options, resolve, reject);
   })
     .then(function(options) {
       let status = config.TypeStatus.OFF;
-      switch (conf.statusThermostat) {
+      switch (options.releConf.statusThermostat) {
         case config.TypeStatus.ON:
           status = config.TypeStatus.ON;
           break;
@@ -487,8 +496,10 @@ let checkThermostatStatus2 = function(options, resolveIn, rejectIn) {
       options.shellyCommand = {
         command: config.TypeShellyCommand.COMMAND,
         status: status,
-        deviceid: options.conf.shellyMqttId
+        deviceid: options.releConf.shellyMqttId
       };
+      options.response.deviceid = options.releConf.shellyMqttId;
+      options.response.status = status;
       shelly.shellySendCommand(options);
       resolveIn(options);
     })
@@ -497,7 +508,7 @@ let checkThermostatStatus2 = function(options, resolveIn, rejectIn) {
     });
 };
 
-exports.checkThermostatStatus = a;
+exports.checkThermostatStatus = checkThermostatStatus2;
 /**
  * get index of current program
  * @param {*} progRecord

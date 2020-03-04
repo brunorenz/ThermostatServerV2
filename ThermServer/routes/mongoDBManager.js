@@ -64,7 +64,7 @@ exports.updateConfiguration = function(options) {
     function(err, r) {
       if (!err) {
         // aggiorna dispositivi shelly
-        thermManager.checkThermostatStatus({ callback: [] });
+        thermManager.checkThermostatStatus({ usePromise: true });
       }
       options.response = { update: r.modifiedCount };
       thermManager.callback(options);
@@ -382,7 +382,7 @@ exports.genericQuery = function(options, resolve, reject) {
 
 /**
  * evalute themperature
- */
+ 
 exports.readThermostatProgramming = function(options) {
   options.programmingType = config.TypeProgramming.TEMP;
   var confColl = globaljs.mongoCon.collection(globaljs.MONGO_CONF);
@@ -461,7 +461,7 @@ exports.readThermostatProgramming = function(options) {
     }
   });
 };
-
+*/
 /**
  * Update management attribute of configuration
  *
@@ -522,7 +522,21 @@ exports.updateConfigurationInternal = function(options, resolve, reject) {
     function(err, r) {
       if (!err) {
         // aggiorna dispositivi shelly
-        thermManager.checkThermostatStatus({ callback: [] });
+        new Promise(function(resolve, reject) {
+          thermManager.checkThermostatStatus(
+            { usePromise: true },
+            resolve,
+            reject
+          );
+        })
+          .then(function(options) {
+            console.log(
+              "Aggiornato stato timer : " + JSON.stringify(options.response)
+            );
+          })
+          .catch(function(error) {
+            console.log("Errore in task checkThermostatStatus : " + error);
+          });
       }
       options.response = { update: r.modifiedCount };
       if (options.usePromise) {

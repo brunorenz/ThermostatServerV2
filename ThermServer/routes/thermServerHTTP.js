@@ -1,8 +1,8 @@
-var globaljs = require("./global");
+//var globaljs = require("./global");
 var config = require("./config");
 var httpUtils = require("./utils/httpUtils");
 var thermManager = require("./thermManager");
-var mq = require("./thermServerMQ");
+//var mq = require("./thermServerMQ");
 var security = require("./securityManager");
 /**
  * Send JSON response
@@ -150,12 +150,40 @@ exports.updateConfiguration = function(httpRequest, httpResponse) {
   }
 };
 
-exports.updateStatus = function(httpRequest, httpResponse) {
+const service = {
+  updateStatus: 1,
+  getReleData: 2,
+  getSensorData: 3,
+  checkThermostatStatus: 4,
+  updateTemperatureReleStatus: 5,
+  shellyRegister: 6
+};
+
+let proxyPromise = function(fn, httpRequest, httpResponse) {
   var options = validatePostRequest(httpRequest, httpResponse);
   if (options != null) {
     options.usePromise = true;
     new Promise(function(resolve, reject) {
-      thermManager.updateStatus(options, resolve, reject);
+      switch (fn) {
+        case service.updateStatus:
+          thermManager.updateStatus(options, resolve, reject);
+          break;
+        case service.getReleData:
+          thermManager.getReleData(options, resolve, reject);
+          break;
+        case service.getSensorData:
+          thermManager.getSensorData(options, resolve, reject);
+          break;
+        case service.checkThermostatStatus:
+          thermManager.checkThermostatStatus(options, resolve, reject);
+          break;
+        case service.updateTemperatureReleStatus:
+          thermManager.updateTemperatureReleStatus(options, resolve, reject);
+          break;
+        case service.shellyRegister:
+          thermManager.shellyRegister(options, resolve, reject);
+          break;
+      }
     })
       .then(function(options) {
         genericHTTPPostService(options);
@@ -166,21 +194,45 @@ exports.updateStatus = function(httpRequest, httpResponse) {
   }
 };
 
-exports.updateConfigurationN = function(httpRequest, httpResponse) {
-  var options = validatePostRequest(httpRequest, httpResponse);
-  if (options != null) {
-    options.usePromise = true;
-    new Promise(function(resolve, reject) {
-      thermManager.updateConfiguration(options, resolve, reject);
-    })
-      .then(function(options) {
-        genericHTTPPostService(options);
-      })
-      .catch(function(error) {
-        httpResponse.json(httpUtils.createResponseKo(500, error));
-      });
-  }
+exports.checkThermostatStatus = function(httpRequest, httpResponse) {
+  proxyPromise(service.checkThermostatStatus, httpRequest, httpResponse);
 };
+
+exports.updateTemperatureReleStatus = function(httpRequest, httpResponse) {
+  proxyPromise(service.updateTemperatureReleStatus, httpRequest, httpResponse);
+};
+
+exports.updateStatus = function(httpRequest, httpResponse) {
+  proxyPromise(service.updateStatus, httpRequest, httpResponse);
+};
+
+exports.getReleData = function(httpRequest, httpResponse) {
+  proxyPromise(service.getReleData, httpRequest, httpResponse);
+};
+
+exports.getSensorData = function(httpRequest, httpResponse) {
+  proxyPromise(service.getSensorData, httpRequest, httpResponse);
+};
+
+exports.shellyRegister = function(httpRequest, httpResponse) {
+  proxyPromise(service.shellyRegister, httpRequest, httpResponse);
+};
+
+// exports.updateConfigurationN = function(httpRequest, httpResponse) {
+//   var options = validatePostRequest(httpRequest, httpResponse);
+//   if (options != null) {
+//     options.usePromise = true;
+//     new Promise(function(resolve, reject) {
+//       thermManager.updateConfiguration(options, resolve, reject);
+//     })
+//       .then(function(options) {
+//         genericHTTPPostService(options);
+//       })
+//       .catch(function(error) {
+//         httpResponse.json(httpUtils.createResponseKo(500, error));
+//       });
+//   }
+// };
 /**
  * Read Configuration
  */
@@ -206,77 +258,10 @@ exports.getConfiguration = function(httpRequest, httpResponse) {
   }
 };
 
-exports.getReleData = function(httpRequest, httpResponse) {
-  var options = validateGetRequest(httpRequest, httpResponse);
-  if (options != null) {
-    options.usePromise = true;
-    new Promise(function(resolve, reject) {
-      thermManager.getReleData(options, resolve, reject);
-    })
-      .then(function(options) {
-        genericHTTPPostService(options);
-      })
-      .catch(function(error) {
-        httpResponse.json(httpUtils.createResponseKo(500, error));
-      });
-  }
-};
-
-exports.getSensorData = function(httpRequest, httpResponse) {
-  var options = validateGetRequest(httpRequest, httpResponse);
-  if (options != null) {
-    options.usePromise = true;
-    new Promise(function(resolve, reject) {
-      thermManager.getSensorData(options, resolve, reject);
-    })
-      .then(function(options) {
-        genericHTTPPostService(options);
-      })
-      .catch(function(error) {
-        httpResponse.json(httpUtils.createResponseKo(500, error));
-      });
-  }
-};
-
-/**
- *
- */
-
-exports.checkThermostatStatus = function(httpRequest, httpResponse) {
-  var options = validateGetRequest(httpRequest, httpResponse);
-  if (options != null) {
-    options.usePromise = true;
-    new Promise(function(resolve, reject) {
-      thermManager.checkThermostatStatus(options, resolve, reject);
-    })
-      .then(function(options) {
-        genericHTTPPostService(options);
-      })
-      .catch(function(error) {
-        httpResponse.json(httpUtils.createResponseKo(500, error));
-      });
-  }
-};
-
-exports.updateTemperatureReleStatus = function(httpRequest, httpResponse) {
-  var options = validatePostRequest(httpRequest, httpResponse);
-  if (options != null) {
-    options.usePromise = true;
-    new Promise(function(resolve, reject) {
-      thermManager.updateTemperatureReleStatus(options, resolve, reject);
-    })
-      .then(function(options) {
-        genericHTTPPostService(options);
-      })
-      .catch(function(error) {
-        httpResponse.json(httpUtils.createResponseKo(500, error));
-      });
-  }
-};
 /**
  * Scan th local network finding for Schelly devices
  */
-exports.shellyRegister = function(httpRequest, httpResponse) {
+exports.shellyRegisterX = function(httpRequest, httpResponse) {
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
   setHeader(httpResponse);
   // httpResponse.header("Access-Control-Allow-Origin", "*");

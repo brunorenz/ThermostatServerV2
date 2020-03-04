@@ -3,16 +3,20 @@ const globaljs = require("./global");
 
 var checkTemperature = function() {
   var options = {
-    usePromise: false,
-    callback: []
+    usePromise: true
   };
-
   console.log("Start Timer for CheckTemperature ..");
-  try {
-    thermManager.checkThermostatStatus(options);
-  } catch (error) {
-    console.log("Errore in task checkThermostatStatus : " + error);
-  }
+  new Promise(function(resolve, reject) {
+    thermManager.checkThermostatStatus(options, resolve, reject);
+  })
+    .then(function(options) {
+      console.log(
+        "Aggiornato stato timer : " + JSON.stringify(options.response)
+      );
+    })
+    .catch(function(error) {
+      console.log("Errore in task checkThermostatStatus : " + error);
+    });
   setTimeout(checkTemperature, globaljs.MONITOR_TIMEOUT);
 };
 

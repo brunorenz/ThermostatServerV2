@@ -193,6 +193,7 @@ let getStatistics = function(options, resolve, reject) {
   // per ogni sensore map/reduce per statitiche
   // input tipo (ultima ora /giorno)
   //       risoluzione (minuti)
+  /*
   console.log(
     "Collect Statistics from " +
       new Date(options.startTime) +
@@ -201,7 +202,7 @@ let getStatistics = function(options, resolve, reject) {
       " of type " +
       options.statisticType
   );
-
+    */
   if (options.statisticType === "RELE") {
     options.keyField = "shellyMqttId";
     globaljs.mongoCon.collection(globaljs.MONGO_SHELLYSTAT).mapReduce(
