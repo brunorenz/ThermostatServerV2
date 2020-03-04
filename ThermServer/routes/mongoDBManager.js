@@ -1,31 +1,6 @@
 var globaljs = require("./global");
 var config = require("./config");
 var thermManager = require("./thermManager");
-//var mq = require("./thermServerMQ");
-var shelly = require("./shellyManager");
-
-/**
- * Manage last function callback
- * @param {*} options
- */
-// var callback = function(options, error) {
-//   return thermManager.callback(options, error);
-//   // if (error) options.error = error;
-//   // if (options.callback && options.callback.length > 0) {
-//   //   if (typeof options.callbackIndex === "undefined") options.callbackIndex = 0;
-//   //   if (options.callbackIndex < options.callback.length) {
-//   //     options.callback[options.callbackIndex++](options);
-//   //   }
-//   // }
-//   //if (options.internallCallback) options.internallCallback(options);
-//   //else if (options.callback) options.callback(options);
-// };
-
-// var callbackOLD = function(options, error) {
-//   if (error) options.error = error;
-//   if (options.internallCallback) options.internallCallback(options);
-//   else if (options.callback) options.callback(options);
-// };
 
 /**
  * Update management attribute of configuration
@@ -217,10 +192,6 @@ exports.readConfiguration = function(options) {
       } else {
         options.response = elements;
         return thermManager.callback(options, err);
-        // for (let ix = 0; ix < elements.length; ix++) {
-        //   let entry = elements[ix];
-        //   let a = 1;
-        // }
       }
     });
   }
@@ -381,88 +352,6 @@ exports.genericQuery = function(options, resolve, reject) {
 };
 
 /**
- * evalute themperature
- 
-exports.readThermostatProgramming = function(options) {
-  options.programmingType = config.TypeProgramming.TEMP;
-  var confColl = globaljs.mongoCon.collection(globaljs.MONGO_CONF);
-  confColl.find({ flagReleTemp: 1 }).toArray(function(err, doc) {
-    if (err) {
-      console.error("ERRORE lettura configurazione " + err);
-      //callback(options, err);
-    } else {
-      if (doc && doc.length === 1) {
-        let conf = doc[0];
-        console.log(
-          "trovato dispositivo " +
-            conf.location +
-            " con misurazione di tipo " +
-            conf.temperatureMeasure
-        );
-        // verifico tipo programmazione
-        options.shellyCommand = {
-          command: config.TypeShellyCommand.COMMAND,
-          status: conf.statusThermostat,
-          measure: conf.temperatureMeasure,
-          deviceid: conf.shellyMqttId
-        };
-        if (
-          conf.statusThermostat === config.TypeStatus.ON ||
-          conf.statusThermostat === config.TypeStatus.OFF
-        ) {
-          shelly.shellySendCommand(options);
-        } else {
-          // ora cerco sensori temperatura
-          confColl
-            .find({ flagTemperatureSensor: 1 })
-            .toArray(function(err, doc) {
-              if (err) {
-                console.error("ERRORE lettura configurazione " + err);
-                //callback(options, err);
-              } else {
-                if (doc && doc.length > 0) {
-                  console.log(
-                    "trovati " +
-                      doc.length +
-                      " sensori che misurano temperatura"
-                  );
-                  for (let ix = 0; ix < doc.length; ix++) {
-                    console.log(
-                      "Location " +
-                        doc[ix].location +
-                        " - Temperatura " +
-                        doc[ix].currentTemperature
-                    );
-                    console.log(
-                      "Location " +
-                        doc[ix].location +
-                        " - Luce " +
-                        doc[ix].currentLigth
-                    );
-                  }
-                  // leggi programmazione
-                  options.shellyCommand.temperature = doc;
-                  options.callback.push(shelly.shellySendCommand);
-                  readProgramming(options);
-                } else {
-                  options.error =
-                    "Non trovati sensori che misurano temperatura";
-                  console.log(options.error);
-                }
-              }
-            });
-        }
-      } else {
-        options.error =
-          "Trovati un numero di dispositivi non valido : " + doc.length;
-        console.log(options.error);
-      }
-      thermManager.callback(options, err);
-    }
-  });
-};
-*/
-/**
  * Update management attribute of configuration
  *
  */
@@ -474,28 +363,6 @@ exports.updateStatus = function(options, resolve, reject) {
     statusThermostat: parseInt(req.statusThermostat)
   };
   updateConfigurationInternal(options, resolve, reject);
-  // console.log(
-  //   "Aggiorno MAC : " + req.macAddress + " => " + JSON.stringify(updateField)
-  // );
-  // confcoll.updateOne(
-  //   {
-  //     _id: req.macAddress
-  //   },
-  //   {
-  //     $set: updateField
-  //   },
-  //   function(err, r) {
-  //     if (!err) {
-  //       // aggiorna dispositivi shelly
-  //       thermManager.checkThermostatStatus({callback:[]});
-  //     }
-  //     options.response = { update: r.modifiedCount };
-  //     if (options.usePromise) {
-  //       if (err) reject(err);
-  //       else resolve(options);
-  //     } else thermManager.callback(options, err);
-  //   }
-  // );
 };
 
 /**

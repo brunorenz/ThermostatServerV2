@@ -1,10 +1,7 @@
 const globaljs = require("./global");
 const config = require("./config");
-const myutils = require("./utils/myutils");
 const mongoDBMgr = require("./mongoDBManager");
 const mongoDBStatMgr = require("./mongoDBStatManager");
-const shelly = require("./shellyManager");
-
 const shellyMgr = require("./shellyManager");
 const netList = require("network-list");
 
@@ -57,11 +54,6 @@ exports.manageProgramming = function(options, resolveIn, rejectIn) {
       break;
   }
 };
-
-/**
- * check and update thermostat configuration
- */
-exports.checkConfigurationInternal = function(options) {};
 
 /**
  * check and update thermostat configuration
@@ -500,7 +492,7 @@ let checkThermostatStatus2 = function(options, resolveIn, rejectIn) {
       };
       options.response.deviceid = options.releConf.shellyMqttId;
       options.response.status = status;
-      shelly.shellySendCommand(options);
+      shellyMgr.shellySendCommand(options);
       resolveIn(options);
     })
     .catch(function(error) {
