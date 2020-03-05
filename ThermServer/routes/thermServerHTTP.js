@@ -160,7 +160,9 @@ const service = {
 };
 
 let proxyPromise = function(fn, httpRequest, httpResponse) {
-  var options = validatePostRequest(httpRequest, httpResponse);
+  // if (httpRequest.method === "GET")
+  // console.log("GET..");
+  var options = httpRequest.method === "POST" ? validatePostRequest(httpRequest, httpResponse) : validateGetRequest(httpRequest, httpResponse);
   if (options != null) {
     options.usePromise = true;
     new Promise(function(resolve, reject) {

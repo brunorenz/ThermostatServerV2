@@ -1,12 +1,12 @@
 // MongoDB configuration
-var home = false;
+var home = true;
 const security = true;
 const jwt = true;
 const jwtGET = false;
-const jwtPOST = false;
+const jwtPOST = true;
 
-var urlDB_ = "192.168.0.120:27017";
-var urlDB = home ? "192.168.0.120:27017" : "srvwas1.bpbari.it:27017";
+var urlDB_ = "192.168.0.101:27017";
+var urlDB = home ? "192.168.0.101:27017" : "srvwas1.bpbari.it:27017";
 var DBName = "ThermDB";
 var mongoCon;
 
@@ -20,8 +20,8 @@ exports.MONGO_SENSORSTAT = "sensorStat";
 exports.MONGO_SHELLYSTAT = "shellyStat";
 
 // MQTT
-var urlMQTT_ = "mqtt://192.168.0.120";
-var urlMQTT = home ? "mqtt://192.168.0.120" : "mqtt://172.28.154.233";
+var urlMQTT_ = "mqtt://192.168.0.101";
+var urlMQTT = home ? "mqtt://192.168.0.101" : "mqtt://172.28.154.233";
 var mqttCli;
 exports.urlMQTT = urlMQTT;
 exports.mqttCli = mqttCli;

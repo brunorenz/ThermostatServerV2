@@ -579,7 +579,7 @@ let evaluateTemperature = function(options, resolveIn, rejectIn) {
         autoRecord.timeEnd
     );
     minTempAuto = autoRecord.minTemp;
-    prioritySensor = autoRecord.prioritySensor;
+    prioritySensor = autoRecord.priorityDisp;
   }
 
   if (sensor.length === 1) temperature = sensor[0].currentTemperature;
