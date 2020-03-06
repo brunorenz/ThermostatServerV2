@@ -217,7 +217,7 @@ let shellyRegisterInternal = function(options) {
 
 exports.shellyRegister = shellyRegister;
 
-exports.getReleData = function(options, resolveIn, rejectIn) {
+let getReleData = function(options, resolveIn, rejectIn) {
   new Promise(function(resolve, reject) {
     let query = {
       collection: globaljs.mongoCon.collection(globaljs.MONGO_CONF),
@@ -696,3 +696,75 @@ let getTemperature = function(sensor, macAddress) {
   return temperature;
 };
 exports.updateTemperatureReleStatus = updateTemperatureReleStatus;
+
+let readMonitor = function(options) {
+  options.genericQuery = {
+    collection: globaljs.mongoCon.collection(globaljs.MONGO_SHELLYSTAT),
+    selectOne: true,
+    shellyId: options.conf.shellyId,
+    sort: { time: -1 }
+  };
+  return new Promise(function(resolveIn, rejectIn) {
+    new Promise(function(resolve, reject) {
+      mongoDBMgr.genericQuery(options, resolve, reject);
+    })
+      .then(function(options) {
+        options.shellyData = options.response;
+        if (options.conf.flagReleTemp === 1)
+          updateTemperatureReleStatus(options, resolveIn, rejectIn);
+        else resolveIn(options);
+      })
+      .catch(function(error) {
+        rejectIn(error);
+      });
+  });
+};
+
+let getReleData2 = function(options, resolveIn, rejectIn) {
+  new Promise(function(resolve, reject) {
+    let query = {
+      collection: globaljs.mongoCon.collection(globaljs.MONGO_CONF),
+      filter: {
+        $or: [{ flagReleTemp: 1 }, { flagReleLight: 1 }]
+      },
+      selectOne: false
+    };
+    options.genericQuery = query;
+    mongoDBMgr.genericQuery(options, resolve, reject);
+  })
+    .then(function(options) {
+      if (options.response && options.response.length > 0) {
+        let pIn = [];
+        // recupero stato rele
+        for (let ix = 0; ix < options.response.length; ix++) {
+          let optionsN = {
+            usePromise: true,
+            confRele: options.response,
+            conf: options.response[ix]
+          };
+          pIn.push(readMonitor(optionsN));
+        }
+        if (pIn.length > 0) {
+          Promise.all(pIn)
+            .then(function(optionsN) {
+              options.response = [];
+              for (let ix = 0; ix < optionsN.length; ix++)
+                options.response.push({
+                  temperature: optionsN[ix].response,
+                  configuration: optionsN[ix].conf,
+                  shelly: optionsN[ix].shellyData
+                });
+              resolveIn(options);
+            })
+            .catch(function(error) {
+              rejectIn(error);
+            });
+        }
+      } else resolveIn(options);
+    })
+    .catch(function(error) {
+      rejectIn(error);
+    });
+};
+
+exports.getReleData = getReleData2;

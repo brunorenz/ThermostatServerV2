@@ -63,7 +63,6 @@ var updateConfigurationFull = function(confColl, options) {
     } else updateField.lastCheck = Date.now();
     updateField.deviceType = req.deviceType;
     updateField.flagReleTemp = req.flagReleTemp;
-    updateField.flagReleTemp = req.flagReleTemp;
     updateField.flagReleLight = req.flagReleLight;
     options.response.flagReleTemp = req.flagReleTemp;
     options.response.flagReleLight = req.flagReleLight;

@@ -69,11 +69,8 @@ console.log("Working directory is " + __dirname);
 // GET METHOD
 app.get("/rest/getProgramming", termManagment.getProgramming);
 app.get("/rest/getConfiguration", termManagment.getConfiguration);
-app.get("/rest/shellyRegister", termManagment.shellyRegister);
 
 app.get("/rest/check", termManagment.checkThermostatStatus);
-
-app.post("/rest/login", urlencodedParser, termManagment.login);
 
 app.get("/rest/getSensorData", termManagment.getSensorData);
 app.get("/rest/getReleData", termManagment.getReleData);
@@ -81,15 +78,18 @@ app.get("/rest/getReleData", termManagment.getReleData);
 app.get("/rest/getReleStatistics", termManagment.getReleStatistics);
 app.get("/rest/getSensorStatistics", termManagment.getSensorStatistics);
 
-// POST METHOD
+app.get("/rest/getTemperature", termManagment.updateTemperatureReleStatus);
 
-app.post("/rest/updateStatus", urlencodedParser, termManagment.updateStatus);
+// POST METHOD
+app.post("/rest/login", urlencodedParser, termManagment.login);
 
 app.post(
-  "/rest/updateTemperatureReleStatus",
+  "/rest/shellyRegister",
   urlencodedParser,
-  termManagment.updateTemperatureReleStatus
+  termManagment.shellyRegister
 );
+
+app.post("/rest/updateStatus", urlencodedParser, termManagment.updateStatus);
 
 app.post(
   "/rest/updateConfiguration",
