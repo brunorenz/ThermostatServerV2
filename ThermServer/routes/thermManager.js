@@ -123,10 +123,10 @@ exports.wifiRegisterInternal = function(options) {
   mongoDBMgr.readConfiguration(options);
 };
 
-var readProgramming = function(options) {
-  options.createIfNull = true;
-  mongoDBMgr.readProgramming(options);
-};
+// var readProgramming = function(options) {
+//   options.createIfNull = true;
+//   mongoDBMgr.readProgramming(options);
+// };
 
 let shellyRegister = function(options, resolveIn, rejectIn) {
   new Promise(function(resolve, reject) {
@@ -389,7 +389,25 @@ exports.getStatistics = function(options, resolveIn, rejectIn) {
  * Read rele configuration
  * @param {*} options
  */
-let readRele = function(options) {
+let readReleMotionLigth = function(options) {
+  return new Promise(function(resolve, reject) {
+    let query = {
+      collection: globaljs.mongoCon.collection(globaljs.MONGO_CONF),
+      filter: {
+        $and: [{ macAddress: options.request.macAddress }, { flagReleLight: 1 }]
+      },
+      selectOne: false
+    };
+    options.genericQuery = query;
+    mongoDBMgr.genericQuery(options, resolve, reject);
+  });
+};
+
+/**
+ * Read rele temperature configuration
+ * @param {*} options
+ */
+let readReleTemperature = function(options) {
   return new Promise(function(resolve, reject) {
     let query = {
       collection: globaljs.mongoCon.collection(globaljs.MONGO_CONF),
@@ -418,14 +436,15 @@ let readSensor = function(options) {
 };
 
 /**
- * read temperature program
+ * read generic program
  * @param {*} options
  */
-let readTempProgramming = function(options) {
+let readProgramming = function(options) {
   return new Promise(function(resolve, reject) {
     let query = {
       collection: globaljs.mongoCon.collection(globaljs.MONGO_PROG),
-      filter: { _id: config.TypeProgramming.TEMP },
+      //filter: { _id: config.TypeProgramming.TEMP },
+      filter: { _id: options.programmingType },
       selectOne: true
     };
     options.genericQuery = query;
@@ -441,7 +460,7 @@ let readTempProgramming = function(options) {
  */
 let updateTemperatureReleStatus = function(options, resolveIn, rejectIn) {
   // find the temperature rele
-  let r1 = readRele(options);
+  let r1 = readReleTemperature(options);
   r1.then(function(options) {
     let conf = options.response;
     options.releConf = conf;
@@ -451,7 +470,8 @@ let updateTemperatureReleStatus = function(options, resolveIn, rejectIn) {
       // compute temperature according to rele configuration
       options.tempSensor = options.response;
       // read actual programming
-      let r3 = readTempProgramming(options);
+      options.programmingType = config.TypeProgramming.TEMP;
+      let r3 = readProgramming(options);
       r3.then(function(options) {
         evaluateTemperature(options, resolveIn, rejectIn);
         resolveIn(options);
@@ -466,7 +486,7 @@ let updateTemperatureReleStatus = function(options, resolveIn, rejectIn) {
   });
 };
 
-let checkThermostatStatus2 = function(options, resolveIn, rejectIn) {
+let checkThermostatStatus = function(options, resolveIn, rejectIn) {
   new Promise(function(resolve, reject) {
     updateTemperatureReleStatus(options, resolve, reject);
   })
@@ -490,9 +510,9 @@ let checkThermostatStatus2 = function(options, resolveIn, rejectIn) {
         status: status,
         deviceid: options.releConf.shellyMqttId
       };
+      shellyMgr.shellySendCommand(options);
       options.response.deviceid = options.releConf.shellyMqttId;
       options.response.status = status;
-      shellyMgr.shellySendCommand(options);
       resolveIn(options);
     })
     .catch(function(error) {
@@ -500,7 +520,52 @@ let checkThermostatStatus2 = function(options, resolveIn, rejectIn) {
     });
 };
 
-exports.checkThermostatStatus = checkThermostatStatus2;
+exports.checkThermostatStatus = checkThermostatStatus;
+
+/**
+ *
+ * @param {*} options
+ * @param {*} resolveIn
+ * @param {*} rejectIn
+ */
+let updateMotionReleStatus = function(options, resolveIn, rejectIn) {
+  // find the temperature rele
+  let r1 = readReleMotionLigth(options);
+  r1.then(function(options) {
+    let conf = options.response;
+    options.releConf = conf;
+    if (conf.length > 0) {
+      options.programmingType = config.TypeProgramming.LIGTH;
+      let r3 = readProgramming(options);
+      r3.then(function(options) {
+        // per ogni rele trovato gestisci stato
+        options.programming = options.response;
+        resolveIn(options);
+      }).catch(function(error) {
+        rejectIn(error);
+      });
+    } else resolveIn(options);
+  }).catch(function(error) {
+    rejectIn(error);
+  });
+};
+
+let processMotion = function(options, resolveIn, rejectIn) {
+  if (options.request.motion === 1) {
+    new Promise(function(resolve, reject) {
+      updateMotionReleStatus(options, resolve, reject);
+    })
+      .then(function(options) {
+        mongoDBMgr.monitorMotionData(options, resolveIn, rejectIn);
+        //resolveIn(options);
+      })
+      .catch(function(error) {
+        rejectIn(error);
+      });
+  } else mongoDBMgr.monitorMotionData(options, resolveIn, rejectIn);
+};
+
+exports.processMotion = processMotion;
 /**
  * get index of current program
  * @param {*} progRecord

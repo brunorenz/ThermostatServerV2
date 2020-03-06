@@ -413,3 +413,22 @@ exports.updateConfigurationInternal = function(options, resolve, reject) {
     }
   );
 };
+
+exports.monitorMotionData = function(options, resolve, reject) {
+  var motionColl = globaljs.mongoCon.collection(globaljs.MONGO_MOTIONSTAT);
+  let logRecord = options.request;
+  var now = new Date();
+  var record = {
+    motion: logRecord.motion,
+    macAddress: logRecord.macAddress,
+    time: now.getTime(),
+    date: now
+  };
+  motionColl.insertOne(record, function(err, doc) {
+    if (err) {
+      reject(err);
+    } else {
+      resolve(options);
+    }
+  });
+};

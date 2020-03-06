@@ -1,5 +1,5 @@
 // MongoDB configuration
-var home = true;
+var home = false;
 const security = true;
 const jwt = true;
 const jwtGET = false;
@@ -18,6 +18,7 @@ exports.MONGO_CONF = "configuration";
 exports.MONGO_PROG = "prog";
 exports.MONGO_SENSORSTAT = "sensorStat";
 exports.MONGO_SHELLYSTAT = "shellyStat";
+exports.MONGO_MOTIONSTAT = "motionStat";
 
 // MQTT
 var urlMQTT_ = "mqtt://192.168.0.101";

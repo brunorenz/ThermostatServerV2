@@ -1,6 +1,6 @@
 // override console.lg
 var myutils = require("./ThermServer/routes/utils/myutils");
-var timers = require("./ThermServer/routes/timersManager");
+var config = require("./ThermServer/routes/config");
 
 console.log = (function() {
   var orig = console.log;
@@ -148,8 +148,40 @@ function setupHTTP() {
   server.on("listening", onListening);
 }
 
+/**
+ * Setup Timers
+ */
 function setupTimer() {
+  var timers = require("./ThermServer/routes/timersManager");
   setTimeout(timers.checkTemperature, 5000);
+}
+
+/**
+ * Setup initial Task
+ */
+function setupInitialTask() {
+  const thermManager = require("./ThermServer/routes/thermManager");
+  let options = {
+    action: config.TypeAction.READ,
+    createIfNull: true,
+    callback: []
+  };
+  try {
+    // check for TEMP Programing record
+    console.log("Check Temperature Programming record ..");
+    options.programmingType = config.TypeProgramming.TEMP;
+    thermManager.manageProgramming(options);
+  } catch (error) {
+    console.log(error);
+  }
+  try {
+    // check for LIGTH Programing record
+    console.log("Check Ligth Programming record ..");
+    options.programmingType = config.TypeProgramming.LIGTH;
+    thermManager.manageProgramming(options);
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 /**
@@ -180,6 +212,8 @@ function mainTask(httpDBMo) {
   setupTimer();
   //setupJ5();
   //findShelly();
+  console.log("Run Initial task");
+  setupInitialTask();
 }
 
 // Connect to DB

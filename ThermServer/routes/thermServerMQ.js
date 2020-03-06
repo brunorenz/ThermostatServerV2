@@ -184,6 +184,30 @@ exports.startMQListening = function(mqClient) {
             error
         );
       }
+    } else if (topic === globaljs.MQTopicMotion) {
+      try {
+        var options = {
+          request: JSON.parse(message),
+          type: "MQ",
+          usePromise: true
+        };
+        new Promise(function(resolve, reject) {
+          thermManager.processMotion(options, resolve, reject);
+        })
+          .then(function(options) {
+            //genericHTTPPostService(options);
+          })
+          .catch(function(error) {
+            //
+            console.log(
+              "Error while processing message on topic " + topic + " : " + error
+            );
+          });
+      } catch (error) {
+        console.log(
+          "Error while processing message on topic " + topic + " : " + error
+        );
+      }
     } else if (topic.startsWith("shellies")) {
       console.log("Messaggio da SHELLY " + topic);
       try {
