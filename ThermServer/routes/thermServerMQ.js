@@ -108,8 +108,8 @@ exports.startMQListening = function(mqClient) {
     console.log(
       "Message received from topic " + topic + " : message : " + message
     );
-    if (topic === globaljs.MQTopicWifi) {
-      try {
+    try {
+      if (topic === globaljs.MQTopicWifi) {
         let input = JSON.parse(message);
         var options = {
           request: input,
@@ -120,16 +120,7 @@ exports.startMQListening = function(mqClient) {
         };
         options.callback.push(wifiMQService);
         thermManager.wifiRegisterInternal(options);
-      } catch (error) {
-        console.log(
-          "Error while processing message on topic " +
-            globaljs.MQTopicWifi +
-            " : " +
-            error
-        );
-      }
-    } else if (topic === globaljs.MQTopicProgramming) {
-      try {
+      } else if (topic === globaljs.MQTopicProgramming) {
         let input = JSON.parse(message);
         var options = {
           programmingType: input.type,
@@ -140,34 +131,28 @@ exports.startMQListening = function(mqClient) {
         };
         options.callback.push(programmingMQService);
         thermManager.manageProgramming(options);
-      } catch (error) {
-        console.log(
-          "Error while processing message on topic " +
-            globaljs.MQTopicProgramming +
-            " : " +
-            error
-        );
-      }
-    } else if (topic === globaljs.MQTopicMonitor) {
-      try {
+      } else if (topic === globaljs.MQTopicMonitor) {
         var options = {
           request: JSON.parse(message),
           type: "MQ",
           callback: [],
           register: false
         };
-        options.callback.push(monitorMQService);
-        thermManager.monitorInternal(options);
-      } catch (error) {
-        console.log(
-          "Error while processing message on topic " +
-            globaljs.MQTopicMonitor +
-            " : " +
-            error
-        );
-      }
-    } else if (topic === globaljs.MQTopicLastWill) {
-      try {
+        new Promise(function(resolve, reject) {
+          thermManager.monitorSensorData(options, resolve, reject);
+        })
+          .then(function(options) {
+            monitorMQService(options);
+          })
+          .catch(function(error) {
+            console.log(
+              "Error while processing message on topic " +
+                globaljs.MQTopicMonitor +
+                " : " +
+                error
+            );
+          });
+      } else if (topic === globaljs.MQTopicLastWill) {
         var options = {
           request: JSON.parse(message),
           type: "MQ",
@@ -176,16 +161,7 @@ exports.startMQListening = function(mqClient) {
         };
         options.callback.push(lastWillMQService);
         lastWillInternal(options);
-      } catch (error) {
-        console.log(
-          "Error while processing message on topic " +
-            globaljs.MQTopicLastWill +
-            " : " +
-            error
-        );
-      }
-    } else if (topic === globaljs.MQTopicMotion) {
-      try {
+      } else if (topic === globaljs.MQTopicMotion) {
         var options = {
           request: JSON.parse(message),
           type: "MQ",
@@ -195,7 +171,7 @@ exports.startMQListening = function(mqClient) {
           thermManager.processMotion(options, resolve, reject);
         })
           .then(function(options) {
-            //genericHTTPPostService(options);
+            motionMQService(options);
           })
           .catch(function(error) {
             //
@@ -203,33 +179,38 @@ exports.startMQListening = function(mqClient) {
               "Error while processing message on topic " + topic + " : " + error
             );
           });
-      } catch (error) {
-        console.log(
-          "Error while processing message on topic " + topic + " : " + error
-        );
-      }
-    } else if (topic.startsWith("shellies")) {
-      console.log("Messaggio da SHELLY " + topic);
-      try {
+      } else if (topic.startsWith("shellies")) {
+        console.log("Messaggio da SHELLY " + topic);
         var options = {
           request: message,
           type: "MQ",
           callback: [],
           topic: topic
         };
-        processShellyMessage(options);
-      } catch (error) {
-        console.log(
-          "Error while processing message on topic " + topic + " : " + error
-        );
+        new Promise(function(resolve, reject) {
+          processShellyMessage(options, resolve, reject);
+        })
+          .then(function(options) {
+            shellyMQService(options);
+          })
+          .catch(function(error) {
+            //
+            console.log(
+              "Error while processing message on topic " + topic + " : " + error
+            );
+          });
+      } else {
+        console.log("Messaggio non gestito per topic " + topic);
       }
-    } else {
-      console.log("Messaggio non gestito per topic " + topic);
+    } catch (error) {
+      console.log(
+        "Error while processing message on topic " + topic + " : " + error
+      );
     }
   });
 };
 
-var processShellyMessage = function(options) {
+var processShellyMessage = function(options, resolve, reject) {
   let topic = options.topic.split("/");
   if (topic.length > 2) {
     let shellyId = topic[1];
@@ -241,7 +222,7 @@ var processShellyMessage = function(options) {
         command: config.TypeShellyCommand.RELAY,
         deviceid: shellyId
       };
-      thermManager.monitorReleData(options);
+      thermManager.monitorReleData(options, resolve, reject);
     }
   }
 };
@@ -336,11 +317,15 @@ var wifiMQService = function(options) {
 
 var monitorMQService = function(options) {
   console.log("Manage monitorMQService");
-  // send update configuration
 };
 var lastWillMQService = function(options) {
   console.log("Manage lastWillMQService");
-  // send update configuration
+};
+var motionMQService = function(options) {
+  console.log("Manage motionMQService");
+};
+var shellyMQService = function(options) {
+  console.log("Manage shellyMQService");
 };
 
 var lastWillInternal = function(options) {};

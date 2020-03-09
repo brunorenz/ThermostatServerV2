@@ -55,16 +55,28 @@ exports.manageProgramming = function(options, resolveIn, rejectIn) {
   }
 };
 
+// /**
+//  * check and update thermostat configuration
+//  */
+// exports.monitorInternal = function(options) {
+//   mongoDBMgr.monitorSensorData(options);
+// };
+
 /**
  * check and update thermostat configuration
  */
-exports.monitorInternal = function(options) {
-  mongoDBMgr.monitorSensorData(options);
+exports.monitorSensorData = function(options, resolve, reject) {
+  mongoDBMgr.monitorSensorData(options, resolve, reject);
 };
 
-exports.monitorReleData = function(options) {
-  mongoDBMgr.monitorReleData(options);
+exports.monitorReleData = function(options, resolve, reject) {
+  mongoDBMgr.monitorReleData(options, resolve, reject);
 };
+
+exports.monitorMotionData = function(options, resolve, reject) {
+  mongoDBMgr.monitorMotionData(options, resolve, reject);
+};
+
 /**
  * Thermostat register function
  */
@@ -557,7 +569,6 @@ let processMotion = function(options, resolveIn, rejectIn) {
     })
       .then(function(options) {
         mongoDBMgr.monitorMotionData(options, resolveIn, rejectIn);
-        //resolveIn(options);
       })
       .catch(function(error) {
         rejectIn(error);

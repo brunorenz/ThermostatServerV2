@@ -89,29 +89,10 @@ var updateConfigurationFull = function(confColl, options) {
   return thermManager.callback(options);
 };
 
-exports.monitorReleData = function(options) {
-  var monitorColl = globaljs.mongoCon.collection(globaljs.MONGO_SHELLYSTAT);
-  let logRecord = options.request.toString();
-  var now = new Date();
-  var record = {
-    shellyId: options.shellyCommand.deviceid,
-    time: now.getTime(),
-    date: now,
-    status: logRecord === "on" ? 1 : 0
-  };
-  monitorColl.insertOne(record, function(err, doc) {
-    if (err) {
-      console.log("ERRORE inserimento monitor data " + err);
-    } else {
-    }
-    thermManager.callback(options, err);
-  });
-};
-
 /**
  * Manage registration of monitor data
- */
-exports.monitorSensorData = function(options) {
+ 
+monitorSensorData = function(options) {
   var monitorColl = globaljs.mongoCon.collection(globaljs.MONGO_SENSORSTAT);
   var confcoll = globaljs.mongoCon.collection(globaljs.MONGO_CONF);
   let logRecord = options.request;
@@ -148,6 +129,7 @@ exports.monitorSensorData = function(options) {
     thermManager.callback(options, err);
   });
 };
+**/
 
 /**
  * Read configuration
@@ -413,6 +395,7 @@ exports.updateConfigurationInternal = function(options, resolve, reject) {
   );
 };
 
+/**
 exports.monitorMotionData = function(options, resolve, reject) {
   var motionColl = globaljs.mongoCon.collection(globaljs.MONGO_MOTIONSTAT);
   let logRecord = options.request;
@@ -431,3 +414,186 @@ exports.monitorMotionData = function(options, resolve, reject) {
     }
   });
 };
+ */
+
+let monitorReleDataOLD = function(options, resolve, reject) {
+  var monitorColl = globaljs.mongoCon.collection(globaljs.MONGO_SHELLYSTAT);
+  let logRecord = options.request.toString();
+  var now = new Date();
+  var record = {
+    shellyId: options.shellyCommand.deviceid,
+    time: now.getTime(),
+    date: now,
+    status: logRecord === "on" ? 1 : 0
+  };
+  monitorColl.insertOne(record, function(err, doc) {
+    if (err) {
+      console.log("ERRORE inserimento monitor data " + err);
+    } else {
+    }
+    thermManager.callback(options, err);
+  });
+};
+
+/**
+ * Update sensor data. Message from ARDUINO
+ * @param {*} options
+ * @param {*} resolve
+ * @param {*} reject
+ */
+let monitorSensorData2 = function(options, resolve, reject) {
+  let logRecord = options.request;
+  var record = {
+    temperature: logRecord.temperature,
+    humidity: logRecord.humidity,
+    pressure: logRecord.pressure,
+    statusThermostat: logRecord.statusThermostat,
+    numSurveys: logRecord.numSurveys,
+    light: logRecord.light,
+    macAddress: logRecord.macAddress
+  };
+  options.request = record;
+  options.deviceType = config.TypeDeviceType.ARDUINO;
+  monitorData(options, resolve, reject);
+};
+
+let monitorReleData = function(options, resolve, reject) {
+  let logRecord = options.request.toString();
+  var record = {
+    shellyId: options.shellyCommand.deviceid,
+    status: logRecord === "on" ? 1 : 0
+  };
+  options.request = record;
+  options.deviceType = config.TypeDeviceType.SHELLY;
+  monitorData(options, resolve, reject);
+};
+
+let monitorMotionData = function(options, resolve, reject) {
+  let logRecord = options.request;
+  var record = {
+    status: logRecord.motion,
+    macAddress: logRecord.macAddress
+  };
+  options.request = record;
+  options.deviceType = config.TypeDeviceType.ARDUINO;
+  monitorData(options, resolve, reject);
+};
+
+/**
+ * Manage registration of monitor data
+ */
+let monitorSensorData = function(options, resolve, reject) {
+  // read configuration and get termperatureError
+  // insert Monitor Record
+  // update configuration record
+  var monitorColl = globaljs.mongoCon.collection(globaljs.MONGO_SENSORSTAT);
+  var confColl = globaljs.mongoCon.collection(globaljs.MONGO_CONF);
+  let logRecord = options.request;
+  var now = new Date();
+  var record = {
+    temperature: logRecord.temperature,
+    humidity: logRecord.humidity,
+    pressure: logRecord.pressure,
+    statusThermostat: logRecord.statusThermostat,
+    numSurveys: logRecord.numSurveys,
+    light: logRecord.light,
+    macAddress: logRecord.macAddress,
+    time: now.getTime(),
+    date: now
+  };
+  confColl.findOne({ _id: record.macAddress }, function(err, doc) {
+    if (err) {
+      console.log("ERRORE lettura record configurazione " + err);
+      reject(err);
+    } else {
+      if (typeof doc.temperatureError != "undefined") {
+        record.temperature += doc.temperatureError;
+      }
+      monitorColl.insertOne(record, function(err, doc) {
+        if (err) {
+          console.log("ERRORE inserimento monitor data " + err);
+          reject(err);
+        } else {
+          let updateField = {
+            currentTemperature: record.temperature,
+            currentLigth: record.light,
+            lastCheck: new Date().getTime()
+          };
+          confColl.updateOne(
+            {
+              _id: record.macAddress
+            },
+            {
+              $set: updateField
+            }
+          );
+          options.response = record;
+          resolve(options);
+        }
+      });
+    }
+  });
+};
+
+let monitorData = function(options, resolve, reject) {
+  // read configuration and get termperatureError
+  // insert Monitor Record
+  // update configuration record
+  let sensor = options.deviceType === config.TypeDeviceType.ARDUINO;
+  var monitorColl = globaljs.mongoCon.collection(
+    sensor ? globaljs.MONGO_SENSORSTAT : globaljs.MONGO_SHELLYSTAT
+  );
+  var confColl = globaljs.mongoCon.collection(globaljs.MONGO_CONF);
+  let record = options.request;
+  var now = new Date();
+  record.time = now.getTime();
+  record.date = now;
+  let query = sensor
+    ? { _id: record.macAddress }
+    : { shellyMqttId: record.shellyId };
+  confColl.findOne(query, function(err, doc) {
+    if (err) {
+      console.log("ERRORE lettura record configurazione " + err);
+      reject(err);
+    } else {
+      if (sensor) {
+        if (typeof doc.temperatureError != "undefined") {
+          record.temperature += doc.temperatureError;
+        }
+      } else {
+        record.macAddress = doc.macAddress;
+      }
+
+      monitorColl.insertOne(record, function(err, doc) {
+        if (err) {
+          console.log("ERRORE inserimento monitor data " + err);
+          reject(err);
+        } else {
+          let updateField = {
+            lastCheck: new Date().getTime()
+          };
+          if (sensor) {
+            updateField.currentTemperature = record.temperature;
+            updateField.currentLigth = record.light;
+          } else {
+            updateField.currentStatus = record.status;
+          }
+          confColl.updateOne(
+            {
+              _id: record.macAddress
+            },
+            {
+              $set: updateField
+            }
+          );
+          options.response = record;
+          resolve(options);
+        }
+      });
+    }
+  });
+};
+
+exports.monitorSensorData = monitorSensorData2;
+exports.monitorReleData = monitorReleData;
+exports.monitorMotionData = monitorMotionData;

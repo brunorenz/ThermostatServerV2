@@ -36,7 +36,8 @@ var configurationRecord = {
   shellyMqttId: "",
   primarySensor: "",
   currentTemperature: 0.0,
-  currentLigth: 0.0
+  currentLigth: 0.0,
+  temperatureError: 0
 };
 
 /**

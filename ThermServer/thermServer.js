@@ -113,7 +113,7 @@ app.post(
   termManagment.updateProgramming
 );
 
-app.post("/rest/monitor", jsonParser, termManagment.monitor);
+app.post("/rest/monitor", jsonParser, termManagment.monitorSensorData);
 /**
 app.get("/rest/addProgramming", termManagment.addProgramming);
 app.get("/rest/removeProgramming", termManagment.removeProgramming);

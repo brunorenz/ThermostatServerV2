@@ -156,13 +156,17 @@ const service = {
   getSensorData: 3,
   checkThermostatStatus: 4,
   updateTemperatureReleStatus: 5,
-  shellyRegister: 6
+  shellyRegister: 6,
+  monitorSensorData: 7
 };
 
 let proxyPromise = function(fn, httpRequest, httpResponse) {
   // if (httpRequest.method === "GET")
   // console.log("GET..");
-  var options = httpRequest.method === "POST" ? validatePostRequest(httpRequest, httpResponse) : validateGetRequest(httpRequest, httpResponse);
+  var options =
+    httpRequest.method === "POST"
+      ? validatePostRequest(httpRequest, httpResponse)
+      : validateGetRequest(httpRequest, httpResponse);
   if (options != null) {
     options.usePromise = true;
     new Promise(function(resolve, reject) {
@@ -185,6 +189,9 @@ let proxyPromise = function(fn, httpRequest, httpResponse) {
         case service.shellyRegister:
           thermManager.shellyRegister(options, resolve, reject);
           break;
+        case service.monitorSensorData:
+          thermManager.monitorSensorData(options, resolve, reject);
+          break;
       }
     })
       .then(function(options) {
@@ -194,6 +201,10 @@ let proxyPromise = function(fn, httpRequest, httpResponse) {
         httpResponse.json(httpUtils.createResponseKo(500, error));
       });
   }
+};
+
+exports.monitorSensorData = function(httpRequest, httpResponse) {
+  proxyPromise(service.monitorSensorData, httpRequest, httpResponse);
 };
 
 exports.checkThermostatStatus = function(httpRequest, httpResponse) {
