@@ -1,5 +1,6 @@
 const globaljs = require("./global");
 const config = require("./config");
+const utils = require("./utils/myutils");
 const mongoDBMgr = require("./mongoDBManager");
 const mongoDBStatMgr = require("./mongoDBStatManager");
 const shellyMgr = require("./shellyManager");
@@ -65,17 +66,74 @@ exports.manageProgramming = function(options, resolveIn, rejectIn) {
 /**
  * check and update thermostat configuration
  */
-exports.monitorSensorData = function(options, resolve, reject) {
-  mongoDBMgr.monitorSensorData(options, resolve, reject);
+
+/**
+ * Update sensor data. Message from ARDUINO
+ * @param {*} options
+ * @param {*} resolve
+ * @param {*} reject
+ */
+let monitorSensorData = function(options, resolve, reject) {
+  let logRecord = options.request;
+  // validate data
+  if (
+    utils.validateNumber(logRecord.temperature) &&
+    utils.validateNumber(logRecord.humidity) &&
+    utils.validateNumber(logRecord.pressure) &&
+    utils.validateNumber(logRecord.light)
+  ) {
+    var record = {
+      temperature: logRecord.temperature,
+      humidity: logRecord.humidity,
+      pressure: logRecord.pressure,
+      statusThermostat: logRecord.statusThermostat,
+      numSurveys: logRecord.numSurveys,
+      light: logRecord.light,
+      macAddress: logRecord.macAddress
+    };
+    options.request = record;
+    options.deviceType = config.TypeDeviceType.ARDUINO;
+    mongoDBMgr.monitorData(options, resolve, reject);
+  } else console.log("ERROR : BAD Record " + JSON.stringify(logRecord));
 };
 
-exports.monitorReleData = function(options, resolve, reject) {
-  mongoDBMgr.monitorReleData(options, resolve, reject);
+/**
+ * Update rele data. Message from SHELLY
+ * @param {*} options
+ * @param {*} resolve
+ * @param {*} reject
+ */
+let monitorReleData = function(options, resolve, reject) {
+  let logRecord = options.request.toString();
+  var record = {
+    shellyId: options.shellyCommand.deviceid,
+    status: logRecord === "on" ? 1 : 0
+  };
+  options.request = record;
+  options.deviceType = config.TypeDeviceType.SHELLY;
+  mongoDBMgr.monitorData(options, resolve, reject);
 };
 
-exports.monitorMotionData = function(options, resolve, reject) {
-  mongoDBMgr.monitorMotionData(options, resolve, reject);
+/**
+ * Update motion data. Message from ARDUINO
+ * @param {*} options
+ * @param {*} resolve
+ * @param {*} reject
+ */
+let monitorMotionData = function(options, resolve, reject) {
+  let logRecord = options.request;
+  var record = {
+    status: logRecord.motion,
+    macAddress: logRecord.macAddress
+  };
+  options.request = record;
+  options.deviceType = config.TypeDeviceType.ARDUINO;
+  mongoDBMgr.monitorData(options, resolve, reject);
 };
+
+exports.monitorSensorData = monitorSensorData;
+exports.monitorReleData = monitorReleData;
+exports.monitorMotionData = monitorMotionData;
 
 /**
  * Thermostat register function

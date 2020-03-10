@@ -83,3 +83,9 @@ log = function(obj, ...argumentArray) {
 };
 
 module.exports.log = log;
+
+let validateNumber = function(num) {
+  return num && !isNaN(num);
+};
+
+exports.validateNumber = validateNumber;

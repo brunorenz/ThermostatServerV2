@@ -177,9 +177,12 @@ exports.readConfiguration = function(options) {
     });
   }
 };
+
 /**
  * Aggiorna record di programmazione
  * @param {*} options
+ * @param {*} resolve
+ * @param {*} reject
  */
 var updateProgrammingInternal = function(options, resolve, reject) {
   var progColl = globaljs.mongoCon.collection(globaljs.MONGO_PROG);
@@ -415,7 +418,7 @@ exports.monitorMotionData = function(options, resolve, reject) {
   });
 };
  */
-
+/*
 let monitorReleDataOLD = function(options, resolve, reject) {
   var monitorColl = globaljs.mongoCon.collection(globaljs.MONGO_SHELLYSTAT);
   let logRecord = options.request.toString();
@@ -434,13 +437,9 @@ let monitorReleDataOLD = function(options, resolve, reject) {
     thermManager.callback(options, err);
   });
 };
+*/
 
-/**
- * Update sensor data. Message from ARDUINO
- * @param {*} options
- * @param {*} resolve
- * @param {*} reject
- */
+/*
 let monitorSensorData2 = function(options, resolve, reject) {
   let logRecord = options.request;
   var record = {
@@ -478,7 +477,7 @@ let monitorMotionData = function(options, resolve, reject) {
   options.deviceType = config.TypeDeviceType.ARDUINO;
   monitorData(options, resolve, reject);
 };
-
+*/
 /**
  * Manage registration of monitor data
  */
@@ -594,6 +593,4 @@ let monitorData = function(options, resolve, reject) {
   });
 };
 
-exports.monitorSensorData = monitorSensorData2;
-exports.monitorReleData = monitorReleData;
-exports.monitorMotionData = monitorMotionData;
+exports.monitorData = monitorData;

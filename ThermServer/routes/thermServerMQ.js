@@ -138,20 +138,21 @@ exports.startMQListening = function(mqClient) {
           callback: [],
           register: false
         };
-        new Promise(function(resolve, reject) {
-          thermManager.monitorSensorData(options, resolve, reject);
-        })
-          .then(function(options) {
-            monitorMQService(options);
-          })
-          .catch(function(error) {
-            console.log(
-              "Error while processing message on topic " +
-                globaljs.MQTopicMonitor +
-                " : " +
-                error
-            );
-          });
+        proxyPromise(options, service.monitorSensorData, monitorMQService);
+        // new Promise(function(resolve, reject) {
+        //   thermManager.monitorSensorData(options, resolve, reject);
+        // })
+        //   .then(function(options) {
+        //     monitorMQService(options);
+        //   })
+        //   .catch(function(error) {
+        //     console.log(
+        //       "Error while processing message on topic " +
+        //         globaljs.MQTopicMonitor +
+        //         " : " +
+        //         error
+        //     );
+        //   });
       } else if (topic === globaljs.MQTopicLastWill) {
         var options = {
           request: JSON.parse(message),
@@ -167,18 +168,19 @@ exports.startMQListening = function(mqClient) {
           type: "MQ",
           usePromise: true
         };
-        new Promise(function(resolve, reject) {
-          thermManager.processMotion(options, resolve, reject);
-        })
-          .then(function(options) {
-            motionMQService(options);
-          })
-          .catch(function(error) {
-            //
-            console.log(
-              "Error while processing message on topic " + topic + " : " + error
-            );
-          });
+        proxyPromise(options, service.processMotion, motionMQService);
+        // new Promise(function(resolve, reject) {
+        //   thermManager.processMotion(options, resolve, reject);
+        // })
+        //   .then(function(options) {
+        //     motionMQService(options);
+        //   })
+        //   .catch(function(error) {
+        //     //
+        //     console.log(
+        //       "Error while processing message on topic " + topic + " : " + error
+        //     );
+        //   });
       } else if (topic.startsWith("shellies")) {
         console.log("Messaggio da SHELLY " + topic);
         var options = {
@@ -187,18 +189,19 @@ exports.startMQListening = function(mqClient) {
           callback: [],
           topic: topic
         };
-        new Promise(function(resolve, reject) {
-          processShellyMessage(options, resolve, reject);
-        })
-          .then(function(options) {
-            shellyMQService(options);
-          })
-          .catch(function(error) {
-            //
-            console.log(
-              "Error while processing message on topic " + topic + " : " + error
-            );
-          });
+        proxyPromise(options, service.processShellyMessage, shellyMQService);
+        // new Promise(function(resolve, reject) {
+        //   processShellyMessage(options, resolve, reject);
+        // })
+        //   .then(function(options) {
+        //     shellyMQService(options);
+        //   })
+        //   .catch(function(error) {
+        //     //
+        //     console.log(
+        //       "Error while processing message on topic " + topic + " : " + error
+        //     );
+        //   });
       } else {
         console.log("Messaggio non gestito per topic " + topic);
       }
@@ -331,3 +334,32 @@ var shellyMQService = function(options) {
 var lastWillInternal = function(options) {};
 
 exports.sendProgrammingData = sendProgrammingData;
+
+const service = {
+  monitorSensorData: 1,
+  processMotion: 2,
+  processShellyMessage: 3
+};
+
+let proxyPromise = function(options, fn, callback) {
+  options.usePromise = true;
+  new Promise(function(resolve, reject) {
+    switch (fn) {
+      case service.monitorSensorData:
+        thermManager.monitorSensorData(options, resolve, reject);
+        break;
+      case service.processMotion:
+        thermManager.processMotion(options, resolve, reject);
+        break;
+      case service.processShellyMessage:
+        processShellyMessage(options, resolve, reject);
+        break;
+    }
+  })
+    .then(function(options) {
+      if (callback) callback(options);
+    })
+    .catch(function(error) {
+      console.log("Error in proxyPromise function " + fn + " : " + error);
+    });
+};
