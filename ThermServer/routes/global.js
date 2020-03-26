@@ -1,9 +1,9 @@
 // MongoDB configuration
-var home = false;
+var home = true;
 const security = true;
 const jwt = true;
 const jwtGET = false;
-const jwtPOST = false;
+const jwtPOST = true;
 
 var urlDB_ = "192.168.0.101:27017";
 var urlDB = home ? "192.168.0.101:27017" : "srvwas1.bpbari.it:27017";

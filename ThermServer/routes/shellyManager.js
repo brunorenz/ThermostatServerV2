@@ -82,7 +82,7 @@ var getStatusByProgram = function(options) {
   return newStatus;
 };
 
-var shellySendCommand = function(options) {
+var shellySendCommandOLD = function(options) {
   //
   //     globaljs.mqttCli.publish(topic, JSON.stringify(msg));
   if (typeof options.shellyCommand !== "undefined") {
@@ -99,7 +99,7 @@ var shellySendCommand = function(options) {
   } else console.error("Nessun comando da inviare a dispositivi Shelly!");
 };
 
-var shellySendCommand2 = function(options) {
+var shellySendCommand = function(options) {
   //
   //     globaljs.mqttCli.publish(topic, JSON.stringify(msg));
   if (typeof options.shellyCommand !== "undefined") {
