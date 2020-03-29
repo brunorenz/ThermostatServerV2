@@ -1,5 +1,6 @@
 const thermManager = require("./thermManager");
 const shellyMgr = require("./shellyManager");
+const mongoDBMgr = require("./mongoDBManager");
 const globaljs = require("./global");
 const config = require("./config");
 
@@ -26,15 +27,14 @@ var checkTemperature = function () {
 
 
 var manageLightRele = function (options) {
-  //let timeout = true;
-
   let shellyCommand = {
     command: config.TypeShellyCommand.COMMAND,
     status: 1,
     deviceid: options.deviceid,
-    macAddress : options.macAddress,
+    macAddress: options.macAddress,
+    sensorMacAddress: options.sensorMacAddress,
     timeoutRunning: new Date(),
-    timeout: 20000
+    timeout: 10000
   };
 
   // verifica se Timer già impostato
@@ -56,36 +56,32 @@ var manageLightRele = function (options) {
   } else {
     // verifico se lo stato è 0 se si spegni
     let query = {
-      collection: globaljs.mongoCon.collection(globaljs.MONGO_MOTIONSTATS),
+      collection: globaljs.mongoCon.collection(globaljs.MONGO_MOTIONSTAT),
       selectOne: true,
       sort: { time: -1 },
-      filter : {
-        macAddress: options.macAddress
+      filter: {
+        macAddress: options.sensorMacAddress
       }
     };
-    return new Promise(function (resolveIn, rejectIn) {
-      new Promise(function (resolve, reject) {
-        mongoDBMgr.genericQuery(options, resolve, reject);
+    options.genericQuery = query;
+    options.usePromise = true;
+    new Promise(function (resolve, reject) {
+      mongoDBMgr.genericQuery(options, resolve, reject);
+    })
+      .then(function (options) {
+        shellyCommand = options;
+        if (options.response && options.response.motion === 0) {
+          shellyCommand.status = 0;
+          shellyCommand.timeout = 0; // reset timeout
+        } else
+          shellyCommand.timeout = 5000;
+        callShelly(shellyCommand);
+        //resolve(options);
       })
-        .then(function (options) {
-          options.shellyData = options.response;
-          if (options.conf.flagReleTemp === 1) {
-            //updateTemperatureReleStatus(options, resolveIn, rejectIn);
-            resolveIn(options);
-          }
-          else {
-            shellyCommand = options;
-            shellyCommand.status = 0;
-            shellyCommand.timeout = 0;
-            callShelly(shellyCommand);
-            resolveIn(options);
-          }
-        })
-        .catch(function (error) {
-          rejectIn(error);
-        });
-    });
-
+      .catch(function (error) {
+        reject(error);
+        console.error("**ERROR : "+error)
+      });
   }
 
   // console.log("Start Timer for manageLightRele ..");

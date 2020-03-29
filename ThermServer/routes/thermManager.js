@@ -653,12 +653,14 @@ let updateMotionReleStatus = function (options, resolveIn, rejectIn) {
     }).then(function (options) {
       console.log("Ligth : "+JSON.stringify(options.response));
       //TODO per ora gestisco un solo rele
-      if (options.response.light < options.response.minLigthAuto)
+      let l = options.response;
+      if (l.currentLigth < l.minLigthAuto)
       {
         console.log("Accendo rele "+options.response.primarySensor);
         let shellyCommand = {
-          deviceid: conf.shellyMqttId,
-          macAddress: conf.macAddress
+          deviceid: options.conf.shellyMqttId,
+          macAddress: options.conf.macAddress,
+          sensorMacAddress: options.conf.primarySensor
         };
         timerMgr.manageLightRele(shellyCommand);
       }
@@ -766,7 +768,7 @@ let evaluateLight = function (options, resolveIn, rejectIn) {
   console.log("Current program : " + currentProg.name);
   // un solo sensore possibile per la luce
   options.response = {
-    ligth: 0,
+    currentLigth: 0,
     minLigthAuto: currentProg.minLight
   };
   if (sensor.length > 0) {
@@ -776,7 +778,7 @@ let evaluateLight = function (options, resolveIn, rejectIn) {
       " - Luce " +
       sensor[0].currentLigth
     );
-    options.response.ligth = sensor[0].currentLigth;
+    options.response.currentLigth = sensor[0].currentLigth;
     options.response.primarySensor = sensor[0].location;
   }
 
