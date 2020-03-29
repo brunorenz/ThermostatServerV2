@@ -307,9 +307,10 @@ exports.getProgramming = function(httpRequest, httpResponse) {
   if (options != null) {
     var type = config.TypeProgramming.TEMP;
     //    var p = myutils.httpGetParam(req);
-    if (httpRequest.query.type) {
-      if (httpRequest.query.type === "temp") type = config.TypeProgramming.TEMP;
-      else if (httpRequest.query.type === "light")
+    if (typeof httpRequest.query.type != "undefined") {
+      let t = httpRequest.query.type;
+      if (t === "temp") type = config.TypeProgramming.TEMP;
+      else if (t === "ligth")
         type = config.TypeProgramming.LIGTH;
     }
     options.programmingType = type;

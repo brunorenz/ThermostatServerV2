@@ -70,8 +70,8 @@ var manageLightRele = function (options) {
         .then(function (options) {
           options.shellyData = options.response;
           if (options.conf.flagReleTemp === 1) {
-            updateTemperatureReleStatus(options, resolveIn, rejectIn);
-            //resolveIn(options);
+            //updateTemperatureReleStatus(options, resolveIn, rejectIn);
+            resolveIn(options);
           }
           else {
             shellyCommand = options;

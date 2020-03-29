@@ -74,6 +74,10 @@ var endTime1 = 7 * 60 + 30;
 
 var startTime2 = 18 * 60 + 30;
 var endTime2 = 23 * 60;
+
+var startTimeL = 6 * 60;
+var endTimeL = 23 * 60;
+
 var interval = 15;
 
 var wss;
@@ -91,8 +95,10 @@ exports.MIN_TEMP_ON = minTempOn;
 exports.MIN_LIGHT_OFF = minLight;
 exports.TIME_START1 = startTime1;
 exports.TIME_START2 = startTime2;
+exports.TIME_STARTL = startTimeL;
 exports.TIME_END1 = endTime1;
 exports.TIME_END2 = endTime2;
+exports.TIME_ENDL = endTimeL;
 exports.INTERVAL = interval;
 
 exports.WSS = wss;

@@ -37,7 +37,7 @@ var configurationRecord = {
   primarySensor: "",
   currentTemperature: 0.0,
   currentLigth: 0.0,
-  temperatureError: 0
+  temperatureError: 0.0
 };
 
 /**
@@ -81,11 +81,29 @@ var getProgrammingTempRecord = function(idType) {
   return confRecord;
 };
 
+function getDefaultDayProgrammingLigthRecord(id, name)
+{
+  var prog = getProgrammingEntryRecord(id, name);
+  prog.minLight = 0.0;//globaljs.MIN_LIGHT_OFF;
+  for (var day = 0; day < 7; day++) {
+    var dayProg = getDayProgramRecord(day);
+    var morning = {
+      timeStart: globaljs.TIME_STARTL,
+      timeEnd: globaljs.TIME_ENDL,
+      minLigth: globaljs.MIN_LIGHT_OFF,
+      priorityDisp: 0
+    };
+    dayProg.prog.push(morning);
+    prog.dayProgramming[day] = dayProg;
+  }
+  return prog;
+}
+
 function getDefaultDayProgrammingTempRecord(id, name) {
   var prog = getProgrammingEntryRecord(id, name);
   prog.minTemp = globaljs.MIN_TEMP_OFF;
   prog.minTempManual = globaljs.MIN_TEMP_ON;
-  prog.minLight = globaljs.MIN_LIGHT_OFF;
+  //prog.minLight = globaljs.MIN_LIGHT_OFF;
   for (var day = 0; day < 7; day++) {
     var dayProg = getDayProgramRecord(day);
     var morning = {
@@ -112,11 +130,20 @@ function getDefaultProgrammingTempRecord(idType) {
   conf.idProgType = idType;
   conf.activeProg = 0;
   conf.lastUpdate = Date.now();
-  var prog = getDefaultDayProgrammingTempRecord(0, "Default Program");
+  var prog = getDefaultDayProgrammingTempRecord(0, "Default Temperature Program");
   conf.programming[0] = prog;
   return conf;
 }
 
+function getDefaultProgrammingLigthRecord(idType) {
+  var conf = getProgrammingTempRecord(idType);
+  conf.idProgType = idType;
+  conf.activeProg = 0;
+  conf.lastUpdate = Date.now();
+  var prog = getDefaultDayProgrammingLigthRecord(0, "Default Ligth Program");
+  conf.programming[0] = prog;
+  return conf;
+}
 /**
  * Return Default Programming Record
  */
@@ -125,14 +152,15 @@ exports.getProgrammingRecord = function(idType) {
   if (idType === programming.TEMP) {
     conf = getDefaultProgrammingTempRecord(idType);
   } else if (idType === programming.LIGTH) {
-    var confRecord = {
-      idProgType: programming.LIGTH,
-      lastUpdate: Date.now(),
-      programming: []
-    };
-    conf = confRecord;
+    // var confRecord = {
+    //   idProgType: programming.LIGTH,
+    //   lastUpdate: Date.now(),
+    //   programming: []
+    // };
+    conf = getDefaultProgrammingLigthRecord(idType);
   }
   return conf;
 };
 
 exports.getDefaultDayProgrammingTempRecord = getDefaultDayProgrammingTempRecord;
+exports.getDefaultDayProgrammingLigthRecord = getDefaultDayProgrammingLigthRecord;

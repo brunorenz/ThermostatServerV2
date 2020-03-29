@@ -75,6 +75,7 @@ var updateConfigurationFull = function (confColl, options) {
     updateField.flagHumiditySensor = req.flagHumiditySensor;
     updateField.primarySensor = req.primarySensor;
     updateField.shellyMqttId = req.shellyMqttId;
+    updateField.temperatureError = req.temperatureError;
     if (confColl) {
       confColl.updateOne(
         {
@@ -228,11 +229,9 @@ var readProgramming = function (options, resolve, reject) {
     function (err, doc) {
       if (err) {
         console.error("ERRORE lettura programmazione " + err);
-        //return thermManager.callback(options, err);
       } else {
         if (doc) {
           options.response = doc;
-          //return thermManager.callback(options);
         } else if (options.createIfNull) {
           // create new configuration
           console.log(

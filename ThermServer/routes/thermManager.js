@@ -508,7 +508,7 @@ let readSensor = function (options) {
   return new Promise(function (resolve, reject) {
     let query = {
       collection: globaljs.mongoCon.collection(globaljs.MONGO_CONF),
-      filter: { flagTemperatureSensor: 1 },
+      filter: options.filterSensor, //{ flagTemperatureSensor: 1 },
       selectOne: false
     };
     options.genericQuery = query;
@@ -532,18 +532,22 @@ let readProgramming = function (options) {
   });
 };
 
+
 /**
- *
+ * Calculate the temperature by reading the data from the sensors and the programming data
+ * 
  * @param {*} options
  * @param {*} resolveIn
  * @param {*} rejectIn
  */
-let updateTemperatureReleStatus = function (options, resolveIn, rejectIn) {
+let computeTemperatureReleStatus = function (options, resolveIn, rejectIn) {
   // find the temperature rele
+  // mi arriva
   let r1 = readReleTemperature(options);
   r1.then(function (options) {
     let conf = options.response;
     options.releConf = conf;
+    options.filterSensor = { flagTemperatureSensor: 1 };
     // find all temperature sensore
     let r2 = readSensor(options);
     r2.then(function (options) {
@@ -554,7 +558,7 @@ let updateTemperatureReleStatus = function (options, resolveIn, rejectIn) {
       let r3 = readProgramming(options);
       r3.then(function (options) {
         evaluateTemperature(options, resolveIn, rejectIn);
-        resolveIn(options);
+        //resolveIn(options);
       }).catch(function (error) {
         rejectIn(error);
       });
@@ -566,9 +570,39 @@ let updateTemperatureReleStatus = function (options, resolveIn, rejectIn) {
   });
 };
 
+/**
+ * Calculate ligth by reading the data from the sensors and the programming data
+ * 
+ * @param {*} options
+ * @param {*} resolveIn
+ * @param {*} rejectIn
+ */
+let computeLigthReleStatus = function (options, resolveIn, rejectIn) {
+  options.releConf = options.conf;
+  options.filterSensor = { macAddress: options.conf.primarySensor };
+  //$and: [{ macAddress: options.conf.primarySensor }, { flagReleLight: 1 }]
+  // find all temperature sensore
+  let r2 = readSensor(options);
+  r2.then(function (options) {
+    // compute temperature according to rele configuration
+    options.ligthSensor = options.response;
+    // read actual programming
+    options.programmingType = config.TypeProgramming.LIGTH;
+    let r3 = readProgramming(options);
+    r3.then(function (options) {
+      evaluateLight(options, resolveIn, rejectIn);
+    }).catch(function (error) {
+      rejectIn(error);
+    });
+  }).catch(function (error) {
+    rejectIn(error);
+  });
+
+};
+
 let checkThermostatStatus = function (options, resolveIn, rejectIn) {
   new Promise(function (resolve, reject) {
-    updateTemperatureReleStatus(options, resolve, reject);
+    computeTemperatureReleStatus(options, resolve, reject);
   })
     .then(function (options) {
       let status = config.TypeStatus.OFF;
@@ -602,11 +636,47 @@ let checkThermostatStatus = function (options, resolveIn, rejectIn) {
 
 /**
  *
- * @param {*} options
+ * @param {*} options {macAddreess, motion}
  * @param {*} resolveIn
  * @param {*} rejectIn
  */
 let updateMotionReleStatus = function (options, resolveIn, rejectIn) {
+  let r1 = readReleMotionLigth(options);
+  r1.then(function (options) {
+    new Promise(function (resolve, reject) {
+      if (options.response.length == 0)
+        resolveIn(oprions);
+      else {
+        options.conf = options.response[0];
+        computeLigthReleStatus(options, resolve, reject);
+      }
+    }).then(function (options) {
+      console.log("Ligth : "+JSON.stringify(options.response));
+      //TODO per ora gestisco un solo rele
+      if (options.response.light < options.response.minLigthAuto)
+      {
+        console.log("Accendo rele "+options.response.primarySensor);
+        let shellyCommand = {
+          deviceid: conf.shellyMqttId,
+          macAddress: conf.macAddress
+        };
+        timerMgr.manageLightRele(shellyCommand);
+      }
+      resolveIn(options);
+    }).catch(function (error) {
+      rejectIn(error);
+    });
+  }).catch(function (error) {
+    rejectIn(error);
+  });
+}
+/**
+ *
+ * @param {*} options {macAddreess, motion}
+ * @param {*} resolveIn
+ * @param {*} rejectIn
+ */
+let updateMotionReleStatus2 = function (options, resolveIn, rejectIn) {
   // find the temperature rele
   let r1 = readReleMotionLigth(options);
   r1.then(function (options) {
@@ -618,17 +688,22 @@ let updateMotionReleStatus = function (options, resolveIn, rejectIn) {
       r3.then(function (options) {
         // per ogni rele trovato gestisci stato
         options.programming = options.response;
-        for (let ix = 0;ix < conf.length;ix++)
-        {
-          
-          // call shelly
-          let shellyCommand = {
-            deviceid: conf[ix].shellyMqttId,
-            macAddress : conf[ix].macAddress
-          };
-          timerMgr.manageLightRele(shellyCommand);
-        }
-        resolveIn(options);
+        new Promise(function (resolve, reject) {
+          evaluateLight(options, resolveIn, rejectIn);
+        }).then(function (options) {
+          for (let ix = 0; ix < conf.length; ix++) {
+
+            // call shelly
+            let shellyCommand = {
+              deviceid: conf[ix].shellyMqttId,
+              macAddress: conf[ix].macAddress
+            };
+            timerMgr.manageLightRele(shellyCommand);
+          }
+          resolveIn(options);
+        }).catch(function (error) { rejectIn(error); });
+
+
       }).catch(function (error) {
         rejectIn(error);
       });
@@ -637,7 +712,12 @@ let updateMotionReleStatus = function (options, resolveIn, rejectIn) {
     rejectIn(error);
   });
 };
-
+/**
+ * 
+ * @param {*} options {macAddress,motion}
+ * @param {*} resolveIn 
+ * @param {*} rejectIn 
+ */
 let processMotion = function (options, resolveIn, rejectIn) {
   if (options.request.motion === 1) {
     new Promise(function (resolve, reject) {
@@ -649,9 +729,9 @@ let processMotion = function (options, resolveIn, rejectIn) {
       .catch(function (error) {
         rejectIn(error);
       });
-  } else{
+  } else {
     mongoDBMgr.monitorMotionData(options, resolveIn, rejectIn);
-  } 
+  }
 };
 
 exports.processMotion = processMotion;
@@ -674,24 +754,43 @@ var getIndexProgram = function (progRecord, idProg) {
 };
 
 /**
- * avaluate ligth according programming
  * 
  * @param {*} options 
  * @param {*} resolveIn 
  * @param {*} rejectIn 
  */
-let evaluateLigth = function (options , resolveIn, rejectIn)
-{
-  let conf = options.releConf;
-  let sensor = options.tempSensor;
+let evaluateLight = function (options, resolveIn, rejectIn) {
+  let sensor = options.ligthSensor;
   let prog = options.response;
   let currentProg = prog.programming[getIndexProgram(prog)];
   console.log("Current program : " + currentProg.name);
+  // un solo sensore possibile per la luce
+  options.response = {
+    ligth: 0,
+    minLigthAuto: currentProg.minLight
+  };
+  if (sensor.length > 0) {
+    console.log(
+      "Location " +
+      sensor[0].location +
+      " - Luce " +
+      sensor[0].currentLigth
+    );
+    options.response.ligth = sensor[0].currentLigth;
+    options.response.primarySensor = sensor[0].location;
+  }
+
+  let autoRecord = recuperaFasciaOraria(currentProg);
+  if (autoRecord != null)
+    options.response.minLigthAuto = autoRecord.minLigth;
+  resolveIn(options);
 }
 
 /**
- * evalute themperature according programming
- * 
+ * evalute temperature according programming
+ * @param {*} options 
+ * @param {*} resolveIn 
+ * @param {*} rejectIn 
  */
 let evaluateTemperature = function (options, resolveIn, rejectIn) {
   let temperature = 0;
@@ -706,7 +805,7 @@ let evaluateTemperature = function (options, resolveIn, rejectIn) {
       "trovati " + sensor.length + " sensori che misurano temperatura"
     );
     for (let ix = 0; ix < sensor.length; ix++) {
-      if (primarySensor == sensor[ix].macAddress)
+      if (primarySensor === sensor[ix].macAddress)
         primarySensor = sensor[ix].location;
       console.log(
         "Location " +
@@ -722,25 +821,25 @@ let evaluateTemperature = function (options, resolveIn, rejectIn) {
   // get current program
   let minTempManual = currentProg.minTempManual;
   let minTempAuto = currentProg.minTemp;
-  let autoRecord = null;
-  console.log("Calcolo fascia ora..");
-  let now = new Date();
-  let minsec = now.getHours() * 60 + now.getMinutes();
-  let day = now.getDay();
-  minTempAuto = currentProg.minTemp;
-  // day su db 0 Lun - 7 Dom
-  let dayDb = day - 1;
-  if (dayDb < 0) dayDb = 6;
-  console.log("Giorno : " + day + " (dayDB) " + dayDb + " - Ora " + minsec);
-  for (let ix = 0; ix < 7; ix++)
-    if (currentProg.dayProgramming[ix].idDay === dayDb)
-      for (let iy = 0; iy < currentProg.dayProgramming[ix].prog.length; iy++) {
-        let entry = currentProg.dayProgramming[ix].prog[iy];
-        if (minsec >= entry.timeStart && minsec <= entry.timeEnd) {
-          autoRecord = entry;
-          break;
-        }
-      }
+  let autoRecord = recuperaFasciaOraria(currentProg);
+  // console.log("Calcolo fascia ora..");
+  // let now = new Date();
+  // let minsec = now.getHours() * 60 + now.getMinutes();
+  // let day = now.getDay();
+  // minTempAuto = currentProg.minTemp;
+  // // day su db 0 Lun - 7 Dom
+  // let dayDb = day - 1;
+  // if (dayDb < 0) dayDb = 6;
+  // console.log("Giorno : " + day + " (dayDB) " + dayDb + " - Ora " + minsec);
+  // for (let ix = 0; ix < 7; ix++)
+  //   if (currentProg.dayProgramming[ix].idDay === dayDb)
+  //     for (let iy = 0; iy < currentProg.dayProgramming[ix].prog.length; iy++) {
+  //       let entry = currentProg.dayProgramming[ix].prog[iy];
+  //       if (minsec >= entry.timeStart && minsec <= entry.timeEnd) {
+  //         autoRecord = entry;
+  //         break;
+  //       }
+  //     }
   let prioritySensor = null;
   if (autoRecord != null) {
     console.log(
@@ -773,7 +872,7 @@ let evaluateTemperature = function (options, resolveIn, rejectIn) {
   options.response = {
     temperature: temperature,
     temperatureMeasure: conf.temperatureMeasure,
-    primarySensor: primarySensor,
+    //primarySensor: primarySensor,
     minTempManual: minTempManual,
     minTempAuto: minTempAuto
   };
@@ -781,6 +880,29 @@ let evaluateTemperature = function (options, resolveIn, rejectIn) {
     options.response.prioritySensor = prioritySensor;
   resolveIn(options);
 };
+
+let recuperaFasciaOraria = function (currentProg) {
+  let autoRecord = null;
+  console.log("Calcolo fascia ora..");
+  let now = new Date();
+  let minsec = now.getHours() * 60 + now.getMinutes();
+  let day = now.getDay();
+  //minTempAuto = currentProg.minTemp;
+  // day su db 0 Lun - 7 Dom
+  let dayDb = day - 1;
+  if (dayDb < 0) dayDb = 6;
+  console.log("Giorno : " + day + " (dayDB) " + dayDb + " - Ora " + minsec);
+  for (let ix = 0; ix < 7; ix++)
+    if (currentProg.dayProgramming[ix].idDay === dayDb)
+      for (let iy = 0; iy < currentProg.dayProgramming[ix].prog.length; iy++) {
+        let entry = currentProg.dayProgramming[ix].prog[iy];
+        if (minsec >= entry.timeStart && minsec <= entry.timeEnd) {
+          autoRecord = entry;
+          break;
+        }
+      }
+  return autoRecord;
+}
 
 let getTemperature = function (sensor, macAddress) {
   let temperature = null;
@@ -802,7 +924,6 @@ let getTemperature = function (sensor, macAddress) {
   return temperature;
 };
 
-
 let readMonitor = function (options) {
   options.genericQuery = {
     collection: globaljs.mongoCon.collection(globaljs.MONGO_SHELLYSTAT),
@@ -817,12 +938,11 @@ let readMonitor = function (options) {
       .then(function (options) {
         options.shellyData = options.response;
         if (options.conf.flagReleTemp === 1) {
-          updateTemperatureReleStatus(options, resolveIn, rejectIn);
-          //resolveIn(options);
+          computeTemperatureReleStatus(options, resolveIn, rejectIn);
         }
-        else {
-          resolveIn(options);
-        }
+        else if (options.conf.flagReleLight === 1) {
+          computeLigthReleStatus(options, resolveIn, rejectIn);
+        } else resolveIn(options);
       })
       .catch(function (error) {
         rejectIn(error);
@@ -871,6 +991,8 @@ let getReleData2 = function (options, resolveIn, rejectIn) {
                 };
                 if (optionsN[ix].conf.flagReleTemp === 1) {
                   entry.temperature = optionsN[ix].response;
+                } else if (optionsN[ix].conf.flagReleLight === 1) {
+                  entry.ligth = optionsN[ix].response;
                 }
                 options.response.push(entry);
               }
@@ -893,4 +1015,4 @@ let getReleData2 = function (options, resolveIn, rejectIn) {
 exports.getReleData = getReleData2;
 exports.getSensorData = getSensorData;
 exports.checkThermostatStatus = checkThermostatStatus;
-exports.updateTemperatureReleStatus = updateTemperatureReleStatus;
+exports.updateTemperatureReleStatus = computeTemperatureReleStatus;
