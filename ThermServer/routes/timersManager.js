@@ -25,7 +25,10 @@ var checkTemperature = function () {
   setTimeout(checkTemperature, globaljs.MONITOR_TIMEOUT);
 };
 
-
+/**
+ * 
+ * @param {*} options 
+ */
 var manageLightRele = function (options) {
   let shellyCommand = {
     command: config.TypeShellyCommand.COMMAND,
@@ -74,7 +77,7 @@ var manageLightRele = function (options) {
           shellyCommand.status = 0;
           shellyCommand.timeout = 0; // reset timeout
         } else
-          shellyCommand.timeout = 5000;
+          shellyCommand.timeout = 2000;
         callShelly(shellyCommand);
         //resolve(options);
       })
@@ -83,22 +86,12 @@ var manageLightRele = function (options) {
         console.error("**ERROR : "+error)
       });
   }
-
-  // console.log("Start Timer for manageLightRele ..");
-  // shellyMgr.shellySendCommand({shellyCommand : shellyCommand});
-  // shellyCommand.timeoutRunning = true;
-  // if (timeout)
-  // {
-  //     entry = 
-  //     {
-  //       timeoutObj : setTimeout(manageLightRele, 20000, shellyCommand),
-  //       shellyId : shellyCommand.deviceid
-  //     }
-  //     releTimer.push(entry);
-  // }
-
 };
 
+/**
+ * 
+ * @param {*} shellyCommand 
+ */
 let callShelly = function (shellyCommand) {
   console.log("Start Timer for manageLightRele ..");
   shellyMgr.shellySendCommand({ shellyCommand: shellyCommand });

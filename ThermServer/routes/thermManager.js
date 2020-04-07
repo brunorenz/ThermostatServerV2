@@ -149,7 +149,7 @@ exports.readConfigurationInternal = function (options) {
 /**
  * Update configuration
  */
-exports.updateConfiguration = function (options, resolveIn, rejectIn) {
+exports.updateConfigurationGUI = function (options, resolveIn, rejectIn) {
   mongoDBMgr.updateConfiguration(options, resolveIn, rejectIn);
 };
 
@@ -627,10 +627,12 @@ let checkThermostatStatus = function (options, resolveIn, rejectIn) {
       shellyMgr.shellySendCommand(options);
       options.response.deviceid = options.releConf.shellyMqttId;
       options.response.status = status;
-      resolveIn(options);
+      if (resolveIn != "undefined") resolveIn(options);
     })
     .catch(function (error) {
-      rejectIn(error);
+      if (rejectIn != "undefined")
+        rejectIn(error);
+      else console.error("**ERROR : " + error);
     });
 };
 
@@ -651,12 +653,11 @@ let updateMotionReleStatus = function (options, resolveIn, rejectIn) {
         computeLigthReleStatus(options, resolve, reject);
       }
     }).then(function (options) {
-      console.log("Ligth : "+JSON.stringify(options.response));
+      console.log("Ligth : " + JSON.stringify(options.response));
       //TODO per ora gestisco un solo rele
       let l = options.response;
-      if (l.currentLigth < l.minLigthAuto)
-      {
-        console.log("Accendo rele "+options.response.primarySensor);
+      if (l.currentLigth < l.minLigthAuto) {
+        console.log("Accendo rele " + options.response.primarySensor);
         let shellyCommand = {
           deviceid: options.conf.shellyMqttId,
           macAddress: options.conf.macAddress,

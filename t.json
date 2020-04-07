@@ -1,43 +1,32 @@
 {
-    "coord": {
-        "lon": 16.85,
-        "lat": 41.12
-    },
-    "weather": [
-        {
-            "id": 801,
-            "main": "Clouds",
-            "description": "few clouds",
-            "icon": "02d"
-        }
-    ],
-    "base": "stations",
-    "main": {
-        "temp": 13.11,
-        "feels_like": 9.32,
-        "temp_min": 12.22,
-        "temp_max": 13.89,
-        "pressure": 1011,
-        "humidity": 62
-    },
-    "visibility": 10000,
-    "wind": {
-        "speed": 4.1,
-        "deg": 350
-    },
-    "clouds": {
-        "all": 20
-    },
-    "dt": 1583415549,
-    "sys": {
-        "type": 1,
-        "id": 6680,
-        "country": "IT",
-        "sunrise": 1583385624,
-        "sunset": 1583426877
-    },
-    "timezone": 3600,
-    "id": 6542001,
-    "name": "Bari",
-    "cod": 200
+    "_id": "F8:F0:05:F7:DC:49",
+    "ipAddress": "192.168.0.116",
+    "location": "Salone principale",
+    "temperatureMeasure": 2,
+    "statusThermostat": 0,
+    "statusLight": 0,
+    "firstAccess": 1574096450167,
+    "lastAccess": 1585546608328,
+    "lastUpdate": 1585558068583,
+    "lastCheck": 1585558345952,
+    "flagLcd": 0,
+    "flagLightSensor": 1,
+    "flagMotionSensor": 0,
+    "flagTemperatureSensor": 1,
+    "flagPressureSensor": 1,
+    "flagHumiditySensor": 1,
+    "flagReleTemp": 0,
+    "flagReleLight": 0,
+    "currentLigth": 40.693935,
+    "macAddress": "F8:F0:05:F7:DC:49",
+    "deviceType": 1,
+    "shellyMqttId": null,
+    "currentTemperature": 20.80294,
+    "primarySensor": "25:B6:2E:32:F4:2C",
+    "currentStatus": 0,
+    "temperatureError": "-0.5",
+    "deviceTypeName": "ARDUINO",
+    "lastAccessD": "30/03/2020 07:36",
+    "lastUpdateD": "30/03/2020 10:47",
+    "lastCheckD": "30/03/2020 10:52"
 }

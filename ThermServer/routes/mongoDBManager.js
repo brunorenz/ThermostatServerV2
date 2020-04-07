@@ -6,7 +6,7 @@ var thermManager = require("./thermManager");
  * Update management attribute of configuration
  *
  */
-exports.updateConfiguration = function (options) {
+exports.updateConfiguration = function (options,resolve,reject) {
   var confcoll = globaljs.mongoCon.collection(globaljs.MONGO_CONF);
   let json = options.request;
   //console.log(json);
@@ -20,13 +20,16 @@ exports.updateConfiguration = function (options) {
   console.log(
     "Aggiorno MAC : " + req.macAddress + " => " + JSON.stringify(updateField)
   );
+  if (req.flagTemperatureSensor ===1 )
+  {
+    updateField.temperatureError = Number(req.temperatureError);
+  }
   if (updateField.flagReleTemp === 1) {
     updateField.statusThermostat = parseInt(req.statusThermostat);
     updateField.temperatureMeasure = parseInt(req.temperatureMeasure);
-    updateField.primarySensor = req.primarySensor;
+    updateField.primarySensor = req.primarySensor;    
   }
   if (updateField.flagReleLight === 1) {
-    //statusLight: req.statusThermostat
     updateField.primarySensor = req.primarySensor;
   }
   confcoll.updateOne(
@@ -42,7 +45,7 @@ exports.updateConfiguration = function (options) {
         thermManager.checkThermostatStatus({ usePromise: true });
       }
       options.response = { update: r.modifiedCount };
-      thermManager.callback(options);
+      resolve(options);
     }
   );
 };
@@ -380,7 +383,7 @@ exports.monitorMotionData = monitorMotionData;
 /**
  * Manage registration of monitor data
  */
-let monitorSensorData = function (options, resolve, reject) {
+let monitorSensorDataOLD = function (options, resolve, reject) {
   // read configuration and get termperatureError
   // insert Monitor Record
   // update configuration record
@@ -457,7 +460,9 @@ let monitorData = function (options, resolve, reject) {
       if (doc) {
         if (sensor) {
           if (typeof doc.temperatureError != "undefined") {
+            let t = record.temperature;
             record.temperature += doc.temperatureError;
+            console.log("Correggo temperatura da "+t+" a "+record.temperature);
           }
         } else {
           record.macAddress = doc.macAddress;

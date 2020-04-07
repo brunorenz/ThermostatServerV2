@@ -1,13 +1,12 @@
-//var globaljs = require("./global");
 var config = require("./config");
 var httpUtils = require("./utils/httpUtils");
 var thermManager = require("./thermManager");
-//var mq = require("./thermServerMQ");
 var security = require("./securityManager");
+
 /**
  * Send JSON response
  */
-var genericHTTPPostService = function(options) {
+var genericHTTPPostService = function (options) {
   if (options.httpResponse) {
     let res = options.httpResponse;
     if (options.error) {
@@ -25,7 +24,7 @@ var genericHTTPPostService = function(options) {
 /**
  * Generic activity to validate and manage GET request
  */
-var validateGetRequest = function(httpRequest, httpResponse) {
+var validateGetRequest = function (httpRequest, httpResponse) {
   var options = {
     httpRequest: httpRequest,
     httpResponse: httpResponse,
@@ -38,7 +37,7 @@ var validateGetRequest = function(httpRequest, httpResponse) {
 /**
  * Generic activity to validate and manage POST request
  */
-var validatePostRequest = function(httpRequest, httpResponse) {
+var validatePostRequest = function (httpRequest, httpResponse) {
   var options = validateGetRequest(httpRequest, httpResponse);
   try {
     // check request encode
@@ -53,7 +52,8 @@ var validatePostRequest = function(httpRequest, httpResponse) {
   return options;
 };
 
-exports.monitor = function(httpRequest, httpResponse) {
+/*
+exports.monitor = function (httpRequest, httpResponse) {
   var options = validatePostRequest(httpRequest, httpResponse);
   try {
     options.callback.push(genericHTTPPostService);
@@ -62,11 +62,12 @@ exports.monitor = function(httpRequest, httpResponse) {
     httpResponse.json(httpUtils.createResponseKo(500, error));
   }
 };
+*/
 
 /**
  * Update Programming Record
  */
-exports.updateProgramming = function(httpRequest, httpResponse) {
+exports.updateProgramming = function (httpRequest, httpResponse) {
   var options = validatePostRequest(httpRequest, httpResponse);
   try {
     let input = JSON.parse(options.request);
@@ -74,13 +75,13 @@ exports.updateProgramming = function(httpRequest, httpResponse) {
     options.programm = input.programm;
     options.action = config.TypeAction.UPDATE;
     options.usePromise = true;
-    new Promise(function(resolve, reject) {
+    new Promise(function (resolve, reject) {
       thermManager.manageProgramming(options, resolve, reject);
     })
-      .then(function(options) {
+      .then(function (options) {
         genericHTTPPostService(options);
       })
-      .catch(function(error) {
+      .catch(function (error) {
         httpResponse.json(httpUtils.createResponseKo(500, error));
       });
   } catch (error) {
@@ -91,7 +92,7 @@ exports.updateProgramming = function(httpRequest, httpResponse) {
 /**
  * Delete Programming Record
  */
-exports.deleteProgramming = function(httpRequest, httpResponse) {
+exports.deleteProgramming = function (httpRequest, httpResponse) {
   var options = validatePostRequest(httpRequest, httpResponse);
   try {
     let input = JSON.parse(options.request);
@@ -99,13 +100,13 @@ exports.deleteProgramming = function(httpRequest, httpResponse) {
     options.idProg = input.id;
     options.action = config.TypeAction.DELETE;
     options.usePromise = true;
-    new Promise(function(resolve, reject) {
+    new Promise(function (resolve, reject) {
       thermManager.manageProgramming(options, resolve, reject);
     })
-      .then(function(options) {
+      .then(function (options) {
         genericHTTPPostService(options);
       })
-      .catch(function(error) {
+      .catch(function (error) {
         httpResponse.json(httpUtils.createResponseKo(500, error));
       });
   } catch (error) {
@@ -116,20 +117,20 @@ exports.deleteProgramming = function(httpRequest, httpResponse) {
 /**
  * Add Programming Record
  */
-exports.addProgramming = function(httpRequest, httpResponse) {
+exports.addProgramming = function (httpRequest, httpResponse) {
   var options = validatePostRequest(httpRequest, httpResponse);
   try {
     let input = JSON.parse(options.request);
     options.programmingType = input.type;
     options.action = config.TypeAction.ADD;
     options.usePromise = true;
-    new Promise(function(resolve, reject) {
+    new Promise(function (resolve, reject) {
       thermManager.manageProgramming(options, resolve, reject);
     })
-      .then(function(options) {
+      .then(function (options) {
         genericHTTPPostService(options);
       })
-      .catch(function(error) {
+      .catch(function (error) {
         httpResponse.json(httpUtils.createResponseKo(500, error));
       });
   } catch (error) {
@@ -137,18 +138,7 @@ exports.addProgramming = function(httpRequest, httpResponse) {
   }
 };
 
-/**
- * Update Configuration
- */
-exports.updateConfiguration = function(httpRequest, httpResponse) {
-  var options = validatePostRequest(httpRequest, httpResponse);
-  try {
-    options.callback.push(genericHTTPPostService);
-    thermManager.updateConfigurationInternal(options);
-  } catch (error) {
-    httpResponse.json(httpUtils.createResponseKo(500, error));
-  }
-};
+
 
 const service = {
   updateStatus: 1,
@@ -157,10 +147,11 @@ const service = {
   checkThermostatStatus: 4,
   updateTemperatureReleStatus: 5,
   shellyRegister: 6,
-  monitorSensorData: 7
+  monitorSensorData: 7,
+  updateConfigurationGUI: 8
 };
 
-let proxyPromise = function(fn, httpRequest, httpResponse) {
+let proxyPromise = function (fn, httpRequest, httpResponse) {
   // if (httpRequest.method === "GET")
   // console.log("GET..");
   var options =
@@ -169,7 +160,7 @@ let proxyPromise = function(fn, httpRequest, httpResponse) {
       : validateGetRequest(httpRequest, httpResponse);
   if (options != null) {
     options.usePromise = true;
-    new Promise(function(resolve, reject) {
+    new Promise(function (resolve, reject) {
       switch (fn) {
         case service.updateStatus:
           thermManager.updateStatus(options, resolve, reject);
@@ -192,42 +183,59 @@ let proxyPromise = function(fn, httpRequest, httpResponse) {
         case service.monitorSensorData:
           thermManager.monitorSensorData(options, resolve, reject);
           break;
+        case service.updateConfigurationGUI:
+          thermManager.updateConfigurationGUI(options, resolve, reject);
+          break;
       }
     })
-      .then(function(options) {
+      .then(function (options) {
         genericHTTPPostService(options);
       })
-      .catch(function(error) {
+      .catch(function (error) {
         httpResponse.json(httpUtils.createResponseKo(500, error));
       });
   }
 };
 
-exports.monitorSensorData = function(httpRequest, httpResponse) {
+/**
+ * Update Configuration
+ */
+exports.updateConfiguration = function (httpRequest, httpResponse) {
+  proxyPromise(service.updateConfigurationGUI, httpRequest, httpResponse);
+  // var options = validatePostRequest(httpRequest, httpResponse);
+  // try {
+  //   options.callback.push(genericHTTPPostService);
+  //   thermManager.updateConfigurationGUI(options);
+  // } catch (error) {
+  //   httpResponse.json(httpUtils.createResponseKo(500, error));
+  // }
+};
+
+exports.monitorSensorData = function (httpRequest, httpResponse) {
   proxyPromise(service.monitorSensorData, httpRequest, httpResponse);
 };
 
-exports.checkThermostatStatus = function(httpRequest, httpResponse) {
+exports.checkThermostatStatus = function (httpRequest, httpResponse) {
   proxyPromise(service.checkThermostatStatus, httpRequest, httpResponse);
 };
 
-exports.updateTemperatureReleStatus = function(httpRequest, httpResponse) {
+exports.updateTemperatureReleStatus = function (httpRequest, httpResponse) {
   proxyPromise(service.updateTemperatureReleStatus, httpRequest, httpResponse);
 };
 
-exports.updateStatus = function(httpRequest, httpResponse) {
+exports.updateStatus = function (httpRequest, httpResponse) {
   proxyPromise(service.updateStatus, httpRequest, httpResponse);
 };
 
-exports.getReleData = function(httpRequest, httpResponse) {
+exports.getReleData = function (httpRequest, httpResponse) {
   proxyPromise(service.getReleData, httpRequest, httpResponse);
 };
 
-exports.getSensorData = function(httpRequest, httpResponse) {
+exports.getSensorData = function (httpRequest, httpResponse) {
   proxyPromise(service.getSensorData, httpRequest, httpResponse);
 };
 
-exports.shellyRegister = function(httpRequest, httpResponse) {
+exports.shellyRegister = function (httpRequest, httpResponse) {
   proxyPromise(service.shellyRegister, httpRequest, httpResponse);
 };
 
@@ -249,7 +257,7 @@ exports.shellyRegister = function(httpRequest, httpResponse) {
 /**
  * Read Configuration
  */
-exports.getConfiguration = function(httpRequest, httpResponse) {
+exports.getConfiguration = function (httpRequest, httpResponse) {
   var options = validateGetRequest(httpRequest, httpResponse);
   if (options != null) {
     try {
@@ -274,7 +282,7 @@ exports.getConfiguration = function(httpRequest, httpResponse) {
 /**
  * Scan th local network finding for Schelly devices
  */
-exports.shellyRegisterX = function(httpRequest, httpResponse) {
+exports.shellyRegisterX = function (httpRequest, httpResponse) {
   if (!httpUtils.checkSecurity(httpRequest, httpResponse)) return;
   setHeader(httpResponse);
   // httpResponse.header("Access-Control-Allow-Origin", "*");
@@ -302,7 +310,7 @@ exports.shellyRegisterX = function(httpRequest, httpResponse) {
  * @param {*} httpRequest
  * @param {*} httpResponse
  */
-exports.getProgramming = function(httpRequest, httpResponse) {
+exports.getProgramming = function (httpRequest, httpResponse) {
   var options = validateGetRequest(httpRequest, httpResponse);
   if (options != null) {
     var type = config.TypeProgramming.TEMP;
@@ -329,7 +337,7 @@ exports.getProgramming = function(httpRequest, httpResponse) {
 /**
  * Login function
  */
-exports.login = function(httpRequest, httpResponse) {
+exports.login = function (httpRequest, httpResponse) {
   var options = validatePostRequest(httpRequest, httpResponse);
   if (options != null) {
     options.callback.push(genericHTTPPostService);
@@ -341,19 +349,19 @@ exports.login = function(httpRequest, httpResponse) {
   }
 };
 
-exports.getReleStatistics = function(httpRequest, httpResponse) {
+exports.getReleStatistics = function (httpRequest, httpResponse) {
   var options = validateGetRequest(httpRequest, httpResponse);
   options.statisticType = "RELE";
   getStatistics(options);
 };
 
-exports.getSensorStatistics = function(httpRequest, httpResponse) {
+exports.getSensorStatistics = function (httpRequest, httpResponse) {
   var options = validateGetRequest(httpRequest, httpResponse);
   options.statisticType = "SENSOR";
   getStatistics(options);
 };
 
-var getStatistics = function(options) {
+var getStatistics = function (options) {
   options.usePromise = true;
   options.depth = 24; //  hour
   options.interval = 15; //minutes
@@ -364,13 +372,13 @@ var getStatistics = function(options) {
   if (typeof options.httpRequest.query.interval != "undefined")
     options.interval = parseInt(options.httpRequest.query.interval);
 
-  new Promise(function(resolve, reject) {
+  new Promise(function (resolve, reject) {
     thermManager.getStatistics(options, resolve, reject);
   })
-    .then(function(options) {
+    .then(function (options) {
       genericHTTPPostService(options);
     })
-    .catch(function(error) {
+    .catch(function (error) {
       options.httpResponse.json(httpUtils.createResponseKo(500, error));
     });
 };
