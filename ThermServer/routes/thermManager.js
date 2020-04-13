@@ -188,12 +188,19 @@ exports.updateConfigurationInternal = function (options) {
 /**
  * rigister a device
  */
-exports.wifiRegisterInternal = function (options) {
+let wifiRegisterInternal = function (options) {
   //
   options.createIfNull = true;
   mongoDBMgr.readConfiguration(options);
 };
 
+
+let arduinoDeviceRegister = function (options, resolveIn, rejectIn)
+{
+
+}
+
+exports.wifiRegisterInternal = wifiRegisterInternal;
 // var readProgramming = function(options) {
 //   options.createIfNull = true;
 //   mongoDBMgr.readProgramming(options);
@@ -779,7 +786,10 @@ let evaluateLight = function (options, resolveIn, rejectIn) {
       " - Luce " +
       sensor[0].currentLigth
     );
-    options.response.currentLigth = sensor[0].currentLigth;
+    if (typeof options.request != 'undefined' && typeof options.request.macAddress != 'undefined' && options.request.macAddress === sensor[0].macAddress && typeof options.request.light != 'undefined')
+      options.response.currentLigth = options.request.light;
+    else
+      options.response.currentLigth = sensor[0].currentLigth;
     options.response.primarySensor = sensor[0].location;
   }
 

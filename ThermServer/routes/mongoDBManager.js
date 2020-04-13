@@ -78,7 +78,7 @@ var updateConfigurationFull = function (confColl, options) {
     updateField.flagHumiditySensor = req.flagHumiditySensor;
     updateField.primarySensor = req.primarySensor;
     updateField.shellyMqttId = req.shellyMqttId;
-    updateField.temperatureError = req.temperatureError;
+    //updateField.temperatureError = req.temperatureError;
     if (confColl) {
       confColl.updateOne(
         {
