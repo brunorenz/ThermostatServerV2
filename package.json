@@ -17,7 +17,6 @@
 		"cors": "*",
 		"ws": "4.*",
 		"johnny-five": "*",
-		
 		"etherport-client": "*",
 		"network-list": "*",
 		"jsonwebtoken": "8.5.1",
