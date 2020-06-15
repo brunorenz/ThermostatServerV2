@@ -7,9 +7,12 @@ var thermManager = require("./thermManager");
 /**
  * Monitor Topic
  */
-exports.subscribeTopic = function(mqClient, topic) {
-  mqClient.subscribe(topic, function(err) {
-    if (err) console.error("**ERROR : Subscribe to topic " + topic + " failed : " + err);
+exports.subscribeTopic = function (mqClient, topic) {
+  mqClient.subscribe(topic, function (err) {
+    if (err)
+      console.error(
+        "**ERROR : Subscribe to topic " + topic + " failed : " + err
+      );
     else console.log("Subscribe to topic " + topic + " successfull");
   });
 };
@@ -17,8 +20,8 @@ exports.subscribeTopic = function(mqClient, topic) {
 /**
  * manage Topic subscription
  */
-exports.startMQListening = function(mqClient) {
-  mqClient.on("message", function(topic, message) {
+exports.startMQListening = function (mqClient) {
+  mqClient.on("message", function (topic, message) {
     console.log(
       "Message received from topic " + topic + " : message : " + message
     );
@@ -30,7 +33,7 @@ exports.startMQListening = function(mqClient) {
           macAddress: input.macAddress,
           callback: [],
           register: true,
-          update: true
+          update: true,
         };
         options.callback.push(wifiMQService);
         thermManager.wifiRegisterInternal(options);
@@ -41,7 +44,7 @@ exports.startMQListening = function(mqClient) {
           macAddress: input.macAddress,
           action: config.TypeAction.READ,
           callback: [],
-          createIfNull: true
+          createIfNull: true,
         };
         options.callback.push(programmingMQService);
         thermManager.manageProgramming(options);
@@ -50,7 +53,7 @@ exports.startMQListening = function(mqClient) {
           request: JSON.parse(message),
           type: "MQ",
           callback: [],
-          register: false
+          register: false,
         };
         proxyPromise(options, service.monitorSensorData, monitorMQService);
       } else if (topic === globaljs.MQTopicLastWill) {
@@ -58,7 +61,7 @@ exports.startMQListening = function(mqClient) {
           request: JSON.parse(message),
           type: "MQ",
           callback: [],
-          register: false
+          register: false,
         };
         options.callback.push(lastWillMQService);
         lastWillInternal(options);
@@ -66,7 +69,7 @@ exports.startMQListening = function(mqClient) {
         var options = {
           request: JSON.parse(message),
           type: "MQ",
-          usePromise: true
+          usePromise: true,
         };
         proxyPromise(options, service.processMotion, motionMQService);
       } else if (topic.startsWith("shellies")) {
@@ -75,7 +78,7 @@ exports.startMQListening = function(mqClient) {
           request: message,
           type: "MQ",
           callback: [],
-          topic: topic
+          topic: topic,
         };
         proxyPromise(options, service.processShellyMessage, shellyMQService);
       } else {
@@ -83,13 +86,16 @@ exports.startMQListening = function(mqClient) {
       }
     } catch (error) {
       console.error(
-        "**ERROR : Error while processing message on topic " + topic + " : " + error
+        "**ERROR : Error while processing message on topic " +
+          topic +
+          " : " +
+          error
       );
     }
   });
 };
 
-var processShellyMessage = function(options, resolve, reject) {
+var processShellyMessage = function (options, resolve, reject) {
   let topic = options.topic.split("/");
   if (topic.length > 2) {
     let shellyId = topic[1];
@@ -99,14 +105,14 @@ var processShellyMessage = function(options, resolve, reject) {
       console.log("Current status of " + shellyId + " is " + options.request);
       options.shellyCommand = {
         command: config.TypeShellyCommand.RELAY,
-        deviceid: shellyId
+        deviceid: shellyId,
       };
       thermManager.monitorReleData(options, resolve, reject);
     }
   }
 };
 
-var programmingMQService = function(options) {
+var programmingMQService = function (options) {
   if (options.response) {
     let prog = getCurrentProgrammingTemp(options.response);
     prog.configuration = options.configuration;
@@ -138,7 +144,7 @@ function getCurrentProgrammingTemp(conf) {
 /**
  * creaye JSON response
  */
-var createGenericResponse = function(options) {
+var createGenericResponse = function (options) {
   var msg = {};
   if (options.error) {
     msg = httpUtils.createResponseKo(500, options.error);
@@ -149,14 +155,14 @@ var createGenericResponse = function(options) {
   return msg;
 };
 
-var sendProgrammingData = function(options) {
+var sendProgrammingData = function (options) {
   let record = options.response;
   let configuration = {
     macAddress: record.macAddress,
     statusThermostat: record.statusThermostat,
     statusLight: record.statusLight,
     temperatureMeasure: record.temperatureMeasure,
-    timeZoneOffset: new Date().getTimezoneOffset()
+    timeZoneOffset: new Date().getTimezoneOffset(),
   };
   if (record.flagReleTemp) {
     console.log("Send Temperature configuration to " + record.macAddress);
@@ -165,19 +171,19 @@ var sendProgrammingData = function(options) {
       configuration: configuration,
       action: config.TypeAction.READ,
       callback: [],
-      createIfNull: true
+      createIfNull: true,
     };
     optionsN.callback.push(programmingMQService);
     thermManager.manageProgramming(optionsN);
   }
   if (record.flagReleLight) {
-    console.log("Send Ligth configuration to " + record.macAddress);
+    console.log("Send Light configuration to " + record.macAddress);
     var optionsN = {
-      programmingType: config.TypeProgramming.LIGTH,
+      programmingType: config.TypeProgramming.LIGHT,
       configuration: configuration,
       action: config.TypeAction.READ,
       callback: [],
-      createIfNull: true
+      createIfNull: true,
     };
     optionsN.callback.push(programmingMQService);
     thermManager.manageProgramming(optionsN);
@@ -188,38 +194,38 @@ var sendProgrammingData = function(options) {
  * Activity to be done after wifi register
  * @param {*} options
  */
-var wifiMQService = function(options) {
+var wifiMQService = function (options) {
   console.log("Manage wifiMQService");
   //let res = options.response;
   sendProgrammingData(options);
 };
 
-var monitorMQService = function(options) {
+var monitorMQService = function (options) {
   //console.log("Manage monitorMQService");
 };
-var lastWillMQService = function(options) {
+var lastWillMQService = function (options) {
   //console.log("Manage lastWillMQService");
 };
-var motionMQService = function(options) {
+var motionMQService = function (options) {
   //console.log("Manage motionMQService");
 };
-var shellyMQService = function(options) {
+var shellyMQService = function (options) {
   //console.log("Manage shellyMQService");
 };
 
-var lastWillInternal = function(options) {};
+var lastWillInternal = function (options) {};
 
 exports.sendProgrammingData = sendProgrammingData;
 
 const service = {
   monitorSensorData: 1,
   processMotion: 2,
-  processShellyMessage: 3
+  processShellyMessage: 3,
 };
 
-let proxyPromise = function(options, fn, callback) {
+let proxyPromise = function (options, fn, callback) {
   options.usePromise = true;
-  new Promise(function(resolve, reject) {
+  new Promise(function (resolve, reject) {
     switch (fn) {
       case service.monitorSensorData:
         thermManager.monitorSensorData(options, resolve, reject);
@@ -232,10 +238,10 @@ let proxyPromise = function(options, fn, callback) {
         break;
     }
   })
-    .then(function(options) {
+    .then(function (options) {
       if (callback) callback(options);
     })
-    .catch(function(error) {
+    .catch(function (error) {
       console.error("** ERROR in proxyPromise function " + fn + " : " + error);
     });
 };

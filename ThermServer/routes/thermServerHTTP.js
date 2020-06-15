@@ -29,7 +29,7 @@ var validateGetRequest = function (httpRequest, httpResponse) {
     httpRequest: httpRequest,
     httpResponse: httpResponse,
     usePromise: false,
-    callback: []
+    callback: [],
   };
   return options;
 };
@@ -138,8 +138,6 @@ exports.addProgramming = function (httpRequest, httpResponse) {
   }
 };
 
-
-
 const service = {
   updateStatus: 1,
   getReleData: 2,
@@ -148,7 +146,7 @@ const service = {
   updateTemperatureReleStatus: 5,
   shellyRegister: 6,
   monitorSensorData: 7,
-  updateConfigurationGUI: 8
+  updateConfigurationGUI: 8,
 };
 
 let proxyPromise = function (fn, httpRequest, httpResponse) {
@@ -266,7 +264,7 @@ exports.getConfiguration = function (httpRequest, httpResponse) {
         if (httpRequest.query.type === "temp")
           type = config.TypeProgramming.TEMP;
         else if (httpRequest.query.type === "light")
-          type = config.TypeProgramming.LIGTH;
+          type = config.TypeProgramming.LIGHT;
       }
       options.action = config.TypeAction.READ;
       options.callback.push(genericHTTPPostService);
@@ -294,7 +292,7 @@ exports.shellyRegisterX = function (httpRequest, httpResponse) {
     action: config.TypeAction.READ,
     callback: [],
     createIfNull: true,
-    lastCallback: genericHTTPPostService
+    lastCallback: genericHTTPPostService,
   };
   options.callback.push(genericHTTPPostService);
   try {
@@ -318,8 +316,7 @@ exports.getProgramming = function (httpRequest, httpResponse) {
     if (typeof httpRequest.query.type != "undefined") {
       let t = httpRequest.query.type;
       if (t === "temp") type = config.TypeProgramming.TEMP;
-      else if (t === "ligth")
-        type = config.TypeProgramming.LIGTH;
+      else if (t === "light") type = config.TypeProgramming.LIGHT;
     }
     options.programmingType = type;
     options.action = config.TypeAction.READ;

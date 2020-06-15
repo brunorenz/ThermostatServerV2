@@ -2,9 +2,9 @@
 var myutils = require("./ThermServer/routes/utils/myutils");
 var config = require("./ThermServer/routes/config");
 
-console.log = (function() {
+console.log = (function () {
   var orig = console.log;
-  return function() {
+  return function () {
     try {
       myutils.log.apply(console, arguments);
     } catch {
@@ -34,7 +34,7 @@ app.set("port", port);
  */
 var connectOptions = {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
 };
 
 function setupJ5() {
@@ -43,21 +43,21 @@ function setupJ5() {
   const board = new five.Board({
     port: new EtherPortClient({
       host: "192.168.0.106",
-      port: 3030
+      port: 3030,
     }),
-    repl: false
+    repl: false,
   });
   board.on("ready", () => {
     var multi = new five.Multi({
-      controller: "BME280"
+      controller: "BME280",
     });
     var lcd = new five.LCD({
       controller: "PCF8574",
       rows: 4,
       cols: 20,
-      backlight: 13
+      backlight: 13,
     });
-    multi.on("data", function() {
+    multi.on("data", function () {
       console.log("Thermometer");
       console.log("  celsius      : ", this.thermometer.celsius);
       console.log("  fahrenheit   : ", this.thermometer.fahrenheit);
@@ -88,10 +88,10 @@ function setupMQTT() {
   var client = mqtt.connect(globaljs.urlMQTT, {
     will: {
       topic: globaljs.MQTopicLastWill,
-      payload: '{ "macAddress" : "server"}'
-    }
+      payload: '{ "macAddress" : "server"}',
+    },
   });
-  client.on("connect", function() {
+  client.on("connect", function () {
     console.log("Connected successfully to MQTT server : " + globaljs.urlMQTT);
     globaljs.mqttCli = client;
     mqManager.subscribeTopic(client, globaljs.MQTopicLastWill);
@@ -164,7 +164,7 @@ function setupInitialTask() {
   let options = {
     action: config.TypeAction.READ,
     createIfNull: true,
-    callback: []
+    callback: [],
   };
   try {
     // check for TEMP Programing record
@@ -175,9 +175,9 @@ function setupInitialTask() {
     console.log(error);
   }
   try {
-    // check for LIGTH Programing record
-    console.log("Check Ligth Programming record ..");
-    options.programmingType = config.TypeProgramming.LIGTH;
+    // check for LIGHT Programing record
+    console.log("Check Light Programming record ..");
+    options.programmingType = config.TypeProgramming.LIGHT;
     thermManager.manageProgramming(options);
   } catch (error) {
     console.log(error);
@@ -188,7 +188,7 @@ function setupInitialTask() {
  * MAIN
  */
 
-var connectFunc = function(err, db) {
+var connectFunc = function (err, db) {
   assert.equal(null, err);
   console.log("Connected successfully to MongoDB server : " + globaljs.urlDB);
   globaljs.mongoCon = db.db(globaljs.DBName);
