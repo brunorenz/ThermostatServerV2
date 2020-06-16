@@ -15,7 +15,7 @@ Gestione Termostato
 	- 
 
 
-- computeLigthReleStatus
+- computeLightReleStatus
 
 
 
@@ -24,7 +24,7 @@ Gestione Termostato
 	request : {"macAddress":"25:B6:2E:32:F4:2C","motion": 0}
 	
 	call
-		readReleMotionLigth (recupera configurazione rele associato a sensore)
+		readReleMotionLight (recupera configurazione rele associato a sensore)
 		readProgramming (recupera prgramamzione attuale di tipo Luce)
 		compute
 

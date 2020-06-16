@@ -471,7 +471,7 @@ exports.getStatistics = function (options, resolveIn, rejectIn) {
  * Reads the configuration of the Light-type Relays assigned to a specific sensor
  * @param {*} options
  */
-let readReleMotionLigth = function (options) {
+let readReleMotionLight = function (options) {
   return new Promise(function (resolve, reject) {
     let query = {
       collection: globaljs.mongoCon.collection(globaljs.MONGO_CONF),
@@ -580,7 +580,7 @@ let computeTemperatureReleStatus = function (options, resolveIn, rejectIn) {
  * @param {*} resolveIn
  * @param {*} rejectIn
  */
-let computeLigthReleStatus = function (options, resolveIn, rejectIn) {
+let computeLightReleStatus = function (options, resolveIn, rejectIn) {
   options.releConf = options.conf;
   options.filterSensor = { macAddress: options.conf.primarySensor };
   //$and: [{ macAddress: options.conf.primarySensor }, { flagReleLight: 1 }]
@@ -644,20 +644,20 @@ let checkThermostatStatus = function (options, resolveIn, rejectIn) {
  * @param {*} rejectIn
  */
 let updateMotionReleStatus = function (options, resolveIn, rejectIn) {
-  let r1 = readReleMotionLigth(options);
+  let r1 = readReleMotionLight(options);
   r1.then(function (options) {
     new Promise(function (resolve, reject) {
       if (options.response.length == 0) resolveIn(oprions);
       else {
         options.conf = options.response[0];
-        computeLigthReleStatus(options, resolve, reject);
+        computeLightReleStatus(options, resolve, reject);
       }
     })
       .then(function (options) {
         console.log("Light : " + JSON.stringify(options.response));
         //TODO per ora gestisco un solo rele
         let l = options.response;
-        if (l.currentLigth < l.minLigthAuto) {
+        if (l.currentLight < l.minLightAuto) {
           console.log("Accendo rele " + options.response.primarySensor);
           let shellyCommand = {
             deviceid: options.conf.shellyMqttId,
@@ -683,7 +683,7 @@ let updateMotionReleStatus = function (options, resolveIn, rejectIn) {
  */
 let updateMotionReleStatus2 = function (options, resolveIn, rejectIn) {
   // find the temperature rele
-  let r1 = readReleMotionLigth(options);
+  let r1 = readReleMotionLight(options);
   r1.then(function (options) {
     let conf = options.response;
     options.releConf = conf;
@@ -772,12 +772,12 @@ let evaluateLight = function (options, resolveIn, rejectIn) {
   console.log("Current program : " + currentProg.name);
   // un solo sensore possibile per la luce
   options.response = {
-    currentLigth: 0,
-    minLigthAuto: currentProg.minLight,
+    currentLight: 0,
+    minLightAuto: currentProg.minLight,
   };
   if (sensor.length > 0) {
     console.log(
-      "Location " + sensor[0].location + " - Luce " + sensor[0].currentLigth
+      "Location " + sensor[0].location + " - Luce " + sensor[0].currentLight
     );
     if (
       typeof options.request != "undefined" &&
@@ -785,13 +785,13 @@ let evaluateLight = function (options, resolveIn, rejectIn) {
       options.request.macAddress === sensor[0].macAddress &&
       typeof options.request.light != "undefined"
     )
-      options.response.currentLigth = options.request.light;
-    else options.response.currentLigth = sensor[0].currentLigth;
+      options.response.currentLight = options.request.light;
+    else options.response.currentLight = sensor[0].currentLight;
     options.response.primarySensor = sensor[0].location;
   }
 
   let autoRecord = recuperaFasciaOraria(currentProg);
-  if (autoRecord != null) options.response.minLigthAuto = autoRecord.minLigth;
+  if (autoRecord != null) options.response.minLightAuto = autoRecord.minLight;
   resolveIn(options);
 };
 
@@ -823,7 +823,7 @@ let evaluateTemperature = function (options, resolveIn, rejectIn) {
           sensor[ix].currentTemperature
       );
       console.log(
-        "Location " + sensor[ix].location + " - Luce " + sensor[ix].currentLigth
+        "Location " + sensor[ix].location + " - Luce " + sensor[ix].currentLight
       );
     }
   }
@@ -949,7 +949,7 @@ let readMonitor = function (options) {
         if (options.conf.flagReleTemp === 1) {
           computeTemperatureReleStatus(options, resolveIn, rejectIn);
         } else if (options.conf.flagReleLight === 1) {
-          computeLigthReleStatus(options, resolveIn, rejectIn);
+          computeLightReleStatus(options, resolveIn, rejectIn);
         } else resolveIn(options);
       })
       .catch(function (error) {

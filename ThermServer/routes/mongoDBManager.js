@@ -6,7 +6,7 @@ var thermManager = require("./thermManager");
  * Update management attribute of configuration
  *
  */
-exports.updateConfiguration = function (options,resolve,reject) {
+exports.updateConfiguration = function (options, resolve, reject) {
   var confcoll = globaljs.mongoCon.collection(globaljs.MONGO_CONF);
   let json = options.request;
   //console.log(json);
@@ -15,29 +15,28 @@ exports.updateConfiguration = function (options,resolve,reject) {
     location: req.location,
     flagReleLight: req.flagReleLight,
     flagReleTemp: req.flagReleTemp,
-    lastUpdate: new Date().getTime()
+    lastUpdate: new Date().getTime(),
   };
   console.log(
     "Aggiorno MAC : " + req.macAddress + " => " + JSON.stringify(updateField)
   );
-  if (req.flagTemperatureSensor ===1 )
-  {
+  if (req.flagTemperatureSensor === 1) {
     updateField.temperatureError = Number(req.temperatureError);
   }
   if (updateField.flagReleTemp === 1) {
     updateField.statusThermostat = parseInt(req.statusThermostat);
     updateField.temperatureMeasure = parseInt(req.temperatureMeasure);
-    updateField.primarySensor = req.primarySensor;    
+    updateField.primarySensor = req.primarySensor;
   }
   if (updateField.flagReleLight === 1) {
     updateField.primarySensor = req.primarySensor;
   }
   confcoll.updateOne(
     {
-      _id: req.macAddress
+      _id: req.macAddress,
     },
     {
-      $set: updateField
+      $set: updateField,
     },
     function (err, r) {
       if (!err) {
@@ -82,10 +81,10 @@ var updateConfigurationFull = function (confColl, options) {
     if (confColl) {
       confColl.updateOne(
         {
-          _id: options.request.macAddress
+          _id: options.request.macAddress,
         },
         {
-          $set: updateField
+          $set: updateField,
         }
       );
     }
@@ -154,10 +153,10 @@ var updateProgrammingInternal = function (options, resolve, reject) {
   options.response.lastUpdate = new Date().getTime();
   progColl.updateOne(
     {
-      _id: options.programmingType
+      _id: options.programmingType,
     },
     {
-      $set: options.response
+      $set: options.response,
     },
     function (err, doc) {
       if (err) {
@@ -227,7 +226,7 @@ var readProgramming = function (options, resolve, reject) {
   var progColl = globaljs.mongoCon.collection(globaljs.MONGO_PROG);
   progColl.findOne(
     {
-      _id: options.programmingType
+      _id: options.programmingType,
     },
     function (err, doc) {
       if (err) {
@@ -239,8 +238,8 @@ var readProgramming = function (options, resolve, reject) {
           // create new configuration
           console.log(
             "Programming info not found for type : " +
-            options.programmingType +
-            " .. add default"
+              options.programmingType +
+              " .. add default"
           );
           var prog = config.getProgrammingRecord(options.programmingType);
           prog._id = options.programmingType;
@@ -304,7 +303,7 @@ exports.updateStatus = function (options, resolve, reject) {
   let json = options.request;
   var req = JSON.parse(json);
   options.updateField = {
-    statusThermostat: parseInt(req.statusThermostat)
+    statusThermostat: parseInt(req.statusThermostat),
   };
   updateConfigurationInternal(options, resolve, reject);
 };
@@ -319,16 +318,16 @@ exports.updateConfigurationInternal = function (options, resolve, reject) {
   var confcoll = globaljs.mongoCon.collection(globaljs.MONGO_CONF);
   console.log(
     "Aggiorno MAC : " +
-    options.macAddress +
-    " => " +
-    JSON.stringify(options.updateField)
+      options.macAddress +
+      " => " +
+      JSON.stringify(options.updateField)
   );
   confcoll.updateOne(
     {
-      _id: options.macAddress
+      _id: options.macAddress,
     },
     {
-      $set: options.updateField
+      $set: options.updateField,
     },
     function (err, r) {
       if (!err) {
@@ -358,8 +357,7 @@ exports.updateConfigurationInternal = function (options, resolve, reject) {
   );
 };
 
-
-let monitorMotionData = function(options, resolve, reject) {
+let monitorMotionData = function (options, resolve, reject) {
   var motionColl = globaljs.mongoCon.collection(globaljs.MONGO_MOTIONSTAT);
   let logRecord = options.request;
   var now = new Date();
@@ -367,9 +365,9 @@ let monitorMotionData = function(options, resolve, reject) {
     motion: logRecord.motion,
     macAddress: logRecord.macAddress,
     time: now.getTime(),
-    date: now
+    date: now,
   };
-  motionColl.insertOne(record, function(err, doc) {
+  motionColl.insertOne(record, function (err, doc) {
     if (err) {
       reject(err);
     } else {
@@ -400,7 +398,7 @@ let monitorSensorDataOLD = function (options, resolve, reject) {
     light: logRecord.light,
     macAddress: logRecord.macAddress,
     time: now.getTime(),
-    date: now
+    date: now,
   };
   confColl.findOne({ _id: record.macAddress }, function (err, doc) {
     if (err) {
@@ -417,15 +415,15 @@ let monitorSensorDataOLD = function (options, resolve, reject) {
         } else {
           let updateField = {
             currentTemperature: record.temperature,
-            currentLigth: record.light,
-            lastCheck: new Date().getTime()
+            currentLight: record.light,
+            lastCheck: new Date().getTime(),
           };
           confColl.updateOne(
             {
-              _id: record.macAddress
+              _id: record.macAddress,
             },
             {
-              $set: updateField
+              $set: updateField,
             }
           );
           options.response = record;
@@ -462,7 +460,9 @@ let monitorData = function (options, resolve, reject) {
           if (typeof doc.temperatureError != "undefined") {
             let t = record.temperature;
             record.temperature += doc.temperatureError;
-            console.log("Correggo temperatura da "+t+" a "+record.temperature);
+            console.log(
+              "Correggo temperatura da " + t + " a " + record.temperature
+            );
           }
         } else {
           record.macAddress = doc.macAddress;
@@ -473,20 +473,20 @@ let monitorData = function (options, resolve, reject) {
             reject(err);
           } else {
             let updateField = {
-              lastCheck: new Date().getTime()
+              lastCheck: new Date().getTime(),
             };
             if (sensor) {
               updateField.currentTemperature = record.temperature;
-              updateField.currentLigth = record.light;
+              updateField.currentLight = record.light;
             } else {
               updateField.currentStatus = record.status;
             }
             confColl.updateOne(
               {
-                _id: record.macAddress
+                _id: record.macAddress,
               },
               {
-                $set: updateField
+                $set: updateField,
               }
             );
             options.response = record;

@@ -17,7 +17,7 @@
     "flagHumiditySensor": 1,
     "flagReleTemp": 0,
     "flagReleLight": 0,
-    "currentLigth": 40.693935,
+    "currentLight": 40.693935,
     "macAddress": "F8:F0:05:F7:DC:49",
     "deviceType": 1,
     "shellyMqttId": null,

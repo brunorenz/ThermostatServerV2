@@ -36,7 +36,7 @@ var configurationRecord = {
   shellyMqttId: "",
   primarySensor: "",
   currentTemperature: 0.0,
-  currentLigth: 0.0,
+  currentLight: 0.0,
   temperatureError: 0.0,
 };
 
@@ -81,7 +81,7 @@ var getProgrammingTempRecord = function (idType) {
   return confRecord;
 };
 
-function getDefaultDayProgrammingLigthRecord(id, name) {
+function getDefaultDayProgrammingLightRecord(id, name) {
   var prog = getProgrammingEntryRecord(id, name);
   prog.minLight = 0.0; //globaljs.MIN_LIGHT_OFF;
   for (var day = 0; day < 7; day++) {
@@ -89,7 +89,7 @@ function getDefaultDayProgrammingLigthRecord(id, name) {
     var morning = {
       timeStart: globaljs.TIME_STARTL,
       timeEnd: globaljs.TIME_ENDL,
-      minLigth: globaljs.MIN_LIGHT_OFF,
+      minLight: globaljs.MIN_LIGHT_OFF,
       priorityDisp: 0,
     };
     dayProg.prog.push(morning);
@@ -137,12 +137,12 @@ function getDefaultProgrammingTempRecord(idType) {
   return conf;
 }
 
-function getDefaultProgrammingLigthRecord(idType) {
+function getDefaultProgrammingLightRecord(idType) {
   var conf = getProgrammingTempRecord(idType);
   conf.idProgType = idType;
   conf.activeProg = 0;
   conf.lastUpdate = Date.now();
-  var prog = getDefaultDayProgrammingLigthRecord(0, "Default Light Program");
+  var prog = getDefaultDayProgrammingLightRecord(0, "Default Light Program");
   conf.programming[0] = prog;
   return conf;
 }
@@ -159,10 +159,10 @@ exports.getProgrammingRecord = function (idType) {
     //   lastUpdate: Date.now(),
     //   programming: []
     // };
-    conf = getDefaultProgrammingLigthRecord(idType);
+    conf = getDefaultProgrammingLightRecord(idType);
   }
   return conf;
 };
 
 exports.getDefaultDayProgrammingTempRecord = getDefaultDayProgrammingTempRecord;
-exports.getDefaultDayProgrammingLigthRecord = getDefaultDayProgrammingLigthRecord;
+exports.getDefaultDayProgrammingLightRecord = getDefaultDayProgrammingLightRecord;

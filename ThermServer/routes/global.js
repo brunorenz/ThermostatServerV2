@@ -1,5 +1,5 @@
 // MongoDB configuration
-var home = true;
+var home = false;
 const security = true;
 const jwt = true;
 const jwtGET = false;
@@ -59,7 +59,7 @@ exports.JWT = {
   securityGET: jwtGET,
   securityPOST: jwtPOST,
   secret: "Piripiccio2020",
-  expire: "1h"
+  expire: "1h",
 };
 
 var basicAuth = "Basic YWRtaW46YWgwNjB2eUEu";
